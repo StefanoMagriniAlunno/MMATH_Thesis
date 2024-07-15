@@ -12,8 +12,7 @@ PYTHON_VENV = ".venv"
 all: compile
 	@echo "Moving libraries..."
 	@for project in $(PROJECTS); do \
-		echo "move projects/$$project/build/$$project.so to ../$(PYTHON_VENV)/lib/python3.10/site-packages/"; \
-		mv projects/$$project/build/$$project.so lib; \
+		mv projects/$$project/build/$$project.so lib/$$project.so; \
 	done
 
 # Target: compile
@@ -40,6 +39,12 @@ build: clean
 
 # Target: clean
 # Pulisce i progetti (elimina le cartelle di build e il contenuto di lib)
-clean:
+clean: projects_base
 	@echo "Cleaning projects..."
 	@rm -rf lib/*
+	@mkdir -p lib
+
+# Target: projects_base
+# Crea la cartella projects per il corretto funzionamento del makefile
+projects_base:
+	@mkdir -p projects

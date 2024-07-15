@@ -23,5 +23,8 @@ rm -rf data
 rm -rf docs/_build
 rm -rf docs/source/_static
 
+# Delete lib in source
+rm -rf source/lib
+
 # Installation
 bash install.sh $python3_executable

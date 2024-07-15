@@ -105,9 +105,8 @@ if ! "$invoke_cmd" download >> "$logfile" 2>&1; then
     echo -e "\e[31mERROR\e[0m Failed to download data"
     exit 1
 fi
-mkdir -p source/lib
-mkdir -p source/projects
-echo "invoke make..."
+# creo la directory lib in source
+echo "invoke build..."
 if ! "$invoke_cmd" build >> "$logfile" 2>&1; then
     echo -e "\e[31mERROR\e[0m Failed to build packages"
     exit 1

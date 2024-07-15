@@ -19,12 +19,11 @@ def directories(c):
 @task
 def build(c):
     """Build packages"""
-    c.run("cd source && make")
+    c.run("make -C source")
     # sposto il contenuto di source/lib in lib/python3.10/site-packages
     c.run(
         "cp "
-        + r"source/lib/"
-        + "* "
+        + r"source/lib/* "
         + os.path.join(os.getenv("VIRTUAL_ENV"), r"lib/python3.10/site-packages")
     )
 
