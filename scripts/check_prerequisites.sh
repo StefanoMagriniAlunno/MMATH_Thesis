@@ -33,7 +33,7 @@ if [ "$python3_version" != "$req_python3_version" ]; then
     echo -e "\e[31mERROR\e[0m Python3 version must be 3.10.12 (read $python3_version)"
     exit 1
 fi
-if ! "$python3_executable" -m pip --version; then
+if ! "$python3_executable" -m pip --version > /dev/null; then
     echo -e "\e[31mERROR\e[0m pip3 is not installed"
     exit 1
 fi
@@ -42,7 +42,7 @@ if [ "$python3_pip_version" != "$req_python3_pip_version" ]; then
     echo -e "\e[31mERROR\e[0m pip3 version must be 24.1.2 (read $python3_pip_version)"
     exit 1
 fi
-if ! "$python3_executable" -m virtualenv --version; then
+if ! "$python3_executable" -m virtualenv --version > /dev/null; then
     echo -e "\e[31mERROR\e[0m virtualenv is not installed"
     exit 1
 fi
@@ -56,7 +56,7 @@ if [ "$python3_dev_version" != "$req_python3_dev_version" ]; then
     echo -e "\e[31mERROR\e[0m python3-dev version must be 3.10.6-1~22.04 (read $python3_dev_version)"
     exit 1
 fi
-if ! "$req_CC" --version; then
+if ! "$req_CC" --version > /dev/null; then
     echo -e "\e[31mERROR\e[0m gcc is not installed"
     exit 1
 fi

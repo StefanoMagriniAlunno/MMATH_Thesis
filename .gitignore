@@ -1,8 +1,10 @@
 ```gitignore
 __pycache__/
-mypy_cache
+.mypy_cache
 .venv
 temp
 data
 docs/_build
 docs/source/_static
+source/projects/*/build
+source/lib
