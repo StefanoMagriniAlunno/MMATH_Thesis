@@ -21,6 +21,7 @@ rm -rf data
 
 # Delete documentation build
 rm -rf docs/_build
+rm -rf docs/source/_static
 
 # Installation
 bash install.sh $python3_executable

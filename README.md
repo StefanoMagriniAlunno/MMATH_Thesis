@@ -3,11 +3,13 @@
 Autori e finalità della repository...
 
 ## Prerequisites
-- Linux Ubuntu/Debian system
+- Linux Ubuntu 22.04
 - Python 3.10.12 with:
-  -  pip 24.1.2
-  -  virtualenv 20.26.3
-- GCC 11.4.0
+  - pip 24.1.2
+  - virtualenv 20.26.3
+  - python3-dev 3.10.6-1~22.04
+- GCC 11.4.0 with:
+  - doxygen 1.9.1
 - CUDA 12.2 with `nvcc` 11.5 (required NVIDIA drivers)
 
 ## Download and Install the repository
@@ -23,11 +25,14 @@ cd MMATH_thesis
 # Use the repository
 
 ## Contents
-Parlare della licenza
+### Documentation
+This repository uses:
+- Sphinx to create documentation for Python scripts.
+- Doxygen to create documentation for C/C++ and Java programs.
 Parlare di docs per i dettagli del codice
 ### installazioni per la repo
 ```bash
-pip3 install invoke pre-commit pytest jupyter sphinx esbonio
+pip3 install invoke pre-commit pytest jupyter sphinx esbonio breathe
 pip3 install flake8 doc8 mypy black autoflake isort shellcheck-py
 pip3 freeze > requirements.txt
 ```

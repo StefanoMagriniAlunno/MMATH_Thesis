@@ -1,7 +1,7 @@
 import os
 import sys
 
-from invoke import task
+from invoke import task  # type: ignore
 
 
 @task
