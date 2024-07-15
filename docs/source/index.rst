@@ -10,11 +10,14 @@ Welcome to MMATH thesis's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
-
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+External Links
+==============
+
+* `Doxygen Documentation </home/stefano/Documents/GitHub/MMath_thesis/docs/source/doxygen/html/index.html>`_

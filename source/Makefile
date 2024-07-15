@@ -12,7 +12,7 @@ PYTHON_VENV = ".venv"
 all: compile
 	@echo "Moving libraries..."
 	@for project in $(PROJECTS); do \
-		mv projects/$$project/build/$$project.so lib/$$project.so; \
+		mv projects/$$project/build/main.so lib/$$project.so; \
 	done
 
 # Target: compile

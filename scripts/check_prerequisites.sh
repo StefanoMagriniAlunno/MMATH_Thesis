@@ -70,6 +70,10 @@ if [ "$CC_doxygen_version" != "$req_CC_doxygen_version" ]; then
     echo -e "\e[31mERROR\e[0m doxygen version must be 1.9.1 (read $CC_doxygen_version)"
     exit 1
 fi
+if ! dot -V; then
+    echo -e "\e[31mERROR\e[0m graphviz is not installed"
+    exit 1
+fi
 if ! [ "$(nvcc --version)" ]; then
     echo -e "\e[31mERROR\e[0m nvcc is not installed"
     exit 1

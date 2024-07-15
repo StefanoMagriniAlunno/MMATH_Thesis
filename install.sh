@@ -85,6 +85,11 @@ if ! "$pre_commit_cmd" install-hooks >> "$logfile" 2>&1; then
     "$python3_cmd" assets/error.py
     exit 1
 fi
+if ! doxygen Doxyfile >> "$logfile" 2>&1; then
+    echo -e "\e[31mERROR\e[0m Failed to generate Doxygen documentation"
+    "$python3_cmd" assets/error.py
+    exit 1
+fi
 echo "sphinx build..."
 mkdir -p docs/_build
 mkdir -p docs/source/_static
