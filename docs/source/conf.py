@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "MMath thesis"
+project = "MMATH thesis"
 copyright = "2024, Stefano Magrini Alunno"
 author = "Stefano Magrini Alunno"
 release = "v0.0.0"
