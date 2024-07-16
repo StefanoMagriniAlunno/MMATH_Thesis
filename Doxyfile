@@ -29,7 +29,9 @@ FILE_PATTERNS          = *.c \
                          *.h \
                          *.md \
                          *.f90
-INPUT                  = "source/projects/example/main.c" "source/projects/example/inc" "source/projects/example/src"
+INPUT                  = source/projects/example/main.c \
+                         source/projects/example/inc \
+                         source/projects/example/src
 RECURSIVE              = YES
 INLINE_SOURCES         = YES
 HTML_COLORSTYLE_HUE    = 360
