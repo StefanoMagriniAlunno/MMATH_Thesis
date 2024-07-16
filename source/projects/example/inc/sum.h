@@ -10,11 +10,4 @@
  */
 #include <stdint.h>
 
-/**
- * @brief sum between two integers (defined in sum.c)
- *
- * @param a (int32_t) : first integer
- * @param b (int32_t) : second integer
- * @return int32_t : sum between a and b
- */
 int32_t sum(int32_t a, int32_t b);

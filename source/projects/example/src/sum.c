@@ -18,6 +18,7 @@
  * @param b (int32_t) : second integer
  * @return int32_t : sum between a and b
  */
-int32_t sum(int32_t a, int32_t b) {
+int32_t sum(int32_t a, int32_t b)
+{
     return a + b;
 }

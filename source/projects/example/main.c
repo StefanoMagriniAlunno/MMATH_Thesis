@@ -19,7 +19,8 @@
  * @param args (PyObject*) : arguments passed to the function
  * @return PyObject* : sum between two int of Python
  */
-static PyObject* example_function(PyObject* self, PyObject* args) {
+static PyObject* example_function(PyObject* self, PyObject* args)
+{
     int32_t a, b;
     if (!PyArg_ParseTuple(args, "ii", &a, &b)) {
         return NULL;
@@ -48,6 +49,7 @@ static struct PyModuleDef example_module = {
  *
  * @return PyMODINIT_FUNC : module
  */
-PyMODINIT_FUNC PyInit_example(void) {
+PyMODINIT_FUNC PyInit_example(void)
+{
     return PyModule_Create(&example_module);
 }
