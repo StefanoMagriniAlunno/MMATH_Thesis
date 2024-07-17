@@ -10,3 +10,4 @@ docs/source/doxygen
 docs/source/_static
 source/projects/*/build
 source/lib
+logs/

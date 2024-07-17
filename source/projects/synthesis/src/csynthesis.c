@@ -11,12 +11,12 @@
 
 #include "synthesis.h"
 
-/**
- * @brief void function
- *
- * @todo Implement this function
- *
- */
-void csynthesis(void)
+int csynthesis(
+    const char* const in_dset_path,
+    const char* const out_dset_path,
+    const char* const file_path,
+    const char* const log_path
+)
 {
+    return 0;
 }

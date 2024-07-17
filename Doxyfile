@@ -25,7 +25,7 @@ WARN_LOGFILE           = "temp/doxygen_warn.log"
 
 FILE_PATTERNS          = *.c \
                          *.cu \
-                         *.c++ \
+                         *.cpp \
                          *.h \
 INPUT                  = source/projects/synthesis/main.c \
                          source/projects/synthesis/inc \

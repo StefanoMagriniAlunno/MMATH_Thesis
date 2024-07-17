@@ -1,5 +1,5 @@
 /**
- * @file main.c
+ * @file main.cpp
  * @author Stefano Magrini Alunno (stefanomagrini99@gmail.com)
  * @brief main source file of the synthesis project. A python script call functions of this file.
  *
@@ -11,40 +11,73 @@
  */
 
 #include <Python.h>
+#include <stdlib.h>
 #include "synthesis.h"
 
 /**
  * @brief This function read input from Python and call sum functions from synthesis.h
  *
  * @param[in] self
- * @param[in] args
+ * @param[in] args :
+ * - (str) complete path of input dataset
+ * - (str) complete path of output dataset
+ * - (str) complete path of file with list of all files
+ * - (str) complete path of log file
  * @return PyObject*
+ *
+ * @note This script recreate all files but synthetised with extension .synth
+ * @note The file contains the relative paths of input files
  */
 static PyObject* wrapper(PyObject* self, PyObject* args)
 {
-    csynthesis();
+    const char *in_dset_path, *out_dset_path, *file_path, *log_path;
+    if (!PyArg_ParseTuple(args, "ssss", &in_dset_path, &out_dset_path, &file_path, &log_path))
+    {
+        PyErr_SetString(PyExc_SyntaxError, "Required 3 strings in input.");
+        return NULL;
+    }
+
+    int ret = csynthesis(in_dset_path, out_dset_path, file_path, log_path);
+
+    if (ret == 1)
+    {
+        PyErr_SetString(PyExc_IOError, "An error occurred when reading a file.");
+        return NULL;
+    }
+    if (ret == 2)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
+    if (ret == 3)
+    {
+        PyErr_SetString(PyExc_IOError, "An error occurred when writing a file.");
+        return NULL;
+    }
+
+    // ritorno NONE
+    Py_RETURN_NONE;
 }
 
 // 'methods' is the list of methods of the module
 static PyMethodDef methods[] = {
-    {"wrapper", wrapper, METH_NOARGS,
-     "Call synthesis function\n\n"
-     "This function reads the list of images, synthesises each image and returns the path of the synthesised images.\n\n"
-     ":emphasis:`params`\n"
-     "  - :attr:`self`: Reference to the module or object calling the method\n"
-     "  - :attr:`args` :type:`List[str]`: List of paths of the images to be synthesised\n"
-     ":emphasis:`return`\n"
-     "  - :type:`str` path of the synthesised images.\n"
-     ":emphasis:`raises`\n"
-     "  - :exc:`TypeError` If the input is not a list of strings\n"
-     "  - :exc:`Warning` If the input is an empty list\n"
-     "  - :exc:`FileNotFoundError` If the input list contains a path that does not exist\n"
-     "  - :exc:`ValueError` If the input list contains a path that is not a valid image\n"
-     "  - :exc:`Exception` If an error occurs during the synthesis\n"
-     ":emphasis:`usage`\n"
-     "  >>> import synthesis\n"
-     "  >>> ret = synthesis.wrapper(['path/to/image1.jpg', 'path/to/image2.jpg'])\n"
-     "  >>> print(ret)\n"
+    {"wrapper", wrapper, METH_VARARGS,
+    "Call synthesis function\n\n"
+    "This function reads the list of images, synthesises each image and returns the path of the synthesised images.\n\n"
+    ":emphasis:`params`\n"
+    "  - :attr:`self`: Reference to the module or object calling the method\n"
+    "  - :attr:`args`: \n"
+    "    - :type:`str`: complete path of input dataset\n"
+    "    - :type:`str`: complete path of output dataset\n"
+    "    - :type:`str`: complete path of file with all relative paths\n"
+    "    - :type:`str`: complete path of log file\n"
+    ":emphasis:`raises`\n"
+    "  - :exc:`SyntaxError`\n"
+    "  - :exc:`IOError`\n"
+    "  - :exc:`MemoryError`\n"
+    ":emphasis:`usage`\n"
+    "  >>> import synthesis\n"
+    "  >>> synthesis.wrapper('/path/to/in/db', '/path/to/out/db', '/path/to/listfile', '/path/to/logfile')\n"
     },
     {NULL, NULL, 0, NULL}  // Sentinel
 };

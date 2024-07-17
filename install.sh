@@ -13,14 +13,14 @@ if [ $# -eq 0 ]; then
 fi
 python3_executable=$1
 # controllo se python3_executable è effettivamente un eseguibile di python3
-if ! [ -x "$(command -v $python3_executable)" ]; then
+if ! [ -x "$(command -v "$python3_executable")" ]; then
     echo -e "\e[31mERROR\e[0m $1 is not an executable"
     exit 1
 fi
 
 # Make log file
 mkdir -p temp
-> "$logfile"
+true > "$logfile"
 
 # System prerequisites
 echo -e "\e[33mChecking prerequisites...\e[0m"
@@ -119,3 +119,6 @@ echo ""
 echo "Please activate the virtual environment with the following command:"
 echo "$ source $venv/bin/activate"
 echo ""
+
+# Last operations...
+mkdir -p logs
