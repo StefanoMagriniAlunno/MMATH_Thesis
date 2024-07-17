@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project(synthesis)
 
 find_package(Python3 REQUIRED COMPONENTS Development)
+find_package(OpenMP REQUIRED)
 
 include_directories(inc)
 
@@ -13,7 +14,7 @@ set(SOURCE_FILES
 
 add_library(synthesis MODULE ${SOURCE_FILES})
 
-target_link_libraries(synthesis PRIVATE Python3::Python)
+target_link_libraries(synthesis PRIVATE Python3::Python OpenMP::OpenMP_C)
 
 set_target_properties(synthesis PROPERTIES OUTPUT_NAME "synthesis")
 set_target_properties(synthesis PROPERTIES PREFIX "")

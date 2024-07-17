@@ -122,3 +122,4 @@ echo ""
 
 # Last operations...
 mkdir -p logs
+mkdir -p tools

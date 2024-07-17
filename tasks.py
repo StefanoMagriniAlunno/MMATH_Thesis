@@ -29,14 +29,14 @@ def build(c):
 def install(c):
     """Install packages for development"""
     list_packages = [
-        "numpy scipy pandas scikit-learn",  # scientific computing
-        "matplotlib seaborn plotly",  # plotting
-        "tqdm colorama",  # utilities
-        "torch torchvision torchaudio",  # gpu computing
+        "pillow ",
+        "numpy scipy pandas scikit-learn ",  # scientific computing
+        "matplotlib seaborn plotly ",  # plotting
+        "tqdm colorama ",  # utilities
+        "torch torchvision torchaudio ",  # gpu computing
     ]
 
-    for package in list_packages:
-        c.run(f"{sys.executable} -m pip install {package}")
+    c.run(f"{sys.executable} -m pip install {''.join(list_packages)}")
 
 
 @task

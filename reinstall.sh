@@ -16,9 +16,6 @@ rm -rf .venv
 # Delete temp
 rm -rf temp
 
-# Delete data
-rm -rf data
-
 # Delete documentation build
 rm -rf docs/_build
 rm -rf docs/source/_static
@@ -27,4 +24,4 @@ rm -rf docs/source/_static
 rm -rf source/lib
 
 # Installation
-bash install.sh $python3_executable
+bash install.sh "$python3_executable"

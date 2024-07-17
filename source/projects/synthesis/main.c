@@ -1,5 +1,5 @@
 /**
- * @file main.cpp
+ * @file main.c
  * @author Stefano Magrini Alunno (stefanomagrini99@gmail.com)
  * @brief main source file of the synthesis project. A python script call functions of this file.
  *
@@ -30,29 +30,41 @@
  */
 static PyObject* wrapper(PyObject* self, PyObject* args)
 {
-    const char *in_dset_path, *out_dset_path, *file_path, *log_path;
-    if (!PyArg_ParseTuple(args, "ssss", &in_dset_path, &out_dset_path, &file_path, &log_path))
+    const char *in_dset_path = NULL, *out_dset_path = NULL, *file_path = NULL, *log_path = NULL;
+    int n_threads = 0;
+    if (!PyArg_ParseTuple(args, "ssssi", &in_dset_path, &out_dset_path, &file_path, &log_path, &n_threads))
     {
-        PyErr_SetString(PyExc_SyntaxError, "Required 3 strings in input.");
+        PyErr_SetString(PyExc_SyntaxError, "Required 3 strings in input and an integer.");
+        return NULL;
+    }
+    if (! (n_threads > 0))
+    {
+        PyErr_Format(PyExc_ValueError, "Number of threads is not valid. Passed %d", n_threads);
         return NULL;
     }
 
-    int ret = csynthesis(in_dset_path, out_dset_path, file_path, log_path);
+    int ret = csynthesis(in_dset_path, out_dset_path, file_path, log_path, n_threads);
 
-    if (ret == 1)
+    switch(ret)
     {
-        PyErr_SetString(PyExc_IOError, "An error occurred when reading a file.");
-        return NULL;
-    }
-    if (ret == 2)
-    {
-        PyErr_NoMemory();
-        return NULL;
-    }
-    if (ret == 3)
-    {
-        PyErr_SetString(PyExc_IOError, "An error occurred when writing a file.");
-        return NULL;
+        case LOG_FOPEN_MISSED:
+            PyErr_SetString(PyExc_IOError, "Log file opening error");
+            return NULL;
+        case FOPEN_MISSED:
+            PyErr_SetString(PyExc_IOError, "file opening error, see log file for more details...");
+            return NULL;
+        case FWRITE_MISSED:
+            PyErr_SetString(PyExc_IOError, "file writing error, see log file for more details...");
+            return NULL;
+        case FREAD_MISSED:
+            PyErr_SetString(PyExc_IOError, "file reading error, see log file for more details...");
+            return NULL;
+        case MEMORY_ERROR:
+            PyErr_SetString(PyExc_MemoryError, "malloc or calloc failed the allocation...");
+            return NULL;
+        case SUPER_ERROR:
+            PyErr_SetString(PyExc_Exception, "An error occurred and failed the report in log file.");
+            return NULL;
     }
 
     // ritorno NONE
@@ -73,6 +85,7 @@ static PyMethodDef methods[] = {
     "    - :type:`str`: complete path of log file\n"
     ":emphasis:`raises`\n"
     "  - :exc:`SyntaxError`\n"
+    "  - :exc:`ValueError`\n"
     "  - :exc:`IOError`\n"
     "  - :exc:`MemoryError`\n"
     ":emphasis:`usage`\n"
