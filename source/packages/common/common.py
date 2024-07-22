@@ -37,7 +37,7 @@ def main(log_path: str) -> Logger:
     logging.basicConfig(
         filename=os.path.join(os.getcwd(), log_path),
         filemode="w",
-        format="%(asctime)-16s | %(processName)-16s %(threadName)-16s | %(levelname)-8s | %(pathname)s %(lineno)d : %(message)s",
+        format="%(asctime)-16s | %(processName)-16s %(threadName)-32s | %(levelname)-8s | '%(funcName)s' in %(pathname)s at line %(lineno)d : %(message)s",
         datefmt="%Y%m%d_%H%M%S",
         level=logging.DEBUG,
     )

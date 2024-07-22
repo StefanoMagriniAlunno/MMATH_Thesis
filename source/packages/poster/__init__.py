@@ -1,3 +1,3 @@
-from .poster import Poster
+from .poster import poster
 
-__all__ = ["Poster"]
+__all__ = ["poster"]
