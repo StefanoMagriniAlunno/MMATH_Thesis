@@ -18,7 +18,27 @@
 #define MESSAGE_MAXLEN 256
 
 /**
- * @brief This support function performs a single synthesis.
+ * @brief This function performs the synthesis of a single image.
+ *
+ * @param[in] data: array of double
+ * @param[in] byte_board: array of unsigned char
+ * @param[in] width: width of image
+ * @param[in] height: height of image
+ * @return int
+ */
+int _synthetizer(
+    double * const data,
+    const unsigned char * const byte_board,
+    const long int width,
+    const long int height)
+{
+
+
+    return SUCCESS;
+}
+
+/**
+ * @brief This support function read an image and call the synthetizer.
  *
  * @param[in] in_path : complete path of the image
  * @param[in] out_path : complete path of the output
@@ -26,7 +46,7 @@
  * @return int: status code
  *
  */
-int _csynthesis(
+int _reader(
     const char* const in_path,
     const char* const out_path,
     char log_message[MESSAGE_MAXLEN])
@@ -57,7 +77,7 @@ int _csynthesis(
         sprintf(log_message, "%s : %d details: %ld", __FILE__, __LINE__, (long)((size_t)size*sizeof(unsigned char)));
         return MEMORY_ERROR;
     }
-    if ((int64_t)fread(byte_board, sizeof(unsigned char), (size_t)size, in_file) != size)
+    if ((int64_t)fread(byte_board, sizeof(unsigned char), (size_t)size, in_file) != sizeof(unsigned char) * (size_t)size)
     {
         fclose(in_file);
         free(byte_board);
@@ -74,9 +94,9 @@ int _csynthesis(
         return MEMORY_ERROR;
     }
 
-    ///@todo operate the synthesis
+    int ret = _synthetizer(data, byte_board, width, height);
 
-    FILE* out_file = fopen(out_path, "w");
+    FILE* out_file = fopen(out_path, "bw");
     if (out_file == NULL)
     {
         free(byte_board);
@@ -84,15 +104,15 @@ int _csynthesis(
         sprintf(log_message, "%s : %d details: %s", __FILE__, __LINE__, out_path);
         return FOPEN_MISSED;
     }
-    fprintf(out_file, "P5\n%ld %ld\n255\n", width, height);
-    if ((int64_t)fwrite(byte_board, sizeof(unsigned char), (size_t)size, out_file) != size)
+    if (fwrite(data, sizeof(double), (size_t)size, out_file) != sizeof(double) * (size_t)size)
     {
         fclose(out_file);
         free(byte_board);
         free(data);
-        sprintf(log_message, "%s : %d details: %ld", __FILE__, __LINE__, (long)(sizeof(unsigned char)*(size_t)size));
+        sprintf(log_message, "%s : %d details: %ld", __FILE__, __LINE__, (long)(sizeof(double) * (size_t)size));
         return FWRITE_MISSED;
     }
+
     fclose(out_file);
     free(byte_board);
     free(data);
@@ -151,7 +171,7 @@ int csynthesis(
             strcpy(out_path, out_db_path);
             strcat(out_path, "/");
             strcat(out_path, path);
-            int ret = _csynthesis(in_path, out_path, log_message);
+            int ret = _reader(in_path, out_path, log_message);
             #pragma omp critical
             {
                 if (ret != SUCCESS)

@@ -13,6 +13,27 @@ def synth(
     log_file_path: str,
     n_threads: int,
 ):
+    """This function synthesizes all images in a directory.
+
+    :emphasis:`params`
+        - :attr:`logger` (:type:`Logger`): logger object
+        - :attr:`in_db_path` (:type:`str`): input database path
+        - :attr:`out_db_path` (:type:`str`): output database path
+        - :attr:`list_file_path` (:type:`str`): path to the list of all files in the input database
+        - :attr:`log_file_path` (:type:`str`): path to the log file of synthesis function
+        - :attr:`n_threads` (:type:`int`): number of threads
+
+    :emphasis:`raises`
+        - :exc:`SyntaxError`: SyntaxError detected in synthesis.wrapper
+        - :exc:`ValueError`: input database does not exist
+        - :exc:`ValueError`: output database does not exist
+        - :exc:`ValueError`: directory of list file does not exist
+        - :exc:`ValueError`: directory of log file does not exist
+        - :exc:`Exception`: ValueError detected in synthesis.wrapper
+        - :exc:`Exception`: IOError detected in synthesis.wrapper
+        - :exc:`Exception`: MemoryError detected in synthesis.wrapper
+        - :exc:`Exception`: Unexpected error
+    """
     in_db_completepath = os.path.join(os.getcwd(), in_db_path)
     out_db_completepath = os.path.join(os.getcwd(), out_db_path)
     list_file_completepath = os.path.join(os.getcwd(), list_file_path)
@@ -59,9 +80,9 @@ def synth(
             log_file_completepath,
             n_threads,
         )
-    except SyntaxError as e:
+    except SyntaxError:
         logger.critical("SyntaxError detected in synthesis.wrapper")
-        raise e
+        raise
     except ValueError as e:
         raise Exception("ValueError detected in synthesis.wrapper") from e
     except IOError as e:
@@ -69,4 +90,5 @@ def synth(
     except MemoryError as e:
         raise Exception("MemoryError detected in synthesis.wrapper") from e
     except Exception:
+        logger.error("Unexpected error")
         raise
