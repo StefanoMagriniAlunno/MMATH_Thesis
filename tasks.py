@@ -20,9 +20,10 @@ def directories(c):
 def build(c):
     """Build packages"""
 
+    c.run(r"mkdir -p source/.cache")
     c.run("make -C source")
-    # sposto il contenuto di source/lib in lib/python3.10/site-packages
-    c.run(r"cp source/lib/* .venv/lib/python3.10/site-packages")
+    # sposto il contenuto di source/.cache in lib/python3.10/site-packages
+    c.run(r"cp source/.cache/* .venv/lib/python3.10/site-packages")
 
 
 @task

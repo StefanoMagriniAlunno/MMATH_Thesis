@@ -8,6 +8,7 @@ Autori e finalità della repository...
   - `pip` 24.1.2
   - `virtualenv` 20.26.3
   - `python3-dev` 3.10.6-1~22.04
+  - `python3-dbg` 3.10.12
 - `GCC` 11.4.0 with:
   - `doxygen` 1.9.1
   - `graphviz`

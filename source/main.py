@@ -1,7 +1,7 @@
 import os
 
 import torch
-from packages import cleaner, common, poster
+from packages import cleaner, common, synthesis
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     db_path_test = "data/db/Stefano"
 
     # pulisco le immagini con fft
-    db_path_out_fft = "data/db/Stefano_fft"
+    db_path_out_fft = "data/out/fft"
     if not os.path.exists(db_path_out_fft):
         os.mkdir(db_path_out_fft)
 
@@ -19,22 +19,33 @@ if __name__ == "__main__":
             logger, db_path_test, db_path_out_fft, False, 0.001, device
         )  # remove best 0.1%
     except ValueError:
-        logger.error("Input non validi")
+        logger.error("Unvalid inputs")
         raise
     except Exception:
         logger.error("Unexpected error")
         raise
 
-    # procedo con la posterizzazione
-    db_path_out_posterized = "data/db/Stefano_posterized"
-    if not os.path.exists(db_path_out_posterized):
-        os.mkdir(db_path_out_posterized)
+    # eseguo la sintesi delle immagini
+    db_path_out_synth = "data/out/synth"
+    if not os.path.exists(db_path_out_synth):
+        os.mkdir(db_path_out_synth)
 
     try:
-        poster.poster(logger, db_path_out_fft, db_path_out_posterized, 32, 8)
+        synthesis.synth(
+            logger,
+            db_path_out_fft,
+            db_path_out_synth,
+            "temp/synth.log",
+            "logs/synthesis.log",
+            6,
+            8,
+        )
+    except SyntaxError:
+        logger.critical("Implementation error!")
+        raise
     except ValueError:
-        logger.error("Input non validi")
+        logger.error("Unvalid inputs")
         raise
     except Exception:
-        logger.error("Unexpected error")
+        logger.error("Unexcpected error")
         raise

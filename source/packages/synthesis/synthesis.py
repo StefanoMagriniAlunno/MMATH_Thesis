@@ -2,21 +2,22 @@ import os
 from logging import Logger
 from typing import List
 
-import synthesis
+import libsynthesis
 
 
 def synth(
-    logger: Logger,
+    logger: Logger | None,
     in_db_path: str,
     out_db_path: str,
     list_file_path: str,
     log_file_path: str,
+    n_tailes: int,
     n_threads: int,
 ):
     """This function synthesizes all images in a directory.
 
     :emphasis:`params`
-        - :attr:`logger` (:type:`Logger`): logger object
+        - :attr:`logger` (:type:`Logger` | :type:`None`): logger object
         - :attr:`in_db_path` (:type:`str`): input database path
         - :attr:`out_db_path` (:type:`str`): output database path
         - :attr:`list_file_path` (:type:`str`): path to the list of all files in the input database
@@ -57,7 +58,7 @@ def synth(
         pass
 
     # ricreo l'albero delle directory di in_db_completepath in out_db_completepath
-    for dirname, _, _ in os.walk(in_db_completepath):
+    for dirname, _, filenames in os.walk(in_db_completepath):
         relative_path = os.path.relpath(dirname, in_db_completepath)
         if not os.path.exists(os.path.join(out_db_completepath, relative_path)):
             os.mkdir(os.path.join(out_db_completepath, relative_path))
@@ -73,15 +74,19 @@ def synth(
             f.write(file_path + "\n")
 
     try:
-        synthesis.wrapper(
+        libsynthesis.wrapper(
             in_db_completepath,
             out_db_completepath,
             list_file_completepath,
             log_file_completepath,
+            n_tailes,
             n_threads,
         )
     except SyntaxError:
-        logger.critical("SyntaxError detected in synthesis.wrapper")
+        if logger:
+            logger.critical("SyntaxError detected in synthesis.wrapper")
+        else:
+            print("SyntaxError detected in synthesis.wrapper")
         raise
     except ValueError as e:
         raise Exception("ValueError detected in synthesis.wrapper") from e
@@ -90,5 +95,8 @@ def synth(
     except MemoryError as e:
         raise Exception("MemoryError detected in synthesis.wrapper") from e
     except Exception:
-        logger.error("Unexpected error")
+        if logger:
+            logger.error("Unexpected error")
+        else:
+            print("Unexpected error")
         raise

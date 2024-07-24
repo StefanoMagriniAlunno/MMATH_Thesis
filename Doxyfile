@@ -27,10 +27,10 @@ FILE_PATTERNS          = *.c \
                          *.cu \
                          *.cpp \
                          *.h \
-INPUT                  = source/projects/synthesis/main.c \
-                         source/projects/synthesis/inc \
-                         source/projects/synthesis/src
-EXCLUDE                = source/projects/synthesis/build
+INPUT                  = source/lib/synthesis/main.c \
+                         source/lib/synthesis/inc \
+                         source/lib/synthesis/src
+EXCLUDE                = source/lib/synthesis/build
 RECURSIVE              = YES
 INLINE_SOURCES         = YES
 HTML_COLORSTYLE_HUE    = 0
@@ -50,4 +50,4 @@ CALL_GRAPH             = YES
 CALLER_GRAPH           = YES
 UML_LOOK               = YES
 GENERATE_TREEVIEW      = YES
-STRIP_FROM_PATH        = source/projects
+STRIP_FROM_PATH        = source/lib

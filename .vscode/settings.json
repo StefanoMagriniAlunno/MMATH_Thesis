@@ -1,8 +1,13 @@
 {
   "cmake.options.statusBarVisibility": "hidden",
   "files.associations": {
+    "array": "c",
+    "iterator": "c",
     "limits.h": "c",
-    "synthesis.h": "c"
+    "string": "c",
+    "string_view": "c",
+    "synthesis.h": "c",
+    "vector": "c"
   },
   "python.pythonPath": "${workspaceFolder}/.venv/bin/python"
 }
