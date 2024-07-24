@@ -10,21 +10,21 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 def test_synth():
     from synthesis import synth
 
-    # cambio il formato da P2 a P5 dei file in in_data creando la cartella in_databin
+    # cambio il formato da P2 a P5 dei file in in creando la cartella in_out/bin
     os.makedirs(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "in_databin"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "bin"),
         exist_ok=True,
     )
     image = Image.open(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            os.path.join("in_data", "file.pgm"),
+            os.path.join("in", "file.pgm"),
         )
     ).convert("L")
     image.save(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            os.path.join("in_databin", "file.pgm"),
+            os.path.join("out", "bin", "file.pgm"),
         ),
         format="PPM",
     )
@@ -33,17 +33,17 @@ def test_synth():
         os.makedirs(
             os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
-                os.path.join("out_data", str(n_tails)),
+                os.path.join("out", "computed", str(n_tails)),
             ),
             exist_ok=True,
         )
         try:
             synth(
                 None,
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "in_databin"),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "bin"),
                 os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
-                    os.path.join("out_data", str(n_tails)),
+                    os.path.join("out", "computed", str(n_tails)),
                 ),
                 "temp/list_file.txt",
                 "temp/log_file.log",
@@ -66,7 +66,7 @@ def test_synth():
         with open(
             os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
-                os.path.join("expected_data", str(n_tails)),
+                os.path.join("expected", str(n_tails)),
                 "file.pgm",
             ),
             "r",
@@ -78,7 +78,7 @@ def test_synth():
         with open(
             os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
-                os.path.join("out_data", str(n_tails)),
+                os.path.join("out", "computed", str(n_tails)),
                 "file.pgm",
             ),
             "br",

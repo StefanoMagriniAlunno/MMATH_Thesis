@@ -11,8 +11,7 @@ if __name__ == "__main__":
 
     # pulisco le immagini con fft
     db_path_out_fft = "data/out/fft"
-    if not os.path.exists(db_path_out_fft):
-        os.mkdir(db_path_out_fft)
+    os.makedirs(db_path_out_fft, exist_ok=True)
 
     try:
         cleaner.fft(
@@ -27,8 +26,7 @@ if __name__ == "__main__":
 
     # eseguo la sintesi delle immagini
     db_path_out_synth = "data/out/synth"
-    if not os.path.exists(db_path_out_synth):
-        os.mkdir(db_path_out_synth)
+    os.makedirs(db_path_out_synth, exist_ok=True)
 
     try:
         synthesis.synth(

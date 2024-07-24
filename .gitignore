@@ -1,12 +1,9 @@
 ```gitignore
 __pycache__/
-**/.mypy_cache
-**/.venv
-**/.cache
+**/.*
+**/_*
 **/temp
 **/out
-**/_build
-**/_static
 **/build
 **/doxygen
 **/logs
