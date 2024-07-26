@@ -1,3 +1,3 @@
-from .synthesis import synth
+from .synthesis import synthetizer
 
-__all__ = ["synth"]
+__all__ = ["synthetizer"]

@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 
 def test_synth():
-    from synthesis import synth
+    from synthesis import synthetizer
 
     # cambio il formato da P2 a P5 dei file in in creando la cartella in_out/bin
     os.makedirs(
@@ -38,7 +38,7 @@ def test_synth():
             exist_ok=True,
         )
         try:
-            synth(
+            synthetizer(
                 None,
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "bin"),
                 os.path.join(

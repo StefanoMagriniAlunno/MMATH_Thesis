@@ -7,13 +7,13 @@ from invoke import task  # type: ignore
 @task
 def directories(c):
     """Create directories"""
-    data_dir = os.path.join(os.getcwd(), "data")
+    os.path.join(os.getcwd(), "data")
     # os.makedirs(os.path.join(data_dir, 'images'), exist_ok=True)
     # os.makedirs(os.path.join(data_dir, 'audios'), exist_ok=True)
     # os.makedirs(os.path.join(data_dir, 'videos'), exist_ok=True)
     # os.makedirs(os.path.join(data_dir, 'models'), exist_ok=True)
     # os.makedirs(os.path.join(data_dir, 'repo'), exist_ok=True)
-    os.makedirs(os.path.join(data_dir, "db"), exist_ok=True)
+    # os.makedirs(os.path.join(data_dir, "db"), exist_ok=True)
 
 
 @task

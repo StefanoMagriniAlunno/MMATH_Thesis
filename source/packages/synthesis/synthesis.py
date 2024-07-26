@@ -5,7 +5,7 @@ from typing import List
 import libsynthesis
 
 
-def synth(
+def synthetizer(
     logger: Logger | None,
     in_db_path: str,
     out_db_path: str,

@@ -31,22 +31,21 @@ void _synthetizer(
     const unsigned char * const byte_board,
     const unsigned width,
     const unsigned height,
-    const unsigned n_tails)
+    const unsigned n_tails,
+    const unsigned n_threads)
 {
     unsigned width_short = width - n_tails + 1, height_short = height - n_tails + 1;
 
-    for (unsigned row = 0; row < height; ++row) for (unsigned col = 0; col < width; ++col)  // fisso il pixel che voglio inserire
-    {
-        long unsigned index_in = row*width + col;
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads)
+    #endif  /* _OPENMP */
+    for (unsigned row = 0; row < height_short; ++row) for (unsigned col = 0; col < width_short; ++col)  // fisso il pixel che voglio inserire
         for (unsigned i = 0; i < n_tails; ++i) for (unsigned j = 0; j < n_tails; ++j)  // identifico dove inserirlo
         {
-            if (row >= i && col >= j && row - i < height_short && col - j < width_short)
-            {
-                long unsigned index_out = (((row-i)*width_short + (col-j))*n_tails + i)*n_tails + j;  // [row-i, col-j, i,j]
-                cells[index_out] = byte_board[index_in];
-            }
+            long unsigned index_out = ((row*width_short + col)*n_tails + i)*n_tails + j;  // [row-i, col-j, i,j]
+            long unsigned index_in = (row+i)*width + col+j;
+            cells[index_out] = byte_board[index_in];
         }
-    }
 }
 
 /**
@@ -56,6 +55,7 @@ void _synthetizer(
  * @param[in] out_path : complete path of the output
  * @param[out] log_message : message for log when there is an error
  * @param[in] n_tails : size of tails
+ * @param[in] n_threads : num of threads
  * @return int: status code
  *
  */
@@ -63,7 +63,8 @@ int _reader(
     const char* const in_path,
     const char* const out_path,
     char log_message[MESSAGE_MAXLEN],
-    unsigned n_tails)
+    const unsigned n_tails,
+    const unsigned n_threads)
 {
     unsigned width = 0;
     unsigned height = 0;
@@ -114,7 +115,7 @@ int _reader(
         return MEMORY_ERROR;
     }
 
-    _synthetizer(cells, byte_board, width, height, n_tails);
+    _synthetizer(cells, byte_board, width, height, n_tails, n_threads);
 
     FILE* out_file = fopen(out_path, "wb");
     if (out_file == NULL)
@@ -151,8 +152,8 @@ int csynthesis(
     const char * const out_db_path,
     const char * const list_file_path,
     const char * const log_file_path,
-    unsigned n_tails,
-    unsigned n_threads)
+    const unsigned n_tails,
+    const unsigned n_threads)
 {
     /**
      * @note in_db_path and out_db_path exist
@@ -168,19 +169,12 @@ int csynthesis(
         return FOPEN_MISSED;
     }
 
-    /**
-     * @brief Generate a group of threads to:
-     * - read the file list_file_path
-     * - make the synthesis
-     * - report the result in log_file_path
-     */
     int error_detected = SUCCESS;
-    #pragma omp parallel num_threads(n_threads) shared(error_detected)
     {
         char path[PATH_MAX];
         while (fgets(path, sizeof(path), list_file) != NULL && error_detected == SUCCESS)
         {
-            path[strlen(path)-1] = '\0';  // l'ultimo carattere era "\n"
+            path[strlen(path)-1] = '\0';  // last char is '\n'
             char log_message[MESSAGE_MAXLEN];
             char in_path[PATH_MAX];
             char out_path[PATH_MAX];
@@ -190,46 +184,43 @@ int csynthesis(
             strcpy(out_path, out_db_path);
             strcat(out_path, "/");
             strcat(out_path, path);
-            int ret = _reader(in_path, out_path, log_message, n_tails);
-            #pragma omp critical
+            int ret = _reader(in_path, out_path, log_message, n_tails, n_threads);
+            if (ret != SUCCESS)
             {
-                if (ret != SUCCESS)
+                FILE* log_file = fopen(log_file_path, "a");
+                if (log_file == NULL)
                 {
-                    FILE* log_file = fopen(log_file_path, "a");
-                    if (log_file == NULL)
+                    error_detected = SUPER_ERROR;
+                }
+                else
+                {
+                    int chars_written = fprintf(log_file, "%d in %s\n", ret, log_message);
+                    if (chars_written < 0)
                     {
                         error_detected = SUPER_ERROR;
                     }
                     else
                     {
-                        int chars_written = fprintf(log_file, "%d in %s\n", ret, log_message);
-                        if (chars_written < 0)
-                        {
-                            error_detected = SUPER_ERROR;
-                        }
-                        else
-                        {
-                            error_detected = ret;
-                        }
-                        fclose(log_file);
+                        error_detected = ret;
                     }
+                    fclose(log_file);
+                }
+            }
+            else
+            {
+                FILE* log_file = fopen(log_file_path, "a");
+                if (log_file == NULL)
+                {
+                    error_detected = LOG_FOPEN_MISSED;
                 }
                 else
                 {
-                    FILE* log_file = fopen(log_file_path, "a");
-                    if (log_file == NULL)
+                    int chars_written = fprintf(log_file, "%s processed\n", path);
+                    if (chars_written < 0)
                     {
-                        error_detected = LOG_FOPEN_MISSED;
+                        error_detected = LOG_FWRITE_MISSED;
                     }
-                    else
-                    {
-                        int chars_written = fprintf(log_file, "%d %s\n", omp_get_thread_num(), path);
-                        if (chars_written < 0)
-                        {
-                            error_detected = LOG_FWRITE_MISSED;
-                        }
-                        fclose(log_file);
-                    }
+                    fclose(log_file);
                 }
             }
         }

@@ -1,3 +1,3 @@
-from .cleaner import fft, squeeze
+from .cleaner import contrast, fft
 
-__all__ = ["fft", "squeeze"]
+__all__ = ["fft", "contrast"]

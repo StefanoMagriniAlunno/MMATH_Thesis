@@ -10,12 +10,12 @@ if __name__ == "__main__":
     db_path_test = "data/db/Stefano"
 
     # pulisco le immagini con fft
-    db_path_out_fft = "data/out/fft"
-    os.makedirs(db_path_out_fft, exist_ok=True)
+    db_path_out_preprocessed = "data/out/preprocessed"
+    os.makedirs(db_path_out_preprocessed, exist_ok=True)
 
     try:
         cleaner.fft(
-            logger, db_path_test, db_path_out_fft, False, 0.001, device
+            logger, db_path_test, db_path_out_preprocessed, False, 0.001, device
         )  # remove best 0.1%
     except ValueError:
         logger.error("Unvalid inputs")
@@ -24,15 +24,23 @@ if __name__ == "__main__":
         logger.error("Unexpected error")
         raise
 
+    # aumento il contrasto
+
+    """
+    cleaner.contrast(
+        logger, db_path_out_preprocessed, 0.1, 1.0, 2.0, device
+    )
+    """
+
     # eseguo la sintesi delle immagini
-    db_path_out_synth = "data/out/synth"
-    os.makedirs(db_path_out_synth, exist_ok=True)
+    db_path_out_synthetized = "data/out/synthetized"
+    os.makedirs(db_path_out_synthetized, exist_ok=True)
 
     try:
-        synthesis.synth(
+        synthesis.synthetizer(
             logger,
-            db_path_out_fft,
-            db_path_out_synth,
+            db_path_out_preprocessed,
+            db_path_out_synthetized,
             "temp/synth.log",
             "logs/synthesis.log",
             6,
