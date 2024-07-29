@@ -75,8 +75,11 @@ def fft(
         image_tensor = torch.tensor(image_matrix, dtype=torch.float32, device=device)
         image_tensor = 1 - image_tensor
 
+        # analizzo le frequenze
+        image_tensor_mean = torch.mean(image_tensor)
+        image_tensor = image_tensor
         fft_image = torch.fft.fft2(image_tensor, norm="ortho")
-        fft_image_amplitude = torch.abs(fft_image.real) + torch.abs(fft_image.imag)
+        fft_image_amplitude = torch.abs(fft_image)
 
         fft_image_amplitude_flatten = fft_image_amplitude.flatten()
         _, indices = torch.sort(fft_image_amplitude_flatten, descending=True)
@@ -91,10 +94,9 @@ def fft(
         fft_image = fft_image * mask
 
         image_tensor = torch.fft.ifft2(fft_image, norm="ortho").real
+        image_tensor += image_tensor_mean
 
         # normalize
-        image_tensor = image_tensor * (image_tensor >= 0)
-        image_tensor = 1 - (1 - image_tensor) * (image_tensor < 1)
         image_tensor = (image_tensor - torch.min(image_tensor)) / (
             torch.max(image_tensor) - torch.min(image_tensor)
         )

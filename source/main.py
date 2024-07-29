@@ -7,7 +7,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger = common.main(r"logs/dev.log")
 
-    db_path_test = "data/db/Stefano"
+    db_path_test = "data/out/pgm"
 
     # pulisco le immagini con fft
     db_path_out_preprocessed = "data/out/preprocessed"
@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     try:
         cleaner.fft(
-            logger, db_path_test, db_path_out_preprocessed, False, 0.001, device
+            logger, db_path_test, db_path_out_preprocessed, False, 0.01, device
         )  # remove best 0.1%
     except ValueError:
         logger.error("Unvalid inputs")
@@ -25,7 +25,6 @@ if __name__ == "__main__":
         raise
 
     # aumento il contrasto
-
     """
     cleaner.contrast(
         logger, db_path_out_preprocessed, 0.1, 1.0, 2.0, device
