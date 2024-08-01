@@ -10,7 +10,7 @@ python3_cmd="$(pwd)/.venv/bin/python3"
 
 # Install base packages
 "$python3_cmd" -m pip install --upgrade pip=="$venv_pip_version"
-"$python3_cmd" -m pip install invoke pre-commit pytest jupyter sphinx esbonio sphinx_rtd_theme
+"$python3_cmd" -m pip install invoke pre-commit pytest jupyter sphinx sphinxcontrib-plantuml esbonio sphinx_rtd_theme
 "$python3_cmd" -m pip install flake8 doc8 mypy black autoflake isort shellcheck-py
 "$python3_cmd" -m pip freeze > requirements.txt
 

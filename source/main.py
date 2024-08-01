@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import torch
 from packages import cleaner, common, synthesis
@@ -7,15 +8,15 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger = common.main(r"logs/dev.log")
 
-    db_path_test = "data/out/pgm"
+    db_path = "data/db/cutted_set"
 
     # pulisco le immagini con fft
-    db_path_out_preprocessed = "data/out/preprocessed"
-    os.makedirs(db_path_out_preprocessed, exist_ok=True)
+    db_preprocessed_path = "data/out/preprocessed"
+    os.makedirs(db_preprocessed_path, exist_ok=True)
 
     try:
         cleaner.fft(
-            logger, db_path_test, db_path_out_preprocessed, False, 0.01, device
+            logger, db_path, db_preprocessed_path, False, 0.001, device
         )  # remove best 0.1%
     except ValueError:
         logger.error("Unvalid inputs")
@@ -23,34 +24,40 @@ if __name__ == "__main__":
     except Exception:
         logger.error("Unexpected error")
         raise
-
-    # aumento il contrasto
-    """
-    cleaner.contrast(
-        logger, db_path_out_preprocessed, 0.1, 1.0, 2.0, device
-    )
-    """
+    logger.info("Cleaning completed!")
 
     # eseguo la sintesi delle immagini
-    db_path_out_synthetized = "data/out/synthetized"
-    os.makedirs(db_path_out_synthetized, exist_ok=True)
-
-    try:
-        synthesis.synthetizer(
-            logger,
-            db_path_out_preprocessed,
-            db_path_out_synthetized,
-            "temp/synth.log",
-            "logs/synthesis.log",
-            6,
-            8,
+    synthetized_path = "data/out/synthetized"
+    os.makedirs(synthetized_path, exist_ok=True)
+    for folder in os.listdir(db_preprocessed_path):
+        author_path_input = os.path.join(db_preprocessed_path, folder)
+        author_path_output = os.path.join(synthetized_path, folder)
+        os.makedirs(author_path_output, exist_ok=True)
+        logger.info(f"Processing {author_path_input}...")
+        try:
+            synthesis.synthetizer(
+                logger,
+                author_path_input,
+                author_path_output,
+                "temp/synth.log",
+                "logs/synthesis.log",
+                6,
+                8,
+            )
+        except SyntaxError:
+            logger.critical("Implementation error!")
+            raise
+        except ValueError:
+            logger.error("Unvalid inputs")
+            raise
+        except Exception:
+            logger.error("Unexcpected error")
+            raise
+        # comprimo la cartella author_path_output
+        logger.info(f"Compressing {author_path_output}...")
+        shutil.make_archive(
+            author_path_output, "zip", author_path_output, logger=logger
         )
-    except SyntaxError:
-        logger.critical("Implementation error!")
-        raise
-    except ValueError:
-        logger.error("Unvalid inputs")
-        raise
-    except Exception:
-        logger.error("Unexcpected error")
-        raise
+        # elimino la vecchia directory
+        shutil.rmtree(author_path_output)
+    logger.info("Synthesis completed!")

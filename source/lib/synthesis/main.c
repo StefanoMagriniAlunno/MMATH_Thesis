@@ -14,7 +14,7 @@
 #include "synthesis.h"
 
 /**
- * @brief This function read input from Python and call sum functions from synthesis.h
+ * @brief This function read input from Python and call csynthesis function from synthesis.h
  *
  * @param[in] self
  * @param[in] args :
@@ -24,14 +24,10 @@
  * - (str) complete path of log file
  * - (int) tails' size (pass N if you want to use NxN tails)
  * - (int) number of threads
- * @return PyObject*
+ * @return PyObject*: None
  *
- * @e raises:
- * - :exc:`SyntaxError` : if the number or format of arguments is not valid
- * - :exc:`ValueError` : if the size of tails or numbero of threads is not valid
- *
- * @note This script recreate all files but synthetised with extension .synth
- * @note The file contains the relative paths of input files
+ * @exception SyntaxError : if the number or format of arguments is not valid
+ * @exception ValueError : if the size of tails or number of threads is not valid
  */
 static PyObject* wrapper(PyObject* self, PyObject* args)
 {

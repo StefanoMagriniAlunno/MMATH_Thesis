@@ -1,14 +1,15 @@
 /**
  * @file synthesis.h
  * @author Stefano Magrini Alunno (stefanomagrini99@gmail.com)
- * @brief definition of status code macros
+ * @brief definition of csynthesis and status code macros
  *
  * @date 2024-07-16
  *
  * @copyright Copyright (c) 2024
- *
- * @todo Implement csynthesis function
  */
+#ifndef SYNTHESIS_H
+#define SYNTHESIS_H
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -49,3 +50,5 @@ int csynthesis(
     const char* const log_path,
     unsigned n_tails,
     unsigned n_threads);
+
+#endif // SYNTHESIS_H

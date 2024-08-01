@@ -10,6 +10,8 @@ Welcome to MMATH thesis's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   main
+
 Indices and tables
 ==================
 

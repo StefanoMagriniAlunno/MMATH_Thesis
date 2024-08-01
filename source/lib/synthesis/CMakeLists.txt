@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(synthesis)
+project(synthesis LANGUAGES C)
 
 find_package(Python3 REQUIRED COMPONENTS Development)
 find_package(OpenMP REQUIRED)
@@ -19,6 +19,7 @@ target_link_libraries(synthesis PRIVATE Python3::Python OpenMP::OpenMP_C)
 set_target_properties(synthesis PROPERTIES OUTPUT_NAME "synthesis")
 set_target_properties(synthesis PROPERTIES PREFIX "lib")
 
-target_compile_options(synthesis PRIVATE -Wall -Wextra -pedantic -g)
+set_source_files_properties(src/synthesis.c PROPERTIES COMPILE_OPTIONS "-Wall -Wextra -pedantic -O3")
+set_source_files_properties(main.c PROPERTIES COMPILE_OPTIONS "-Wall -Wextra -O3")
 
 install(TARGETS synthesis DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})

@@ -25,6 +25,7 @@
  * @param[in] width: width of image
  * @param[in] height: height of image
  * @param[in] n_tails: size of tails
+ * @param[in] n_threads: number of threads
  */
 void _synthetizer(
     unsigned char * const cells,
@@ -155,14 +156,6 @@ int csynthesis(
     const unsigned n_tails,
     const unsigned n_threads)
 {
-    /**
-     * @note in_db_path and out_db_path exist
-     * @note list_file_path is a file with paths of files relative to in_db_path
-     * @note it's possible to create files in out_db_path with the same relative path
-     * @note log_file_path is a file where to write the log, with following format
-     * "%d %d %s", thread_num, status, file_path
-     */
-
     FILE* list_file = fopen(list_file_path, "r");
     if (list_file == NULL)
     {

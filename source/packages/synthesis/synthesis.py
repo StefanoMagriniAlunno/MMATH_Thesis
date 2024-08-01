@@ -16,24 +16,110 @@ def synthetizer(
 ):
     """This function synthesizes all images in a directory.
 
-    :emphasis:`params`
-        - :attr:`logger` (:type:`Logger` | :type:`None`): logger object
-        - :attr:`in_db_path` (:type:`str`): input database path
-        - :attr:`out_db_path` (:type:`str`): output database path
-        - :attr:`list_file_path` (:type:`str`): path to the list of all files in the input database
-        - :attr:`log_file_path` (:type:`str`): path to the log file of synthesis function
-        - :attr:`n_threads` (:type:`int`): number of threads
+    :param logger: Logger object
+    :type logger: Logger|None
+    :param in_db_path: input database path
+    :type in_db_path: str
+    :param out_db_path: output database path
+    :type out_db_path: str
+    :param list_file_path: path to the list of all files in the input database
+    :type list_file_path: str
+    :param log_file_path: path to the log file of synthesis function
+    :type log_file_path: str
+    :param n_tailes: number of tailes
+    :type n_tailes: int
+    :param n_threads: number of threads
+    :type n_threads: int
 
-    :emphasis:`raises`
-        - :exc:`SyntaxError`: SyntaxError detected in synthesis.wrapper
-        - :exc:`ValueError`: input database does not exist
-        - :exc:`ValueError`: output database does not exist
-        - :exc:`ValueError`: directory of list file does not exist
-        - :exc:`ValueError`: directory of log file does not exist
-        - :exc:`Exception`: ValueError detected in synthesis.wrapper
-        - :exc:`Exception`: IOError detected in synthesis.wrapper
-        - :exc:`Exception`: MemoryError detected in synthesis.wrapper
-        - :exc:`Exception`: Unexpected error
+    :raises SyntaxError: SyntaxError detected in synthesis.wrapper
+    :raises ValueError: input database does not exist
+    :raises ValueError: output database does not exist
+    :raises ValueError: directory of list file does not exist
+    :raises ValueError: directory of log file does not exist
+    :raises Exception: ValueError detected in synthesis.wrapper
+    :raises Exception: IOError detected in synthesis.wrapper
+    :raises Exception: MemoryError detected in synthesis.wrapper
+    :raises Exception: Unexpected error
+
+    :usage:
+
+    If you want to synthesize all images in a directory:
+
+    .. code-block:: python
+
+        try:
+            synthesis.synthetizer(
+                logger,
+                "path/to/in_db",
+                "path/to/out_db",
+                "path/to/list_file",
+                "path/to/log_file",
+                6,
+                8,
+            )
+        except SyntaxError:
+            logger.critical("Implementation error!")
+            raise
+        except ValueError:
+            logger.error("Unvalid inputs")
+            raise
+        except Exception:
+            logger.error("Unexcpected error")
+            raise
+
+    In this example, you can monitor the progress of the synthesis
+    process by checking the log file at "path/to/log_file".
+
+    :pseudo code:
+
+    .. code-block:: none
+
+        FUNCTION synthetizer(logger, in_db_path, out_db_path, list_file_path, log_file_path, n_tailes, n_threads)
+            # Check if input and output databases exist
+            IF NOT exists(in_db_path) THEN
+                RAISE ValueError("Input database does not exist")
+            END IF
+            IF NOT exists(out_db_path) THEN
+                RAISE ValueError("Output database does not exist")
+            END IF
+            IF NOT exists(dirname(list_file_path)) THEN
+                RAISE ValueError("Directory of list file does not exist")
+            END IF
+            IF NOT exists(dirname(log_file_path)) THEN
+                RAISE ValueError("Directory of log file does not exist")
+            END IF
+
+            # Create log file
+            CREATE log_file_path
+
+            # Create directories in out_db_path
+            FOR each directory IN in_db_path
+                relative_path = relative(directory, in_db_path)
+                IF NOT exists(join(out_db_path, relative_path)) THEN
+                    CREATE join(out_db_path, relative_path)
+                END IF
+            END FOR
+
+            # Create list file
+            list_file = []
+
+            FOR each directory IN in_db_path
+                FOR each file IN directory
+                    relative_path = relative(file, in_db_path)
+                    list_file.append(relative_path)
+                END FOR
+            END FOR
+
+            CREATE list_file_path
+            FOR each file IN list_file
+                WRITE file TO list_file_path
+            END FOR
+
+            # Call synthesis.wrapper
+            CALL libsynthesis.wrapper(in_db_path, out_db_path, list_file_path, log_file_path, n_tailes, n_threads)
+        END FUNCTION
+
+    .. :no-index:
     """
     in_db_completepath = os.path.join(os.getcwd(), in_db_path)
     out_db_completepath = os.path.join(os.getcwd(), out_db_path)

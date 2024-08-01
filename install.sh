@@ -85,19 +85,8 @@ if ! "$pre_commit_cmd" install-hooks >> "$logfile" 2>&1; then
     "$python3_cmd" assets/error.py
     exit 1
 fi
-if ! doxygen Doxyfile >> "$logfile" 2>&1; then
-    echo -e "\e[31mERROR\e[0m Failed to generate Doxygen documentation"
-    "$python3_cmd" assets/error.py
-    exit 1
-fi
 echo "sphinx build..."
-mkdir -p docs/_build
-mkdir -p docs/source/_static
-if ! "$sphinx_cmd" -b html "$sphinx_config_dir" docs/_build/html >> "$logfile" 2>&1; then
-    echo -e "\e[31mERROR\e[0m: An error occurred while making documentation"
-    "$python3_cmd" assets/error.py
-    exit 1
-fi
+call scripts/make_docs.sh "$logfile" "$python3_cmd" "$sphinx_cmd" "$sphinx_config_dir"
 echo "create data directory..."
 mkdir -p data
 echo "invoke directories..."
