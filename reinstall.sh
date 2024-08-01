@@ -9,6 +9,7 @@ python3_executable=$1
 
 # Delete log file
 rm -f temp/installation.log
+rm -f temp/build.log
 
 # Delete virtual environment
 rm -rf .venv
@@ -20,8 +21,8 @@ rm -rf temp
 rm -rf docs/_build
 rm -rf docs/source/_static
 
-# Delete lib in source
-rm -rf source/lib
+# Delete .cache in source
+rm -rf source/.cache
 
 # Installation
 bash install.sh "$python3_executable"

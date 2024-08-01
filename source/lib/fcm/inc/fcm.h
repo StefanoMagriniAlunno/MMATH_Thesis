@@ -41,6 +41,7 @@ int cxxfcm(
  * @param[in] data: vector of data
  * @param[in] centroids: vector of initial centroids
  * @param[in] n_tails: size of tails
+ * @param[in] log_path: path of log file
  *
  * @return std::vector<float>: vector of centroids
  *

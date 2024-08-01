@@ -3,7 +3,7 @@
 # Params
 logfile="temp/installation.log"
 venv=".venv"
-venv_pip_version="24.1.2"
+venv_pip_version="24.2"
 sphinx_config_dir="docs/source"
 
 # Read inputs
@@ -86,7 +86,7 @@ if ! "$pre_commit_cmd" install-hooks >> "$logfile" 2>&1; then
     exit 1
 fi
 echo "sphinx build..."
-call scripts/make_docs.sh "$logfile" "$python3_cmd" "$sphinx_cmd" "$sphinx_config_dir"
+bash scripts/make_docs.sh "$logfile" "$python3_cmd" "$sphinx_cmd" "$sphinx_config_dir"
 echo "create data directory..."
 mkdir -p data
 echo "invoke directories..."

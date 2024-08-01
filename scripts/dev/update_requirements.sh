@@ -1,6 +1,6 @@
 #!/bin/bash
 
-venv_pip_version="24.1.2"
+venv_pip_version="24.2"
 python3_executable=$1
 
 # System prerequisites

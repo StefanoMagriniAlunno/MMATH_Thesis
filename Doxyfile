@@ -26,11 +26,15 @@ WARN_LOGFILE           = "temp/doxygen_warn.log"
 FILE_PATTERNS          = *.c \
                          *.cu \
                          *.cpp \
-                         *.h \
+                         *.h
+EXTENSION_MAPPING = cu=C++
 INPUT                  = source/lib/synthesis/main.c \
                          source/lib/synthesis/inc \
-                         source/lib/synthesis/src
-EXCLUDE                = source/lib/synthesis/build
+                         source/lib/synthesis/src \
+                         source/lib/fcm/main.cpp \
+                         source/lib/fcm/inc \
+                         source/lib/fcm/src
+EXCLUDE_PATTERNS       = */build/*
 RECURSIVE              = YES
 INLINE_SOURCES         = YES
 HTML_COLORSTYLE_HUE    = 0

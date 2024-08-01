@@ -21,7 +21,7 @@ def build(c):
     """Build packages"""
 
     c.run(r"mkdir -p source/.cache")
-    c.run("make -C source")
+    c.run("make -C source >> temp/build.log 2>&1")
     # sposto il contenuto di source/.cache in lib/python3.10/site-packages
     c.run(r"cp source/.cache/* .venv/lib/python3.10/site-packages")
 

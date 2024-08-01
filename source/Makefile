@@ -13,14 +13,8 @@ all:
 		rm -rf lib/$$project/build; \
 		mkdir -p lib/$$project/build; \
 		cd lib/$$project/build; \
-		cmake ..; \
-		cd ../..; \
-	done
-	@for project in $(PROJECTS); do \
-		cd lib/$$project/build; \
-		make; \
-		cd ../..; \
-	done
-	@for project in $(PROJECTS); do \
+		cmake .. --trace; \
+		cd ../../..; \
+		make -C lib/$$project/build --trace; \
 		mv lib/$$project/build/lib$$project.so .cache/lib$$project.so; \
 	done
