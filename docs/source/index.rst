@@ -22,4 +22,4 @@ Indices and tables
 External Links
 ==============
 
-* `Doxygen Documentation </home/stefano/Documents/GitHub/MMATH_thesis/docs/source/doxygen/html/index.html>`_
+* `Doxygen Documentation <doxygen/html/index.html>`_
