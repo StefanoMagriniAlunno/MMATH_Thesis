@@ -36,7 +36,7 @@
  * @param[in] out_dset_path: path of output directory
  * @param[in] file_path: path of file with all relative path
  * @param[in] log_path: path of log file
- * @param[in] n_tails: size of tails
+ * @param[in] n_tiles: size of tiles
  * @param[in] n_threads: number of threads
  *
  * @return int: status code
@@ -44,11 +44,11 @@
  * @note only pgm format is supported, this function reports events and errors in a log file.
  */
 int csynthesis(
-    const char* const in_dset_path,
-    const char* const out_dset_path,
-    const char* const file_path,
-    const char* const log_path,
-    unsigned n_tails,
+    const char *const in_dset_path,
+    const char *const out_dset_path,
+    const char *const file_path,
+    const char *const log_path,
+    unsigned n_tiles,
     unsigned n_threads);
 
 #endif // SYNTHESIS_H

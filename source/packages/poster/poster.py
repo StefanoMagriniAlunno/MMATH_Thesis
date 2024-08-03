@@ -1,27 +1,32 @@
 import os
-from concurrent.futures import ThreadPoolExecutor
 from logging import Logger
 from typing import List
 
+import joblib
+import numpy as np
 from PIL import Image
+from sklearn.cluster import KMeans
 from tqdm import tqdm
 
 
-def poster(
+def models(
     logger: Logger,
     in_db_path: str,
     out_db_path: str,
     discrete_levels: int,
-    n_threads: int,
 ):
-    """This function posterize all images in a directory.
+    """This function posterises all images and saving the kmeans models.
 
-    :emphasis:`params`
-        - :attr:`logger` (:type:`Logger`): logger object
-        - :attr:`in_db_path` (:type:`str`): input database path
-        - :attr:`out_db_path` (:type:`str`): output database path
-        - :attr:`discrete_levels` (:type:`int`): number of discrete levels
-        - :attr:`n_threads` (:type:`int`): number of threads
+    :params logger: logger object
+    :type logger: Logger
+    :params in_db_path: input database path
+    :type in_db_path: str
+    :params out_db_path: output database path
+    :type out_db_path: str
+    :params discrete_levels: number of discrete levels
+    :type discrete_levels: int
+    :params n_threads: number of threads
+    :type n_threads: int
 
     """
 
@@ -34,41 +39,35 @@ def poster(
     files: List[str] = []
     for dirname, _, filenames in os.walk(in_db_path):
         for filename in filenames:
-            if filename.endswith(".pgm"):
-                rel_path = os.path.relpath(dirname, in_db_path)
-                files.append(os.path.join(rel_path, filename))
+            rel_path = os.path.relpath(dirname, in_db_path)
+            files.append(os.path.join(rel_path, filename))
     logger.info(f"Detected {len(files)} files in {in_db_path}")
 
     # preparo la cartella di destinazione
     for dirname, _, filenames in os.walk(in_db_path):
         for filename in filenames:
-            if filename.endswith(".pgm"):
-                rel_path = os.path.relpath(dirname, in_db_path)
-                if not os.path.exists(os.path.join(out_db_path, rel_path)):
-                    os.mkdir(os.path.join(out_db_path, rel_path))
-                    break
+            rel_path = os.path.relpath(dirname, in_db_path)
+            if not os.path.exists(os.path.join(out_db_path, rel_path)):
+                os.mkdir(os.path.join(out_db_path, rel_path))
+                break
 
-    def process_file(file, in_db_path, out_db_path, discrete_levels, logger):
-        try:
-            rel_path = os.path.relpath(os.path.join(in_db_path, file))
-            logger.info(f"Processing file: {rel_path}")
-            img = Image.open(os.path.join(in_db_path, file)).convert("L")
-            img = img.quantize(discrete_levels).convert("L")
-            img.save(os.path.join(out_db_path, file), format="PPM")
-        except Exception as e:
-            logger.error(f"Error processing file {file}: {e}")
-
-    with ThreadPoolExecutor() as executor:
-        list(
-            tqdm(
-                executor.map(
-                    lambda file: process_file(
-                        file, in_db_path, out_db_path, discrete_levels, logger
-                    ),
-                    files,
-                ),
-                desc="poster",
-                leave=False,
-                total=len(files),
+    for file in tqdm(files, "poster", leave=False):
+        logger.info(f"Processing file: {file}")
+        img_array = (
+            np.array(
+                Image.open(os.path.join(in_db_path, file)).convert("L"), dtype=float
             )
+            / 255.0
         )
+        # eseguo la clusterizzazione
+        max_iter = 50
+        tol = 1e-2
+        kmeans = KMeans(n_clusters=discrete_levels, max_iter=max_iter, tol=tol)
+        kmeans.fit(img_array.flatten().reshape(-1, 1))
+        if kmeans.n_iter_ == max_iter:
+            logger.warning(
+                f"during posterisation of image {file}, the kmeans algorithm reach max number of iterations ({max_iter}) with tollerance {kmeans.inertia_}"
+            )
+        # salvo il modello
+        joblib.dump(kmeans, os.path.join(out_db_path, file + ".pkl"))
+        logger.info(f"KMeans model saved at {os.path.join(out_db_path, file + '.pkl')}")

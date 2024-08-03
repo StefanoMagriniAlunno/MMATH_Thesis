@@ -10,26 +10,26 @@ def synthetizer(
     in_db_path: str,
     out_db_path: str,
     list_file_path: str,
-    log_file_path: str,
-    n_tailes: int,
+    n_tiles: int,
     n_threads: int,
+    log_file_path: str,
 ):
     """This function synthesizes all images in a directory.
 
     :param logger: Logger object
     :type logger: Logger|None
-    :param in_db_path: input database path
+    :param in_db_path: input database relative path
     :type in_db_path: str
-    :param out_db_path: output database path
+    :param out_db_path: output database relative path
     :type out_db_path: str
-    :param list_file_path: path to the list of all files in the input database
+    :param list_file_path: relative path to the list of all files in the input database
     :type list_file_path: str
-    :param log_file_path: path to the log file of synthesis function
-    :type log_file_path: str
-    :param n_tailes: number of tailes
-    :type n_tailes: int
+    :param n_tiles: size of tiles
+    :type n_tiles: int
     :param n_threads: number of threads
     :type n_threads: int
+    :param log_file_path: relative path to the log file of synthesis function
+    :type log_file_path: str
 
     :raises SyntaxError: SyntaxError detected in synthesis.wrapper
     :raises ValueError: input database does not exist
@@ -165,7 +165,7 @@ def synthetizer(
             out_db_completepath,
             list_file_completepath,
             log_file_completepath,
-            n_tailes,
+            n_tiles,
             n_threads,
         )
     except SyntaxError:

@@ -22,12 +22,12 @@
  * - (str) complete path of output dataset
  * - (str) complete path of file with list of all files
  * - (str) complete path of log file
- * - (int) tails' size (pass N if you want to use NxN tails)
+ * - (int) size of tiles (pass N if you want to use NxN tiles)
  * - (int) number of threads
  * @return PyObject*: None
  *
  * @exception SyntaxError : if the number or format of arguments is not valid
- * @exception ValueError : if the size of tails or number of threads is not valid
+ * @exception ValueError : if the size of tiles or number of threads is not valid
  */
 static PyObject* wrapper(PyObject* self, PyObject* args)
 {
@@ -37,15 +37,15 @@ static PyObject* wrapper(PyObject* self, PyObject* args)
         return NULL;
     }
     const char *in_dset_path = NULL, *out_dset_path = NULL, *file_path = NULL, *log_path = NULL;
-    int n_threads = 0, n_tails = 0;
-    if (!PyArg_ParseTuple(args, "ssssii", &in_dset_path, &out_dset_path, &file_path, &log_path, &n_tails, &n_threads))
+    int n_threads = 0, n_tiles = 0;
+    if (!PyArg_ParseTuple(args, "ssssii", &in_dset_path, &out_dset_path, &file_path, &log_path, &n_tiles, &n_threads))
     {
         PyErr_SetString(PyExc_SyntaxError, "Required 3 strings in input and an integer.");
         return NULL;
     }
-    if (! (n_tails > 0))
+    if (! (n_tiles > 0))
     {
-        PyErr_Format(PyExc_ValueError, "Size of tails is not valid. Passed %d", n_tails);
+        PyErr_Format(PyExc_ValueError, "Size of tiles is not valid. Passed %d", n_tiles);
         return NULL;
     }
     if (! (n_threads > 0))
@@ -54,7 +54,7 @@ static PyObject* wrapper(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    int ret = csynthesis(in_dset_path, out_dset_path, file_path, log_path, n_tails, n_threads);
+    int ret = csynthesis(in_dset_path, out_dset_path, file_path, log_path, n_tiles, n_threads);
 
     switch(ret)
     {
@@ -74,7 +74,7 @@ static PyObject* wrapper(PyObject* self, PyObject* args)
             PyErr_SetString(PyExc_MemoryError, "malloc or calloc failed the allocation...");
             Py_RETURN_NONE;
         case VALUE_ERROR:
-            PyErr_SetString(PyExc_ValueError, "uncorrect size of tails...");
+            PyErr_SetString(PyExc_ValueError, "uncorrect size of tiles...");
             Py_RETURN_NONE;
         case SUPER_ERROR:
             PyErr_SetString(PyExc_Exception, "An error occurred and failed the report in log file.");
@@ -114,10 +114,10 @@ static PyMethodDef methods[] = {
     {NULL, NULL, 0, NULL}  // Sentinel
 };
 
-// 'synthesis' is the module name
-static struct PyModuleDef synthesis = {
+// 'libsynthesis' is the module name
+static struct PyModuleDef libsynthesis = {
     PyModuleDef_HEAD_INIT,
-    "synthesis",      // Nome del modulo Python
+    "libsynthesis",   // Nome del modulo Python
     NULL,             // Documentazione del modulo
     -1,               // Permette il caricamento di più istanze dello stesso modulo in uno stesso spazio dei nomi
     methods,          // Lista dei metodi del modulo
@@ -130,5 +130,5 @@ static struct PyModuleDef synthesis = {
 // Initialize the module
 PyMODINIT_FUNC PyInit_libsynthesis(void)
 {
-    return PyModule_Create(&synthesis);
+    return PyModule_Create(&libsynthesis);
 }

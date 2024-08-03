@@ -1,20 +1,26 @@
 #!/bin/bash
 
 # Params
+config_file="config.ini"
 logfile="temp/installation.log"
 venv=".venv"
 venv_pip_version="24.2"
 sphinx_config_dir="docs/source"
 
 # Read inputs
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 <python3_executable>"
+if [ -f "$config_file" ]; then
+    python3_executable=$(grep "python" "$config_file" | cut -d'=' -f2)
+    gcc_executable=$(grep "gcc" "$config_file" | cut -d'=' -f2)
+    gxx_executable=$(grep "g++" "$config_file" | cut -d'=' -f2)
+    nvcc_executable=$(grep "nvcc" "$config_file" | cut -d'=' -f2)
+else
+    echo -e "\e[31mERROR\e[0m Config file $config_file not found"
     exit 1
 fi
-python3_executable=$1
+
 # controllo se python3_executable è effettivamente un eseguibile di python3
 if ! [ -x "$(command -v "$python3_executable")" ]; then
-    echo -e "\e[31mERROR\e[0m $1 is not an executable"
+    echo -e "\e[31mERROR\e[0m $python3_executable is not an executable"
     exit 1
 fi
 
@@ -65,7 +71,7 @@ if ! "$invoke_cmd" install >> "$logfile" 2>&1; then
     exit 1
 fi
 echo "invoke build..."
-if ! "$invoke_cmd" build >> "$logfile" 2>&1; then
+if ! "$invoke_cmd" build --PY "$python3_executable" --CC "$gcc_executable" --CXX "$gxx_executable" --CU "$nvcc_executable" >> "$logfile" 2>&1; then
     echo -e "\e[31mERROR\e[0m Failed to build packages"
     exit 1
 fi

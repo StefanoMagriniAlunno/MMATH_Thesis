@@ -9,7 +9,7 @@ Autori e finalità della repository...
   - `virtualenv` 20.26.3
   - `python3-dev` 3.10.6-1~22.04
   - `python3-dbg` 3.10.12
-- `GCC` 11.4.0 with:
+- `gcc` & `gxx` 11.4.0 with:
   - `doxygen` 1.9.1
   - `graphviz`
 - `CUDA 12.5` with `nvcc` 12.5 (required NVIDIA drivers)

@@ -1,5 +1,6 @@
 {
   "cmake.options.statusBarVisibility": "hidden",
+  "cmake.sourceDirectory": "/home/stefano/Documents/GitHub/MMATH_thesis/source/lib/clustering",
   "files.associations": {
     "*.tcc": "cpp",
     "__nullptr": "cpp",

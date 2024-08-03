@@ -31,9 +31,9 @@ EXTENSION_MAPPING = cu=C++
 INPUT                  = source/lib/synthesis/main.c \
                          source/lib/synthesis/inc \
                          source/lib/synthesis/src \
-                         source/lib/fcm/main.cpp \
-                         source/lib/fcm/inc \
-                         source/lib/fcm/src
+                         source/lib/clustering/main.cpp \
+                         source/lib/clustering/inc \
+                         source/lib/clustering/src
 EXCLUDE_PATTERNS       = */build/*
 RECURSIVE              = YES
 INLINE_SOURCES         = YES

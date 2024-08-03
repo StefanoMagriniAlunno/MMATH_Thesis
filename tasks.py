@@ -17,12 +17,10 @@ def directories(c):
 
 
 @task
-def build(c):
+def build(c, PY: str, CC: str, CXX: str, CU: str):
     """Build packages"""
-
     c.run(r"mkdir -p source/.cache")
-    c.run("make -C source >> temp/build.log 2>&1")
-    # sposto il contenuto di source/.cache in lib/python3.10/site-packages
+    c.run(f"make -C source {PY=} {CC=} {CXX=} {CU=} > temp/build.log 2>&1")
     c.run(r"cp source/.cache/* .venv/lib/python3.10/site-packages")
 
 

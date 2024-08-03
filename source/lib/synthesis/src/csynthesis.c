@@ -24,26 +24,26 @@
  * @param[in] byte_board: array of unsigned char
  * @param[in] width: width of image
  * @param[in] height: height of image
- * @param[in] n_tails: size of tails
+ * @param[in] n_tiles: size of tiles
  * @param[in] n_threads: number of threads
  */
 void _synthetizer(
-    unsigned char * const cells,
-    const unsigned char * const byte_board,
+    unsigned char *const cells,
+    const unsigned char *const byte_board,
     const unsigned width,
     const unsigned height,
-    const unsigned n_tails,
+    const unsigned n_tiles,
     const unsigned n_threads)
 {
-    unsigned width_short = width - n_tails + 1, height_short = height - n_tails + 1;
+    unsigned width_short = width - n_tiles + 1, height_short = height - n_tiles + 1;
 
     #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads)
     #endif  /* _OPENMP */
     for (unsigned row = 0; row < height_short; ++row) for (unsigned col = 0; col < width_short; ++col)  // fisso il pixel che voglio inserire
-        for (unsigned i = 0; i < n_tails; ++i) for (unsigned j = 0; j < n_tails; ++j)  // identifico dove inserirlo
+        for (unsigned i = 0; i < n_tiles; ++i) for (unsigned j = 0; j < n_tiles; ++j)  // identifico dove inserirlo
         {
-            long unsigned index_out = ((row*width_short + col)*n_tails + i)*n_tails + j;  // [row-i, col-j, i,j]
+            long unsigned index_out = ((row*width_short + col)*n_tiles + i)*n_tiles + j;  // [row-i, col-j, i,j]
             long unsigned index_in = (row+i)*width + col+j;
             cells[index_out] = byte_board[index_in];
         }
@@ -55,16 +55,16 @@ void _synthetizer(
  * @param[in] in_path : complete path of the image
  * @param[in] out_path : complete path of the output
  * @param[out] log_message : message for log when there is an error
- * @param[in] n_tails : size of tails
+ * @param[in] n_tiles : size of tiles
  * @param[in] n_threads : num of threads
  * @return int: status code
  *
  */
 int _reader(
-    const char* const in_path,
-    const char* const out_path,
+    const char *const in_path,
+    const char *const out_path,
     char log_message[MESSAGE_MAXLEN],
-    const unsigned n_tails,
+    const unsigned n_tiles,
     const unsigned n_threads)
 {
     unsigned width = 0;
@@ -84,10 +84,10 @@ int _reader(
         sprintf(log_message, "%s : %d", __FILE__, __LINE__);
         return FREAD_MISSED;
     }
-    if (width < n_tails && height < n_tails)
+    if (width < n_tiles && height < n_tiles)
     {
         fclose(in_file);
-        sprintf(log_message, "%s : %d details: w=%u, h=%u, n_tails=%u", __FILE__, __LINE__, width, height, n_tails);
+        sprintf(log_message, "%s : %d details: w=%u, h=%u, n_tiles=%u", __FILE__, __LINE__, width, height, n_tiles);
         return VALUE_ERROR;
     }
     fgetc(in_file);  // used to skip the character newline
@@ -108,15 +108,15 @@ int _reader(
     }
     fclose(in_file);
 
-    cells = (unsigned char *)calloc((long unsigned)n_tails*n_tails*(height-n_tails+1)*(long unsigned)(width-n_tails+1), sizeof(unsigned char));
+    cells = (unsigned char *)calloc((long unsigned)n_tiles*n_tiles*(height-n_tiles+1)*(long unsigned)(width-n_tiles+1), sizeof(unsigned char));
     if (cells == NULL)
     {
         free(byte_board);
-        sprintf(log_message, "%s : %d details: %lu", __FILE__, __LINE__, ((long unsigned)n_tails*n_tails*(height-n_tails+1)*(long unsigned)(width-n_tails+1))*sizeof(unsigned char));
+        sprintf(log_message, "%s : %d details: %lu", __FILE__, __LINE__, ((long unsigned)n_tiles*n_tiles*(height-n_tiles+1)*(long unsigned)(width-n_tiles+1))*sizeof(unsigned char));
         return MEMORY_ERROR;
     }
 
-    _synthetizer(cells, byte_board, width, height, n_tails, n_threads);
+    _synthetizer(cells, byte_board, width, height, n_tiles, n_threads);
 
     FILE* out_file = fopen(out_path, "wb");
     if (out_file == NULL)
@@ -129,14 +129,14 @@ int _reader(
     if (fwrite(
             cells,
             sizeof(unsigned char),
-            ((long unsigned)n_tails*n_tails*(height-n_tails+1)*(long unsigned)(width-n_tails+1)),
+            ((long unsigned)n_tiles*n_tiles*(height-n_tiles+1)*(long unsigned)(width-n_tiles+1)),
             out_file
-        ) != sizeof(unsigned char) * ((long unsigned)n_tails*n_tails*(height-n_tails+1)*(long unsigned)(width-n_tails+1)))
+        ) != sizeof(unsigned char) * ((long unsigned)n_tiles*n_tiles*(height-n_tiles+1)*(long unsigned)(width-n_tiles+1)))
     {
         fclose(out_file);
         free(byte_board);
         free(cells);
-        sprintf(log_message, "%s : %d details: %ld", __FILE__, __LINE__, sizeof(unsigned char) * ((long unsigned)n_tails*n_tails*(height-n_tails+1)*(long unsigned)(width-n_tails+1)));
+        sprintf(log_message, "%s : %d details: %ld", __FILE__, __LINE__, sizeof(unsigned char) * ((long unsigned)n_tiles*n_tiles*(height-n_tiles+1)*(long unsigned)(width-n_tiles+1)));
         return FWRITE_MISSED;
     }
 
@@ -149,11 +149,11 @@ int _reader(
 
 
 int csynthesis(
-    const char * const in_db_path,
-    const char * const out_db_path,
-    const char * const list_file_path,
-    const char * const log_file_path,
-    const unsigned n_tails,
+    const char *const in_db_path,
+    const char *const out_db_path,
+    const char *const list_file_path,
+    const char *const log_file_path,
+    const unsigned n_tiles,
     const unsigned n_threads)
 {
     FILE* list_file = fopen(list_file_path, "r");
@@ -177,7 +177,7 @@ int csynthesis(
             strcpy(out_path, out_db_path);
             strcat(out_path, "/");
             strcat(out_path, path);
-            int ret = _reader(in_path, out_path, log_message, n_tails, n_threads);
+            int ret = _reader(in_path, out_path, log_message, n_tiles, n_threads);
             if (ret != SUCCESS)
             {
                 FILE* log_file = fopen(log_file_path, "a");

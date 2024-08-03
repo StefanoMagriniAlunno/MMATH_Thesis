@@ -9,6 +9,8 @@ req_python3_virtualenv_version="20.26.3"
 req_python3_dev_version="3.10.6-1~22.04"
 req_CC="gcc"
 req_CC_version="11.4.0"
+req_CXX="g++"
+req_CXX_version="11.4.0"
 req_CC_doxygen_version="1.9.1"
 req_nvcc_version="12.5"
 
@@ -63,6 +65,15 @@ fi
 CC_version=$($req_CC --version | head -n 1 | cut -d " " -f 4)
 if [ "$CC_version" != "$req_CC_version" ]; then
     echo -e "\e[31mERROR\e[0m gcc version must be $req_CC_version (read $CC_version)"
+    exit 1
+fi
+if ! "$req_CXX" --version > /dev/null; then
+    echo -e "\e[31mERROR\e[0m g++ is not installed"
+    exit 1
+fi
+CXX_version=$($req_CXX --version | head -n 1 | cut -d " " -f 4)
+if [ "$CXX_version" != "$req_CXX_version" ]; then
+    echo -e "\e[31mERROR\e[0m g++ version must be $req_CXX_version (read $CXX_version)"
     exit 1
 fi
 CC_doxygen_version=$(doxygen --version | cut -d " " -f 2)

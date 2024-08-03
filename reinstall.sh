@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Read inputs
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 <python3_executable>"
-    exit 1
-fi
-python3_executable=$1
-
 # Delete log file
 rm -f temp/installation.log
 rm -f temp/build.log
@@ -25,4 +18,4 @@ rm -rf docs/source/_static
 rm -rf source/.cache
 
 # Installation
-bash install.sh "$python3_executable"
+bash install.sh
