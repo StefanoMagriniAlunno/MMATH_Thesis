@@ -135,7 +135,6 @@ def fft(
         image = Image.open(os.path.join(in_db_path, rel_path)).convert("L")
         image_matrix = np.array(image, dtype=float) / 255.0
         image_tensor = torch.tensor(image_matrix, dtype=torch.float32, device=device)
-        image_tensor = 1 - image_tensor
 
         # analizzo le frequenze
         image_tensor_mean = torch.mean(image_tensor)
@@ -159,14 +158,21 @@ def fft(
         image_tensor = torch.fft.ifft2(fft_image, norm="ortho").real
         image_tensor += image_tensor_mean
 
-        # normalize
+        # normalize image
         image_tensor = (image_tensor - torch.min(image_tensor)) / (
             torch.max(image_tensor) - torch.min(image_tensor)
         )
+        # count how many pixels are white in original image
+        Wpercentile = np.count_nonzero(image_matrix >= 0.8) / image_matrix.size
+        # count how many pixels are black in original image
+        Bpercentile = np.count_nonzero(image_matrix <= 0.2) / image_matrix.size
+        # in image_tensor the first Wpercentile pixels became white
+        # and the first Bpercentile pixels became black
+        thresholdW = torch.quantile(image_tensor, 1 - Wpercentile)
+        thresholdB = torch.quantile(image_tensor, Bpercentile)
+        # normalize image again to have thresholdW in 1 and thresholdB in 0
+        image_tensor = (image_tensor - thresholdB) / (thresholdW - thresholdB)
+        image_tensor = image_tensor.clamp(0.0, 1.0)
 
-        image = Image.fromarray(
-            ((1 - image_tensor) * 255.0).type(torch.uint8).cpu().numpy()
-        )
+        image = Image.fromarray((image_tensor * 255.0).type(torch.uint8).cpu().numpy())
         image.save(os.path.join(out_db_path, rel_path), format="PPM")
-
-    logger.info("FFT completed!")

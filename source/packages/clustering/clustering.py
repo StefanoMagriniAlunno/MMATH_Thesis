@@ -9,7 +9,7 @@ def fcm(
     datafile_path: str,
     centroids_path: str,
     outfile_path: str,
-    n_tiles: str,
+    n_tiles: int,
     log_file_path: str,
 ):
     """This function synthesizes all images in a directory.

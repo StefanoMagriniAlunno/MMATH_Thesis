@@ -1,9 +1,10 @@
 import os
 import shutil
+from typing import List
 
 import numpy as np
 import torch
-from packages import cleaner, common, poster, synthesis
+from packages import cleaner, clustering, common, synthesis
 from tqdm import tqdm
 
 if __name__ == "__main__":
@@ -11,8 +12,9 @@ if __name__ == "__main__":
     logger = common.main(r"logs/dev.log")
 
     shutil.rmtree("data/out")
-    db_path = "data/db/cutted_set/Author2"
+    db_path = "data/db/cutted_set/Author1"
     n_tiles = 6
+    n_clusters = 10000
 
     # pulisco le immagini con fft
     db_preprocessed_path = "data/out/preprocessed"
@@ -20,7 +22,7 @@ if __name__ == "__main__":
 
     try:
         cleaner.fft(
-            logger, db_path, db_preprocessed_path, False, 0.001, device
+            logger, db_path, db_preprocessed_path, False, 0.0005, device
         )  # remove best 0.1%
     except ValueError:
         logger.error("Unvalid inputs")
@@ -55,25 +57,59 @@ if __name__ == "__main__":
         raise
     logger.info("Synthesis completed!")
 
-    # trasformo ogni sintesi in una matrice numpy di float che salvo in un file numpy
+    # leggo tuttti i file da esaminare
+    files: List[str] = []
     for dirname, _, filenames in os.walk(synthetized_path):
-        rel_path = os.path.relpath(dirname, synthetized_path)
-        for filename in tqdm(filenames, rel_path, leave=False):
-            with open(os.path.join(dirname, filename), "br") as f:
+        for filename in filenames:
+            files.append(os.path.join(dirname, filename))
+    logger.info(f"Detected {len(files)} files in {synthetized_path}")
+
+    for work_1_index in tqdm(range(len(files)), "clustering", leave=False):
+        work_2_indices = [
+            i
+            for i in range(len(files))
+            if (i - work_1_index + (i >= work_1_index)) % 2 == 0
+        ]
+        for work_2_index in tqdm(work_2_indices, files[work_1_index], leave=False):
+            work_1 = files[work_1_index]
+            work_2 = files[work_2_index]
+            logger.info(f"Processing {work_1} and {work_2}...")
+            # estraggo le sintesi interessate
+            with open(work_1, "br") as f:
                 values = f.read()
-            matrix = (
-                np.frombuffer(values, dtype=np.uint8).reshape(-1, n_tiles).astype(float)
+            synth_1 = (
+                np.frombuffer(values, dtype=np.uint8)
+                .reshape(-1, n_tiles)
+                .astype(np.float64)
+                / 255.0
             )
-            # rimuovo il vecchio file
-            os.remove(os.path.join(dirname, filename))
-            # savlo il nuovo file
-            np.save(os.path.join(dirname, filename), matrix)
-        logger.info(f"{rel_path} processed")
-
-    # eseguo le posterizzazioni delle immagini
-    db_posterised_path = "data/out/posterised"
-    os.makedirs(db_posterised_path, exist_ok=True)
-    poster.models(logger, db_path, db_posterised_path, 64)
-    logger.info("posterisation completed")
-
-    # per ogni opera propongo un insieme
+            with open(work_2, "br") as f:
+                values = f.read()
+            synth_2 = (
+                np.frombuffer(values, dtype=np.uint8)
+                .reshape(-1, n_tiles)
+                .astype(np.float64)
+                / 255.0
+            )
+            # unisco le due sintesi in un unica matrice
+            synth_merge = np.vstack((synth_1, synth_2))
+            # salvo la matrice in un file temporaneo come float32 binario (i dati da clusterizzare)
+            with open("temp/synth_merge", "bw") as f:
+                f.write(synth_merge.tobytes())
+            # estraggo un campione di n_clusters righe da synth_merge
+            synth_sample = np.random.choice(
+                synth_merge.shape[0], n_clusters, replace=False
+            )
+            synth_sample = synth_merge[synth_sample]
+            # salvo il campione in un file temporaneo come float32 binario (i centroidi iniziali)
+            with open("temp/synth_sample", "bw") as f:
+                f.write(synth_sample.tobytes())
+            # eseguo il clustering fcm
+            clustering.fcm(
+                logger,
+                "temp/synth_merge",
+                "temp/synth_sample",
+                "temp/centroids",
+                n_tiles,
+                "temp/fcm.log",
+            )
