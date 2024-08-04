@@ -1,5 +1,4 @@
 import os
-import shutil
 from typing import List
 
 import numpy as np
@@ -11,7 +10,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger = common.main(r"logs/dev.log")
 
-    shutil.rmtree("data/out")
+    # shutil.rmtree("data/out")
     db_path = "data/db/cutted_set/Author1"
     n_tiles = 6
     n_clusters = 10000
@@ -41,7 +40,7 @@ if __name__ == "__main__":
             logger,
             db_preprocessed_path,
             synthetized_path,
-            "temp/synth.log",
+            "temp/synthesis_list.log",
             n_tiles,
             8,
             "logs/synthesis.log",
@@ -79,16 +78,16 @@ if __name__ == "__main__":
                 values = f.read()
             synth_1 = (
                 np.frombuffer(values, dtype=np.uint8)
-                .reshape(-1, n_tiles)
-                .astype(np.float64)
+                .reshape(-1, n_tiles * n_tiles)
+                .astype(np.float32)
                 / 255.0
             )
             with open(work_2, "br") as f:
                 values = f.read()
             synth_2 = (
                 np.frombuffer(values, dtype=np.uint8)
-                .reshape(-1, n_tiles)
-                .astype(np.float64)
+                .reshape(-1, n_tiles * n_tiles)
+                .astype(np.float32)
                 / 255.0
             )
             # unisco le due sintesi in un unica matrice
@@ -104,12 +103,28 @@ if __name__ == "__main__":
             # salvo il campione in un file temporaneo come float32 binario (i centroidi iniziali)
             with open("temp/synth_sample", "bw") as f:
                 f.write(synth_sample.tobytes())
+            # libero la ram (fondamentale per evitare memory error)
+            del synth_1
+            del synth_2
+            del synth_merge
+            del synth_sample
             # eseguo il clustering fcm
-            clustering.fcm(
-                logger,
-                "temp/synth_merge",
-                "temp/synth_sample",
-                "temp/centroids",
-                n_tiles,
-                "temp/fcm.log",
-            )
+            try:
+                clustering.fcm(
+                    logger,
+                    "temp/synth_merge",
+                    "temp/synth_sample",
+                    "temp/centroids",
+                    n_tiles,
+                    0.1,
+                    "logs/fcm.log",
+                )
+            except SyntaxError:
+                logger.critical("Implementation error!")
+                exit()
+            except ValueError:
+                logger.error("Unvalid inputs")
+                exit()
+            except Exception:
+                logger.error("Unexcpected error")
+                exit()

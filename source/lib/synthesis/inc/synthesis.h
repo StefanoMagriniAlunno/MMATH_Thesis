@@ -20,24 +20,20 @@
  *
  */
 #define SUCCESS 0
-#define LOG_FOPEN_MISSED 1
-#define LOG_FWRITE_MISSED 2
-#define FOPEN_MISSED -1
-#define FWRITE_MISSED -2
-#define FREAD_MISSED -3
-#define MEMORY_ERROR -4
-#define VALUE_ERROR -5
-#define SUPER_ERROR 999
+#define LOG_ERROR 1
+#define IO_ERROR 2
+#define VALUE_ERROR 3
+#define MEMORY_ERROR 4
 
 /**
  * @brief This function takes a dataset directory and synthetises all images
  *
- * @param[in] in_dset_path: path of input directory
- * @param[in] out_dset_path: path of output directory
- * @param[in] file_path: path of file with all relative path
- * @param[in] log_path: path of log file
- * @param[in] n_tiles: size of tiles
- * @param[in] n_threads: number of threads
+ * @param in_dset_path: path of input directory
+ * @param out_dset_path: path of output directory
+ * @param file_path: path of file with all relative path
+ * @param n_tiles: size of tiles
+ * @param n_threads: number of threads
+ * @param log_path: path of log file
  *
  * @return int: status code
  *
@@ -47,8 +43,8 @@ int csynthesis(
     const char *const in_dset_path,
     const char *const out_dset_path,
     const char *const file_path,
-    const char *const log_path,
     unsigned n_tiles,
-    unsigned n_threads);
+    unsigned n_threads,
+    const char *const log_path);
 
 #endif // SYNTHESIS_H

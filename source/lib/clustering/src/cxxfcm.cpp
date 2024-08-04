@@ -8,98 +8,90 @@ int cxxfcm(
     const char *const datafile_path,
     const char *const outfile_path,
     const char *const centroids_path,
-    int n_tiles,
+    size_t n_dimensions,
+    float tollerance,
     const char *const log_path)
 {
-    // reset log_file
+    // create log stream as new file
+    std::ofstream log_stream(log_path, std::ios::trunc);
+    if (!log_stream.is_open())
     {
-        std::ofstream log_file(log_path, std::ios::trunc);
-        if (!log_file.is_open()) {
-            return LOGERROR;
-        }
+        return LOG_ERROR;
     }
 
     std::vector<float> data, initial_centroids;
 
     // read datafile_path
     {
-        std::ifstream file(datafile_path, std::ios::binary);
-        if (!file.is_open()) {
-            // open log_path
-            std::ofstream log_file(log_path, std::ios::app);
-            if (!log_file.is_open()) {
-                return LOGERROR;
-            }
-            log_file << __FILE__ << " : " << __LINE__ << " details: " << datafile_path << std::endl;
+        std::ifstream data_stream(datafile_path, std::ios::binary);
+        if (!data_stream.is_open()) {
+            log_stream << "in file " << __FILE__ << " at line " << __LINE__ << " : CRITICAL is_open error, datafile_path=" << datafile_path << std::endl;
+            log_stream.flush();
+            log_stream.close();
+            return IO_ERROR;
         }
 
-        // Get file size
-        file.seekg(0, std::ios::end);
-        long unsigned size = file.tellg();
-        file.seekg(0, std::ios::beg);
+        // Get data_stream size
+        data_stream.seekg(0, std::ios::end);
+        long unsigned size = data_stream.tellg();
+        data_stream.seekg(0, std::ios::beg);
         // Compute number of floats
         long unsigned n_floats = size / sizeof(float);
 
         // Read data
         data.resize(n_floats);
-        file.read(reinterpret_cast<char*>(data.data()), size);
-        file.close();
+        data_stream.read(reinterpret_cast<char*>(data.data()), size);
+        data_stream.close();
     }
 
     // read centroids_path
     {
-        std::ifstream file(centroids_path, std::ios::binary);
-        if (!file.is_open()) {
-            // open log_path
-            std::ofstream log_file(log_path, std::ios::app);
-            if (!log_file.is_open()) {
-                return LOGERROR;
-            }
-            log_file << __FILE__ << " : " << __LINE__ << " details: " << datafile_path << std::endl;
+        std::ifstream centroids_stream(centroids_path, std::ios::binary);
+        if (!centroids_stream.is_open()) {
+            log_stream << "in file " << __FILE__ << " at line " << __LINE__ << " : CRITICAL is_open error, centroids_path=" << centroids_path << std::endl;
+            log_stream.flush();
+            log_stream.close();
+            return IO_ERROR;
         }
 
-        // Get file size
-        file.seekg(0, std::ios::end);
-        long unsigned size = file.tellg();
-        file.seekg(0, std::ios::beg);
+        // Get centroids_stream size
+        centroids_stream.seekg(0, std::ios::end);
+        long unsigned size = centroids_stream.tellg();
+        centroids_stream.seekg(0, std::ios::beg);
         // Compute number of floats
         long unsigned n_floats = size / sizeof(float);
 
         // Read data
         initial_centroids.resize(n_floats);
-        file.read(reinterpret_cast<char*>(initial_centroids.data()), size);
-        file.close();
+        centroids_stream.read(reinterpret_cast<char*>(initial_centroids.data()), size);
+        centroids_stream.close();
     }
 
     // call CUDA function
     try
     {
-        std::vector<float> centroids = cudafcm(data, initial_centroids, n_tiles, log_path);
+        std::vector<float> centroids = cudafcm(data, initial_centroids, n_dimensions, tollerance, log_stream);
 
         // save centroids in outfile_path
         {
-            std::ofstream file(outfile_path, std::ios::binary);
-            if (!file.is_open()) {
-                // open log_path
-                std::ofstream log_file(log_path, std::ios::app);
-                if (!log_file.is_open()) {
-                    return LOGERROR;
-                }
-                log_file << __FILE__ << " : " << __LINE__ << " details: " << outfile_path << std::endl;
+            std::ofstream outfile_stream(outfile_path, std::ios::binary);
+            if (!outfile_stream.is_open()) {
+                log_stream << "in file " << __FILE__ << " at line " << __LINE__ << " : CRITICAL is_open error, outfile_path=" << outfile_path << std::endl;
+                log_stream.flush();
+                log_stream.close();
+                return IO_ERROR;
             }
-            file.write(reinterpret_cast<char*>(centroids.data()), centroids.size() * sizeof(float));
-            file.close();
+            outfile_stream.write(reinterpret_cast<char*>(centroids.data()), centroids.size() * sizeof(float));
+            outfile_stream.close();
         }
 
     }
-    catch (const std::bad_alloc& e)
+    catch (const std::runtime_error& e)
     {
-        // open log_path
-        std::ofstream log_file(log_path, std::ios::app);
-        if (!log_file.is_open()) {
-            return LOGERROR;
-        }
-        log_file << __FILE__ << " : " << __LINE__ << " details: " << e.what() << std::endl;
+        log_stream << "in file " << __FILE__ << " at line " << __LINE__ << " :  CRITICAL caught " << e.what() << std::endl;
+        log_stream.flush();
+        log_stream.close();
+        return DEVICE_ERROR;
     }
 
     return SUCCESS;

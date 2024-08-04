@@ -46,9 +46,9 @@ def test_synth():
                     os.path.join("out", "computed", str(n_tails)),
                 ),
                 "temp/list_file.txt",
-                "temp/log_file.log",
                 n_tails,
                 8,
+                "temp/log_file.log",
             )
         except SyntaxError:
             print("errore di implementazione")

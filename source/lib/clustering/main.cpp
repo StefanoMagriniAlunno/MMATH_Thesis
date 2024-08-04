@@ -17,12 +17,13 @@
 /**
  * @brief This function reads input from Python and calls the cxxfcm function from fcm.h
  *
- * @param[in] self
- * @param[in] args :
+ * @param self
+ * @param args :
  * - (str) complete path of datafile
  * - (str) complete path of file with initial centroids
  * - (str) complete path of output file
- * - (int) tiles' size (pass N if you want to use NxN tiles)
+ * - (int) dimension of data points
+ * - (float) tollerance
  * - (str) complete path of log file
  * @return PyObject*: None
  *
@@ -40,21 +41,35 @@ PyObject* fcmwrapper(PyObject* self, PyObject* args)
         return NULL;
     }
     const char *datafile_path = NULL, *outfile_path = NULL, *centroids_path = NULL, *log_path = NULL;
-    int n_tiles = 0;
+    int dimension = 0;
+    float tollerance = 0.0;
 
-    if (!PyArg_ParseTuple(args, "sssis", &datafile_path, &centroids_path, &outfile_path, &n_tiles, &log_path))
+    if (!PyArg_ParseTuple(args, "sssifs", &datafile_path, &centroids_path, &outfile_path, &dimension, &tollerance, &log_path))
     {
         PyErr_SetString(PyExc_SyntaxError, "Expected 4 strings and 1 integer.");
         return NULL;
     }
 
-    if (n_tiles <= 0)
+    if (dimension <= 0)
     {
-        PyErr_Format(PyExc_ValueError, "Size of tiles is not valid. Passed %d", n_tiles);
+        PyErr_Format(PyExc_ValueError, "Size of data points is not valid. Passed %d", dimension);
         return NULL;
     }
 
-    cxxfcm(datafile_path, outfile_path, centroids_path, n_tiles, log_path);
+    int ret = cxxfcm(datafile_path, outfile_path, centroids_path, dimension, tollerance, log_path);
+
+    switch(ret)
+    {
+        case LOG_ERROR:
+            PyErr_Format(PyExc_Exception, "log file error, please check %s for more details", log_path);
+            Py_RETURN_NONE;
+        case IO_ERROR:
+            PyErr_Format(PyExc_OSError, "an error occurred during IO operations, please check %s for more details", log_path);
+            Py_RETURN_NONE;
+        case DEVICE_ERROR:
+            PyErr_Format(PyExc_RuntimeError, "an error occurred during device operations, please check %s for more details", log_path);
+            Py_RETURN_NONE;
+    }
 
     // Return None
     Py_RETURN_NONE;
@@ -62,7 +77,28 @@ PyObject* fcmwrapper(PyObject* self, PyObject* args)
 
 // 'methods' is the list of methods of the module
 static PyMethodDef methods[] = {
-    {"fcmwrapper", fcmwrapper, METH_VARARGS, "Wrapper for the cxxfcm function"},
+    {"fcmwrapper", fcmwrapper, METH_VARARGS,
+    "Perform Fuzzy C-Means Clustering\n"
+    "This function reads the list of images, synthesises each image.\n"
+    ""
+    "\n"
+    ":param self: Reference to the module or object calling the method\n"
+    ":type self: PyObject\n"
+    ":param args: arguments:\n"
+    "- (str) complete path of datafile\n"
+    "- (str) complete path of file with initial centroids\n"
+    "- (str) complete path of output file\n"
+    "- (int) dimension of data points\n"
+    "- (float) tollerance\n"
+    ":raises SyntaxError:\n"
+    ":raises ValueError:\n"
+    ":raises IOError:\n"
+    ":raises RuntimeError:\n"
+    ":raises Exception:\n"
+    ":usage:\n"
+    ">>> import synthesis\n"
+    ">>> synthesis.wrapper('/path/to/in/db', '/path/to/out/db', '/path/to/listfile', 6, 8, '/path/to/logfile')\n"
+    },
     {NULL, NULL, 0, NULL}  // Sentinel
 };
 

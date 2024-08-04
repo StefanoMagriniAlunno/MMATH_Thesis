@@ -16,14 +16,14 @@
 /**
  * @brief This function read input from Python and call csynthesis function from synthesis.h
  *
- * @param[in] self
- * @param[in] args :
+ * @param self
+ * @param args :
  * - (str) complete path of input dataset
  * - (str) complete path of output dataset
  * - (str) complete path of file with list of all files
- * - (str) complete path of log file
  * - (int) size of tiles (pass N if you want to use NxN tiles)
  * - (int) number of threads
+ * - (str) complete path of log file
  * @return PyObject*: None
  *
  * @exception SyntaxError : if the number or format of arguments is not valid
@@ -38,7 +38,7 @@ static PyObject* wrapper(PyObject* self, PyObject* args)
     }
     const char *in_dset_path = NULL, *out_dset_path = NULL, *file_path = NULL, *log_path = NULL;
     int n_threads = 0, n_tiles = 0;
-    if (!PyArg_ParseTuple(args, "ssssii", &in_dset_path, &out_dset_path, &file_path, &log_path, &n_tiles, &n_threads))
+    if (!PyArg_ParseTuple(args, "sssiis", &in_dset_path, &out_dset_path, &file_path, &n_tiles, &n_threads, &log_path))
     {
         PyErr_SetString(PyExc_SyntaxError, "Required 3 strings in input and an integer.");
         return NULL;
@@ -54,30 +54,21 @@ static PyObject* wrapper(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    int ret = csynthesis(in_dset_path, out_dset_path, file_path, log_path, n_tiles, n_threads);
+    int ret = csynthesis(in_dset_path, out_dset_path, file_path, n_tiles, n_threads, log_path);
 
     switch(ret)
     {
-        case LOG_FOPEN_MISSED:
-            PyErr_SetString(PyExc_IOError, "Log file opening error");
+        case LOG_ERROR:
+            PyErr_Format(PyExc_Exception, "log file error, please check %s for more details", log_path);
             Py_RETURN_NONE;
-        case FOPEN_MISSED:
-            PyErr_SetString(PyExc_IOError, "file opening error, see log file for more details...");
-            Py_RETURN_NONE;
-        case FWRITE_MISSED:
-            PyErr_SetString(PyExc_IOError, "file writing error, see log file for more details...");
-            Py_RETURN_NONE;
-        case FREAD_MISSED:
-            PyErr_SetString(PyExc_IOError, "file reading error, see log file for more details...");
-            Py_RETURN_NONE;
-        case MEMORY_ERROR:
-            PyErr_SetString(PyExc_MemoryError, "malloc or calloc failed the allocation...");
+        case IO_ERROR:
+            PyErr_Format(PyExc_OSError, "an error occurred during IO operations, please check %s for more details", log_path);
             Py_RETURN_NONE;
         case VALUE_ERROR:
-            PyErr_SetString(PyExc_ValueError, "uncorrect size of tiles...");
+            PyErr_Format(PyExc_ValueError, "invalid input values, please check %s for more details", log_path);
             Py_RETURN_NONE;
-        case SUPER_ERROR:
-            PyErr_SetString(PyExc_Exception, "An error occurred and failed the report in log file.");
+        case MEMORY_ERROR:
+            PyErr_Format(PyExc_MemoryError, "memory allocation error, please check %s for more details", log_path);
             Py_RETURN_NONE;
     }
 
@@ -92,24 +83,23 @@ static PyMethodDef methods[] = {
     "This function reads the list of images, synthesises each image.\n"
     ""
     "\n"
-    ":emphasis:`params`\n"
-    "  - :attr:`self`: Reference to the module or object calling the method\n"
-    "  - :attr:`args`: \n"
-    "    - :type:`str`: complete path of input dataset\n"
-    "    - :type:`str`: complete path of output dataset\n"
-    "    - :type:`str`: complete path of file with all relative paths\n"
-    "    - :type:`str`: complete path of log file\n"
-    "    - :type:`int`: size of tailse (the length of side)\n"
-    "    - :type:`int`: num of dedicated threads\n"
-    ":emphasis:`raises`\n"
-    "  - :exc:`SyntaxError`\n"
-    "  - :exc:`ValueError`\n"
-    "  - :exc:`IOError`\n"
-    "  - :exc:`MemoryError`\n"
-    "  - :exc:`Exception`\n"
-    ":emphasis:`usage`\n"
-    "  >>> import synthesis\n"
-    "  >>> synthesis.wrapper('/path/to/in/db', '/path/to/out/db', '/path/to/listfile', '/path/to/logfile', 6, 8)\n"
+    ":param self: Reference to the module or object calling the method\n"
+    ":type self: PyObject\n"
+    ":param args: arguments:\n"
+    "- (str) complete path of input dataset\n"
+    "- (str) complete path of output dataset\n"
+    "- (str) complete path of file with all relative paths\n"
+    "- (int) size of tailse (the length of side)\n"
+    "- (int) num of dedicated threads\n"
+    "- (str) complete path of log file\n"
+    ":raises SyntaxError:\n"
+    ":raises ValueError:\n"
+    ":raises OSError:\n"
+    ":raises MemoryError:\n"
+    ":raises Exception:\n"
+    ":usage:\n"
+    ">>> import synthesis\n"
+    ">>> synthesis.wrapper('/path/to/in/db', '/path/to/out/db', '/path/to/listfile', 6, 8, '/path/to/logfile')\n"
     },
     {NULL, NULL, 0, NULL}  // Sentinel
 };

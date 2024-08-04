@@ -21,7 +21,4 @@ target_link_libraries(synthesis PRIVATE Python3::Python OpenMP::OpenMP_C)
 set_target_properties(synthesis PROPERTIES OUTPUT_NAME "synthesis")
 set_target_properties(synthesis PROPERTIES PREFIX "lib")
 
-set_source_files_properties(src/synthesis.c PROPERTIES COMPILE_OPTIONS "-Werror;-Wall;-Wextra;-pedantic;-O3")
-set_source_files_properties(main.c PROPERTIES COMPILE_OPTIONS "-Werror;-Wall;-Wextra;-pedantic;-O3")
-
 install(TARGETS synthesis DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
