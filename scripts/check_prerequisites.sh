@@ -8,11 +8,12 @@ req_python3_pip_version="24.2"
 req_python3_virtualenv_version="20.26.3"
 req_python3_dev_version="3.10.6-1~22.04"
 req_CC="gcc"
-req_CC_version="11.4.0"
+req_CC_version="12.3.0"
 req_CXX="g++"
-req_CXX_version="11.4.0"
+req_CXX_version="12.3.0"
 req_CC_doxygen_version="1.9.1"
-req_nvcc_version="12.5"
+req_nvcc_version="12.4"
+req_cmake_version="3.22.1"
 
 python3_executable=$1
 
@@ -92,6 +93,15 @@ fi
 nvcc_version=$(nvcc --version | grep release | cut -d " " -f 5)
 if [ "$nvcc_version" != "$req_nvcc_version," ]; then
     echo -e "\e[31mERROR\e[0m nvcc version must be $req_nvcc_version (read $nvcc_version)"
+    exit 1
+fi
+if ! [ "$(cmake --version)" ]; then
+    echo -e "\e[31mERROR\e[0m cmake is not installed"
+    exit 1
+fi
+cmake_version=$(cmake --version | grep version | cut -d " " -f 3)
+if [ "$cmake_version" != "$req_cmake_version" ]; then
+    echo -e "\e[31mERROR\e[0m cmake version must be $req_cmake_version (read $cmake_version)"
     exit 1
 fi
 

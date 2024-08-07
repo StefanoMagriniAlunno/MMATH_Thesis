@@ -3,12 +3,14 @@ project(clustering LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_COMPILER ${CXX})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+find_package(OpenMP REQUIRED)
 set(Python3_EXECUTABLE ${PY})
 find_package(Python3 REQUIRED COMPONENTS Development)
 set(CMAKE_CUDA_COMPILER ${CU})
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -arch=sm_75")
-# set(CUDA_HOST_COMPILER ${CXX})
+set(CUDA_HOST_COMPILER ${CXX})
+find_package(CUDAToolkit REQUIRED)
 
 # Includi le directory
 include_directories(inc)
@@ -28,7 +30,7 @@ set(SOURCE_FILES
 add_library(clustering MODULE ${SOURCE_FILES})
 
 # Aggiungi opzioni e link
-target_link_libraries(clustering PRIVATE Python3::Python ${CUDA_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES})
+target_link_libraries(clustering PRIVATE Python3::Python CUDA::cublas CUDA::cudart OpenMP::OpenMP_CXX)
 
 # Proprietà del target
 set_target_properties(clustering
@@ -36,11 +38,13 @@ set_target_properties(clustering
     OUTPUT_NAME "clustering"
     PREFIX "lib"
     CUDA_ARCHITECTURES "75"
-    # CUDA_HOST_COMPILER ${CUDA_HOST_COMPILER}
+    CUDA_HOST_COMPILER ${CUDA_HOST_COMPILER}
 )
 
-# Opzioni di compilazione
-target_compile_options(clustering PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-arch=sm_75>)
+# Opzioni di compilazione per il compilatore CUDA -g e -arch=sm_75
+target_compile_options(clustering PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-g -arch=sm_75>)
+# Opzioni di compilazione per il compilatore C++
+target_compile_options(clustering PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-g>)
 
 
 # Installazione

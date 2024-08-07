@@ -1,7 +1,7 @@
 /**
  * @file synthesis.h
  * @author Stefano Magrini Alunno (stefanomagrini99@gmail.com)
- * @brief definition of csynthesis and status code macros
+ * @brief declaration of csynthesis and status code macros
  *
  * @date 2024-07-16
  *
@@ -37,14 +37,12 @@
  *
  * @return int: status code
  *
- * @note only pgm format is supported, this function reports events and errors in a log file.
+ * @note only pgm format is supported, this function reports events and errors
+ * in a log file.
  */
-int csynthesis(
-    const char *const in_dset_path,
-    const char *const out_dset_path,
-    const char *const file_path,
-    unsigned n_tiles,
-    unsigned n_threads,
-    const char *const log_path);
+int csynthesis (const char *const in_dset_path,
+                const char *const out_dset_path, const char *const file_path,
+                unsigned n_tiles, unsigned n_threads,
+                const char *const log_path);
 
 #endif // SYNTHESIS_H

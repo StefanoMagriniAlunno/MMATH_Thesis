@@ -9,6 +9,8 @@ from tqdm import tqdm
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger = common.main(r"logs/dev.log")
+    if device.type == "cpu":
+        logger.warning("CUDA is not available, using CPU")
 
     # shutil.rmtree("data/out")
     db_path = "data/db/cutted_set/Author1"
@@ -115,7 +117,7 @@ if __name__ == "__main__":
                     "temp/synth_merge",
                     "temp/synth_sample",
                     "temp/centroids",
-                    n_tiles,
+                    n_tiles * n_tiles,
                     0.1,
                     "logs/fcm.log",
                 )
@@ -126,5 +128,5 @@ if __name__ == "__main__":
                 logger.error("Unvalid inputs")
                 exit()
             except Exception:
-                logger.error("Unexcpected error")
+                logger.error("Unexpected error")
                 exit()
