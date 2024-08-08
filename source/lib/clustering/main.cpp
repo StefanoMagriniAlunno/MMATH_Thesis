@@ -19,9 +19,10 @@
  *
  * @param self
  * @param args :
- * - (str) complete path of datafile
+ * - (str) complete path of data file
+ * - (str) complete path of weights file
  * - (str) complete path of file with initial centroids
- * - (str) complete path of output file
+ * - (str) complete path of output centroids file
  * - (int) dimension of data points
  * - (float) tollerance
  * - (str) complete path of log file
@@ -42,13 +43,15 @@ extern "C"
         PyErr_SetString (PyExc_Exception, "self is NULL");
         return NULL;
       }
-    const char *datafile_path = NULL, *outfile_path = NULL,
-               *centroids_path = NULL, *log_path = NULL;
+    const char *datafile_path = NULL, *weightsfile_path = NULL,
+               *centroids_path = NULL, *outfile_centroids_path = NULL,
+               *log_path = NULL;
     int dimension = 0;
     float tollerance = 0.0;
 
-    if (!PyArg_ParseTuple (args, "sssifs", &datafile_path, &centroids_path,
-                           &outfile_path, &dimension, &tollerance, &log_path))
+    if (!PyArg_ParseTuple (args, "ssssifs", &datafile_path, &weightsfile_path,
+                           &centroids_path, &outfile_centroids_path,
+                           &dimension, &tollerance, &log_path))
       {
         PyErr_SetString (PyExc_SyntaxError,
                          "Expected 4 strings and 1 integer.");
@@ -63,7 +66,8 @@ extern "C"
         return NULL;
       }
 
-    int ret = cxxfcm (datafile_path, outfile_path, centroids_path, dimension,
+    int ret = cxxfcm (datafile_path, weightsfile_path, centroids_path,
+                      outfile_centroids_path, dimension,
                       tollerance, log_path);
 
     switch (ret)
@@ -104,6 +108,7 @@ extern "C"
       ":type self: PyObject\n"
       ":param args: arguments:\n"
       "- (str) complete path of datafile\n"
+      "- (str) complete path of weights file\n"
       "- (str) complete path of file with initial centroids\n"
       "- (str) complete path of output file\n"
       "- (int) dimension of data points\n"
@@ -115,7 +120,7 @@ extern "C"
       ":raises Exception:\n"
       ":usage:\n"
       ">>> import synthesis\n"
-      ">>> synthesis.wrapper('/path/to/in/db', '/path/to/out/db', "
+      ">>> synthesis.wrapper('/path/to/in/db', 'path/to/in/weight', '/path/to/out/db', "
       "'/path/to/listfile', 6, 8, '/path/to/logfile')\n" },
     { NULL, NULL, 0, NULL } // Sentinel
   };

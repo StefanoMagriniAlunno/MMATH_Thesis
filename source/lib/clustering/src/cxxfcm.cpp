@@ -12,9 +12,20 @@
 #include <string>
 #include <vector>
 
+// used to pass a log instruction
+#define LOGGER(log_stream, level, message)                                    \
+  do                                                                          \
+    {                                                                         \
+      log_stream << __FILE__ << ":" << __LINE__ << " \t" << (level) << " "    \
+                 << (message) << std::endl;                                   \
+      log_stream.flush ();                                                    \
+    }                                                                         \
+  while (0)
+
 int
-cxxfcm (const char *const datafile_path, const char *const outfile_path,
-        const char *const centroids_path, size_t n_dimensions,
+cxxfcm (const char *const datafile_path, const char *const weightsfile_path,
+        const char *const centroids_path,
+        const char *const outfile_centroids_path, size_t n_dimensions,
         float tollerance, const char *const log_path)
 {
   // create log stream as new file
@@ -24,17 +35,15 @@ cxxfcm (const char *const datafile_path, const char *const outfile_path,
       return LOG_ERROR;
     }
 
-  std::vector<float> data, initial_centroids;
+  std::vector<float> data, weights, centroids;
 
   // read datafile_path
   {
     std::ifstream data_stream (datafile_path, std::ios::binary);
     if (!data_stream.is_open ())
       {
-        log_stream << "in file " << __FILE__ << " at line " << __LINE__
-                   << " : CRITICAL is_open error, datafile_path="
-                   << datafile_path << std::endl;
-        log_stream.flush ();
+        LOGGER (log_stream, "CRITICAL",
+                "is_open error, datafile_path=" + std::string (datafile_path));
         log_stream.close ();
         return IO_ERROR;
       }
@@ -52,15 +61,38 @@ cxxfcm (const char *const datafile_path, const char *const outfile_path,
     data_stream.close ();
   }
 
+  // read weights_path
+  {
+    std::ifstream weights_stream (weightsfile_path, std::ios::binary);
+    if (!weights_stream.is_open ())
+      {
+        LOGGER (log_stream, "CRITICAL",
+                "is_open error, weights_path=" + std::string (weightsfile_path));
+        log_stream.close ();
+        return IO_ERROR;
+      }
+
+    // Get weights_stream size
+    weights_stream.seekg (0, std::ios::end);
+    long unsigned size = weights_stream.tellg ();
+    weights_stream.seekg (0, std::ios::beg);
+    // Compute number of floats
+    long unsigned n_floats = size / sizeof (float);
+
+    // Read data
+    weights.resize (n_floats);
+    weights_stream.read (reinterpret_cast<char *> (weights.data ()), size);
+    weights_stream.close ();
+  }
+
   // read centroids_path
   {
     std::ifstream centroids_stream (centroids_path, std::ios::binary);
     if (!centroids_stream.is_open ())
       {
-        log_stream << "in file " << __FILE__ << " at line " << __LINE__
-                   << " : CRITICAL is_open error, centroids_path="
-                   << centroids_path << std::endl;
-        log_stream.flush ();
+        LOGGER (log_stream, "CRITICAL",
+                "is_open error, centroids_path="
+                    + std::string (centroids_path));
         log_stream.close ();
         return IO_ERROR;
       }
@@ -73,48 +105,54 @@ cxxfcm (const char *const datafile_path, const char *const outfile_path,
     long unsigned n_floats = size / sizeof (float);
 
     // Read data
-    initial_centroids.resize (n_floats);
-    centroids_stream.read (
-        reinterpret_cast<char *> (initial_centroids.data ()), size);
+    centroids.resize (n_floats);
+    centroids_stream.read (reinterpret_cast<char *> (centroids.data ()), size);
     centroids_stream.close ();
   }
+
+  // check if data, weights have the same number of data points
+  if (data.size () / n_dimensions != weights.size ())
+    {
+      LOGGER (log_stream, "CRITICAL", "data and weights have different size");
+      log_stream.close ();
+      return IO_ERROR;
+    }
 
   // call CUDA function
   try
     {
-      std::vector<float> centroids = cudafcm (
-          data, initial_centroids, n_dimensions, tollerance, log_stream);
+      std::vector<float> out_centroids = cudafcm (
+          data, weights, centroids, n_dimensions, tollerance, log_stream);
 
-      // save centroids in outfile_path
+      // save out_centroids in outfile_centroids_path
       {
-        std::ofstream outfile_stream (outfile_path, std::ios::binary);
+        std::ofstream outfile_stream (outfile_centroids_path,
+                                      std::ios::binary);
         if (!outfile_stream.is_open ())
           {
-            log_stream << "in file " << __FILE__ << " at line " << __LINE__
-                       << " : CRITICAL is_open error, outfile_path="
-                       << outfile_path << std::endl;
-            log_stream.flush ();
+            LOGGER (log_stream, "CRITICAL",
+                    "is_open error, outfile_path="
+                        + std::string (outfile_centroids_path));
             log_stream.close ();
             return IO_ERROR;
           }
-        outfile_stream.write (reinterpret_cast<char *> (centroids.data ()),
-                              centroids.size () * sizeof (float));
+        outfile_stream.write (reinterpret_cast<char *> (out_centroids.data ()),
+                              out_centroids.size () * sizeof (float));
         outfile_stream.close ();
       }
+
+      log_stream.close ();
     }
   catch (const std::bad_alloc &e)
     {
-      log_stream << "in file " << __FILE__ << " at line " << __LINE__
-                 << " :  CRITICAL caught " << e.what () << std::endl;
-      log_stream.flush ();
+      LOGGER (log_stream, "CRITICAL", "bad_alloc caught");
       log_stream.close ();
       return DEVICE_ERROR;
     }
   catch (const std::runtime_error &e)
     {
-      log_stream << "in file " << __FILE__ << " at line " << __LINE__
-                 << " :  CRITICAL caught " << e.what () << std::endl;
-      log_stream.flush ();
+      LOGGER (log_stream, "CRITICAL",
+              "runtime_error caught " + std::string (e.what ()));
       log_stream.close ();
       return DEVICE_ERROR;
     }

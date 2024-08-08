@@ -21,22 +21,26 @@
  * @brief This function takes a datafile path and compute an fcm clustering
  *
  * @param datafile_path: path of datafile
- * @param outfile_path: path of output file
+ * @param weightsfile_path: path of weights file
  * @param centroids_path: path of file with initial centroids
+ * @param outfile_centroids_path: path of output file
  * @param n_dimensions: dimension of data points
  * @param tollerance: tollerance of the algorithm
  * @param log_path: path of log file
  *
  * @return int: status code
  */
-int cxxfcm (const char *const datafile_path, const char *const outfile_path,
-            const char *const centroids_path, size_t n_dimensions,
+int cxxfcm (const char *const datafile_path,
+            const char *const weightsfile_path,
+            const char *const centroids_path,
+            const char *const outfile_centroids_path, size_t n_dimensions,
             float tollerance, const char *const log_path);
 
 /**
  * @brief This function takes a datafile path and compute an fcm clustering
  *
  * @param data: vector of data
+ * @param weights: vector of weights
  * @param centroids: vector of initial centroids
  * @param n_dimensions: dimension of data points
  * @param tollerance: tollerance of the algorithm
@@ -61,7 +65,7 @@ int cxxfcm (const char *const datafile_path, const char *const outfile_path,
  * algorithm stops when the centroids do not change significantly (under a
  * certain tollerance).
  */
-std::vector<float> cudafcm (const std::vector<float> &data,
-                            const std::vector<float> &centroids,
-                            size_t n_dimensions, float tollerance,
-                            std::ofstream &log_stream);
+std::vector<float>
+cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
+         const std::vector<float> &centroids, size_t n_dimensions,
+         float tollerance, std::ofstream &log_stream);

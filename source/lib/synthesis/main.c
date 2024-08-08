@@ -63,8 +63,8 @@ wrapper (PyObject *self, PyObject *args)
       return NULL;
     }
 
-  int ret = csynthesis (in_dset_path, out_dset_path, file_path, n_tiles,
-                        n_threads, log_path);
+  int ret = csynthesis (in_dset_path, out_dset_path, file_path, log_path, n_tiles,
+                        n_threads);
 
   switch (ret)
     {

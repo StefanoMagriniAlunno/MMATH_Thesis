@@ -28,12 +28,12 @@
 /**
  * @brief This function takes a dataset directory and synthetises all images
  *
- * @param in_dset_path: path of input directory
- * @param out_dset_path: path of output directory
- * @param file_path: path of file with all relative path
+ * @param[in] in_dset_path: path of input directory
+ * @param[in] out_dset_path: path of output directory
+ * @param[in] file_path: path of file with all relative path
+ * @param[in] log_path: path of log file
  * @param n_tiles: size of tiles
  * @param n_threads: number of threads
- * @param log_path: path of log file
  *
  * @return int: status code
  *
@@ -42,7 +42,7 @@
  */
 int csynthesis (const char *const in_dset_path,
                 const char *const out_dset_path, const char *const file_path,
-                unsigned n_tiles, unsigned n_threads,
-                const char *const log_path);
+                const char *const log_path, unsigned n_tiles,
+                unsigned n_threads);
 
 #endif // SYNTHESIS_H

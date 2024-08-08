@@ -20,8 +20,8 @@
 /**
  * @brief This function performs the synthesis of a single image.
  *
- * @param cells: array of double
- * @param byte_board: array of unsigned char
+ * @param[out] cells: array of double
+ * @param[in] byte_board: array of unsigned char
  * @param width: width of image
  * @param height: height of image
  * @param n_tiles: size of tiles
@@ -29,9 +29,8 @@
  */
 void
 _synthetizer (unsigned char *const cells,
-              const unsigned char *const byte_board, const unsigned width,
-              const unsigned height, const unsigned n_tiles,
-              const unsigned n_threads)
+              const unsigned char *const byte_board, unsigned width,
+              unsigned height, unsigned n_tiles, unsigned n_threads)
 {
   unsigned width_short = width - n_tiles + 1,
            height_short = height - n_tiles + 1;
@@ -54,8 +53,8 @@ _synthetizer (unsigned char *const cells,
 /**
  * @brief This support function read an image and call the synthetizer.
  *
- * @param in_path : complete path of the image
- * @param out_path : complete path of the output
+ * @param[in] in_path : complete path of the image
+ * @param[in] out_path : complete path of the output
  * @param n_tiles : size of tiles
  * @param n_threads : num of threads
  * @param log_file : log file
@@ -64,7 +63,7 @@ _synthetizer (unsigned char *const cells,
  */
 int
 _reader (const char *const in_path, const char *const out_path,
-         const unsigned n_tiles, const unsigned n_threads, FILE *log_file)
+         unsigned n_tiles, unsigned n_threads, FILE *log_file)
 {
   unsigned width = 0;
   unsigned height = 0;
@@ -177,8 +176,8 @@ _reader (const char *const in_path, const char *const out_path,
 
 int
 csynthesis (const char *const in_db_path, const char *const out_db_path,
-            const char *const list_file_path, const unsigned n_tiles,
-            const unsigned n_threads, const char *const log_file_path)
+            const char *const list_file_path, const char *const log_file_path,
+            unsigned n_tiles, unsigned n_threads)
 {
   FILE *list_file = fopen (list_file_path, "r");
   if (list_file == NULL)

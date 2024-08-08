@@ -33,6 +33,7 @@ def install(c):
         "matplotlib seaborn plotly",  # plotting
         "tqdm colorama",  # utilities
         "torch torchvision torchaudio",  # gpu computing
+        "pycuda",  # gpu computing
     ]
 
     c.run(f"{sys.executable} -m pip install {' '.join(list_packages)}")

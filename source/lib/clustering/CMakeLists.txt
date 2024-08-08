@@ -42,9 +42,9 @@ set_target_properties(clustering
 )
 
 # Opzioni di compilazione per il compilatore CUDA -g e -arch=sm_75
-target_compile_options(clustering PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-g -arch=sm_75>)
+target_compile_options(clustering PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-O3 -arch=sm_75>)
 # Opzioni di compilazione per il compilatore C++
-target_compile_options(clustering PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-g>)
+target_compile_options(clustering PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-O3>)
 
 
 # Installazione

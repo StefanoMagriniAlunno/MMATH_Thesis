@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from typing import List
@@ -29,6 +30,10 @@ def test_synth():
         format="PPM",
     )
 
+    # genero il logger
+    logger = logging.getLogger("synthetizer")
+    logger.setLevel(logging.DEBUG)
+
     for n_tails in range(1, 6):
         os.makedirs(
             os.path.join(
@@ -39,7 +44,7 @@ def test_synth():
         )
         try:
             synthetizer(
-                None,
+                logger,
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "bin"),
                 os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
