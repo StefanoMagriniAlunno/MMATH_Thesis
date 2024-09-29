@@ -78,8 +78,8 @@ tocputool (const float *const d_addr)
 
 /**
  * @brief struct used to manage the memory partitions in the device
- * In this way the memory is allocated only once and the data is stored in a
- * contiguous way.
+ * In this way the memory is allocated only once and the data is
+ * stored in a contiguous way.
  *
  */
 struct partition
@@ -89,14 +89,15 @@ struct partition
   float *d_data;       /*!< device memory for data points in a single batch */
   float *d_weights;    /*!< device memory for weights of data points */
   float *d_matrix;     /*!< device memory for matrix of distances */
-  size_t batch_size;   /*!< number of data points to use in a single batch */
+  size_t batch_size;   /*!< number of data points to use in a single
+                          batch */
   size_t n_centroids;  /*!< number of centroids */
   size_t n_dimensions; /*!< number of dimensions */
 };
 
 /**
- * @brief used in update_centroids to access data in a non-contiguous way
- * This struct is used to access data in a non-contiguous way
+ * @brief used in update_centroids to access data in a non-contiguous
+ * way This struct is used to access data in a non-contiguous way
  *
  */
 struct non_contiguous_access
@@ -120,22 +121,25 @@ struct non_contiguous_access
 };
 
 /**
- * @brief This kernel computes the matrix U2 of membership between data points
- * and centroids
+ * @brief This kernel computes the matrix U2 of membership between
+ * data points and centroids
  *
- * @param[in] d_data : the i-th is d_data[i * n_dimensions + k] for k = 0, ...,
- * n_dimensions - 1
- * @param[in] d_weights : the weight of the i-th data point is d_weights[i]
- * @param[in] d_centroids : the j-th is d_centroids[j * n_dimensions + k] for k
- * = 0, ..., n_dimensions - 1
- * @param[out] d_matrix : the membership between the i-th data point and the
- * j-th centroid is stored in d_matrix[i * n_centroids + j]
+ * @param[in] d_data : the i-th is d_data[i * n_dimensions + k]
+ * for k = 0, ..., n_dimensions - 1
+ * @param[in] d_weights : the weight of the i-th data point is
+ * d_weights[i]
+ * @param[in] d_centroids : the j-th is
+ * d_centroids[j * n_dimensions + k] for k = 0, ..., n_dimensions - 1
+ * @param[out] d_matrix : the membership between the i-th data point
+ * and the j-th centroid is stored in d_matrix[i * n_centroids + j]
  * @param n_data : number of data points
  * @param n_dimensions : dimensions of data points
  * @param n_centroids : number of centroids
  *
- * @details This kernel requires a grid of blocks with n_data blocks and
- * MAX_THREADS_PER_BLOCK threads for each block.
+ * @details This kernel requires a grid of blocks with n_data blocks
+ * and MAX_THREADS_PER_BLOCK threads for each block.
+ *
+ * @note This kernel synchronize threads at the end of the computation
  */
 __global__ void
 kernel_compute_U2 (const float *const d_data, const float *const d_weights,
@@ -148,7 +152,8 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
   float value = 0;
   float reducted = 0;
 
-  // compute the distance between the i-th data point and the j-th centroid
+  // compute the distance between the i-th data point and the j-th
+  // centroid
   if (i < n_data && j < n_centroids)
     {
       for (size_t k = 0; k < n_dimensions; k++)
@@ -174,7 +179,6 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
       __syncthreads ();
     }
   reducted = sdata[0];
-
   // syncronyze threads of this block
   __syncthreads ();
 
@@ -191,7 +195,6 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
       if (i < n_data && j < n_centroids)
         value = reducted / value;
     }
-
   // syncronyze threads of this block
   __syncthreads ();
 
@@ -208,25 +211,24 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
       __syncthreads ();
     }
   reducted = sdata[0];
-
   // syncronyze threads of this block
   __syncthreads ();
 
-  // normalize the row
-  if (i < n_data && j < n_centroids)
-    value /= reducted;
-
   // assign the value to the matrix
   if (i < n_data && j < n_centroids)
+    value /= reducted;
     d_matrix[i * n_centroids + j] = value * value * d_weights[i];
+  // syncronyze threads of this block
+  __syncthreads ();
 }
 
 /**
  * @brief Update centroids yet allocated on the device
  *
- * @param[in] d_data : data points stored as d_data[i * n_dimensions + k] for k
- * = 0, ..., n_dimensions - 1
- * @param[in] d_matrix : matrix of distances stored as d_matrix[i * n_centroids
+ * @param[in] d_data : data points stored as d_data[i * n_dimensions +
+ * k] for k = 0, ..., n_dimensions - 1
+ * @param[in] d_matrix : matrix of distances stored as d_matrix[i *
+ * n_centroids
  * + j]
  * @param[out] h_centroids_weight : weights of centroids
  * @param[out] d_new_centroids : new centroids
@@ -237,9 +239,11 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
  * @param handle : cublas handle
  * @param log_stream : log file
  *
- * @exception std::runtime_error : if an error occurs during the computation
+ * @exception std::runtime_error : if an error occurs during the
+ * computation
  *
- * @note This function synchronize threads at the end of the computation
+ * @note This function synchronize threads at the end of the
+ * computation
  */
 __host__ void
 update_centroids (const float *const d_data, float *const d_matrix,
@@ -257,8 +261,10 @@ update_centroids (const float *const d_data, float *const d_matrix,
   float alpha = 1.0;
   float beta = 1.0;
   // for  k=1:n_dimensions, j=1:n_centroids
-  // d_new_centroids[k + j*n_dimensions] = d_new_centroids[k + j*n_dimensions]
-  // + sum_i=1:n_data d_data[k + i*n_dimensions]*d_matrix[j + i*n_centroids]
+  // d_new_centroids[k + j*n_dimensions] = d_new_centroids[k +
+  // j*n_dimensions]
+  // + sum_i=1:n_data d_data[k + i*n_dimensions]*d_matrix[j +
+  // i*n_centroids]
   status = cublasSgemm (handle, CUBLAS_OP_N, CUBLAS_OP_T, n_dimensions,
                         n_centroids, n_data, &alpha, d_data, n_dimensions,
                         d_matrix, n_centroids, &beta, d_new_centroids,
@@ -300,14 +306,14 @@ update_centroids (const float *const d_data, float *const d_matrix,
 }
 
 /**
- * @brief This function compute the matrix of distances between data points and
- * centroids
+ * @brief This function compute the matrix of distances between data
+ * points and centroids
  *
- * @param[in] d_data : data points stored as d_data[i * n_dimensions + k] for k
- * = 0, ..., n_dimensions - 1
- * @param[in] d_weights : weights of data points
- * @param[in] d_centroids : centroids stored as d_centroids[j * n_dimensions +
+ * @param[in] d_data : data points stored as d_data[i * n_dimensions +
  * k] for k = 0, ..., n_dimensions - 1
+ * @param[in] d_weights : weights of data points
+ * @param[in] d_centroids : centroids stored as d_centroids[j *
+ * n_dimensions + k] for k = 0, ..., n_dimensions - 1
  * @param[out] d_matrix : matrix of distances stored as d_matrix[i *
  * n_centroids + j] for j = 0, ..., n_centroids - 1
  * @param n_data : number of data points
@@ -316,9 +322,11 @@ update_centroids (const float *const d_data, float *const d_matrix,
  * @param prop : properties of the device
  * @param log_stream : log file
  *
- * @exception std::runtime_error : if an error occurs during the computation
+ * @exception std::runtime_error : if an error occurs during the
+ * computation
  *
- * @note This function synchronize threads at the end of the computation
+ * @note This function synchronize threads at the end of the
+ * computation
  */
 __host__ void
 compute_U2 (const float *const d_data, const float *const d_weights,
@@ -353,7 +361,8 @@ compute_U2 (const float *const d_data, const float *const d_weights,
 /**
  * @brief This function compute centroids
  *
- * @param data : data points stored as data[i * n_dimensions + k] for k = 0,
+ * @param data : data points stored as data[i * n_dimensions + k] for
+ * k = 0,
  * ..., n_dimensions - 1
  * @param weights : weights of data points
  * @param partitions : partitions of the data points
@@ -361,11 +370,13 @@ compute_U2 (const float *const d_data, const float *const d_weights,
  * @param log_stream : log file
  * @return float : variation of centroids
  *
- * @details For a better performance, the log messages are written only in case
- * of error.
+ * @details For a better performance, the log messages are written
+ * only in case of error.
  *
- * @exception std::runtime_error : if an error occurs during the computation
- * @exception std::bad_alloc : if an error occurs during the memory allocation
+ * @exception std::runtime_error : if an error occurs during the
+ * computation
+ * @exception std::bad_alloc : if an error occurs during the memory
+ * allocation
  */
 __host__ float
 compute_centroids (const std::vector<float> &data,
@@ -465,8 +476,8 @@ compute_centroids (const std::vector<float> &data,
       c_data += batch_size;
     }
 
-  // define a grid of blocks with n_centroids blocks and n_dimensions threads
-  // for each block
+  // define a grid of blocks with n_centroids blocks and n_dimensions
+  // threads for each block
   dim3 block_grid (partitions.n_centroids, 1);
   dim3 thread_grid (partitions.n_dimensions, 1);
 
@@ -475,7 +486,8 @@ compute_centroids (const std::vector<float> &data,
     {
       if (h_centroids_weight[i] != 0)
         {
-          // use cublas to divide d_new_centroids[i,:] by h_centroids_weight[i]
+          // use cublas to divide d_new_centroids[i,:] by
+          // h_centroids_weight[i]
           float alpha = 1.0 / h_centroids_weight[i];
           status = cublasSscal (
               handle, partitions.n_dimensions, &alpha,
@@ -633,7 +645,8 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
     // check if batch_size is less than 0
     CHECK_ERROR_BAD_ALLOC (batch_size > 0, PASS_INSTRUCTION,
                            "Not enough memory to allocate the data points");
-    // check if batch_size is greater than max number of activable blocks
+    // check if batch_size is greater than max number of activable
+    // blocks
     CHECK_ERROR_BAD_ALLOC (
         batch_size <= prop.maxGridSize[0], PASS_INSTRUCTION,
         "Number of data points is greater than max number of "
@@ -663,9 +676,9 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
     = d_main_ptr + 2 * centroids.size (), // len = batch_size * n_dimensions
     .d_weights = d_main_ptr + 2 * centroids.size ()
                  + batch_size * n_dimensions, // len = batch_size
-    .d_matrix
-    = d_main_ptr + 2 * centroids.size () + batch_size * n_dimensions
-      + batch_size, // len = batch_size * centroids.size() / n_dimensions
+    .d_matrix = d_main_ptr + 2 * centroids.size () + batch_size * n_dimensions
+                + batch_size, // len = batch_size * centroids.size() /
+                              // n_dimensions
     .batch_size = batch_size,
     .n_centroids = centroids.size () / n_dimensions,
     .n_dimensions = n_dimensions,
