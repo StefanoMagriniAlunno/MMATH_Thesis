@@ -1,0 +1,83 @@
+\chapter{Methodology}
+\label{chap:methodology}
+\begin{toReview}
+%Questa ricerca si propone di analizzare l'attribuzione di opere grafiche, prendendo spunto dalle metodologie utilizzate per l'attribuzione di opere letterarie. In particolare, si esamina l'applicazione degli $N$-grammi, ossia sequenze di $N$ simboli adiacenti, come metodo di rappresentazione delle opere.
+This research aims to analyse the attribution of graphic works, taking its inspiration from the methodologies used for the attribution of literary works \citep[see][]{thesis}. In particular, it examines the application of $N$-grams, i.e. sequences of $N$ adjacent symbols, as a method of representing works.
+
+%\noindent Per comprendere appieno la rappresentazione delle opere pittoriche, è opportuno partire dal metodo utilizzato per le opere letterarie. Ad esempio, nell'espressione "\texttt{Hello world!}", un $3$-gramma può essere rappresentato da "\texttt{llo}", che corrisponde a una sequenza di $3$ caratteri consecutivi. È importante sottolineare che anche spazi e punteggiature sono considerati caratteri, quindi anche "\texttt{o w}" e "\texttt{ld!}" sono $3$-grammi validi.
+\noindent To fully understand the representation of graphic works, it is appropriate to start from the method used for literary works. For example, in the expression "\texttt{Hello world!}", a $3$-gram can be represented by "\texttt{llo}", which corresponds to a sequence of $3$ consecutive characters. Importantly, spaces and punctuation are also considered characters, so "\texttt{o w}" and "\texttt{ld!}" are also valid $3$-grams.
+
+%\noindent Le ricerche in questo ambito sono numerose e hanno portato a diverse applicazioni. Le rappresentazioni basate sugli $N$-grammi sono utilizzate non solo nell'attribuzione letteraria, ma anche nei modelli di linguaggio naturale nei quali queste analisi sono integrate con uso di reti neurali ricorrenti \begin{toDo} Inserire un riferimento \end{toDo}. Tuttavia, finora si conosce poco riguardo all'applicazione di questa tecnica alle opere pittoriche, e questo costituisce l'obiettivo principale della presente ricerca.
+\noindent Research in this field is extensive and has led to various applications. Representations based on $N$-grams are used not only in literary attribution, but also in natural language models in which these analyses are integrated with the use of recurrent neural networks. However, little is known so far about the application of this technique to graphic works, and this constitutes the main focus of this research.
+
+% introduco la tesi della triennale
+\paragraph{\gls{dada}}
+%Nella tesi di ricerca \begin{toDo} inserire riferimento\end{toDo}, le opere pittoriche sono considerate come matrici di colori, e si è definito un $N$-gramma come una sottomatrice quadrata $N \times N$, denominata "tessera".
+In the thesis research about the application of $N$-gram analysis on calligraphic works, \citep[see][]{thesis}, graphics are considered as matrices of colours and an $N$-gram was defined as a square sub-matrix of size $N$, also called 'tile'.
+
+%\indent La ricerca si è concentrata sull'analisi di immagini che sono state ridotte a matrici, nelle quali i soli colori presenti sono il bianco e il nero. Questo processo, noto come "posterizzazione", ha lo scopo di ridurre la quantità di colori presenti nell'opera (nota come "profondità"). Tale scelta metodologica è stata motivata dalla necessità di gestire la dimensione dell'alfabeto; infatti, mentre in un'opera letteraria possono esistere fino a $32^N$ $N$-grammi distinti (considerando le $26$ lettere dell'alfabeto più $6$ simboli di punteggiatura), in un'opera pittorica potrebbero essere presenti $256^{3N}$ tessere distinte con lato $N$. Questa considerevole differenza ha causato delle sfide significative nell'analisi delle immagini, rendendo inefficace l'applicazione di strumenti progettati per le opere letterarie sulle opere pittoriche.
+\noindent The research focused on the analysis of images that have been reduced to matrices, in which the only colours present are black and white (see \cref{fig:example_bw}). This process, known as 'posterisation', aims to reduce the amount of colours present in the work (known as 'depth'). This methodological choice was motivated by the need to manage the size of the alphabet; indeed, while in a literary work there may exist up to $32^N$ distinct $N$-grams (considering the $26$ letters of the alphabet plus $6$ punctuation symbols), in a pictorial work there may be $256^{3N^2}$ distinct tiles with side $N$. This considerable difference caused significant challenges in image analysis, rendering the application of tools designed for literary works on graphic works ineffective.
+
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}{0.4\linewidth}
+		\includegraphics[width=\linewidth]{Figures/example.jpeg}
+	\end{subfigure}
+	\hspace{2cm}
+	\begin{subfigure}{0.4\linewidth}
+		\includegraphics[width=\linewidth]{Figures/example_bw.jpeg}
+	\end{subfigure}
+	\caption[BW transformation]{Example of a conversion from a coloured image to an image with only black and white (bw) pixels. The image is transformed to greyscale by reducing the saturation, finally half of the lightest pixels are rendered white and the remaining are rendered black.}
+	\label{fig:example_bw}
+\end{figure}
+
+%\indent La ricerca ha concluso con risultati incoraggianti, evidenziando che l'analisi automatica dei campioni di calligrafia consente attribuzioni d'autore molto precise. Tuttavia, è emerso che l'applicazione delle stesse analisi su opere pittoriche come vignette e disegni non produce risultati soddisfacenti. Si è ipotizzato che ciò sia dovuto alla natura intrinseca delle opere pittoriche, dove la presenza del colore riveste un importante ruolo, e la posterizzazione, anziché semplificare il processo, genera rumore e nuove informazioni che rendono la rappresentazione dei dati poco affidabile.
+\noindent The research concluded with promising results, showing that the automatic analysis of handwriting samples allows very precise author attributions. However, it turned out that applying the same analysis to pictorial works such as panels and drawings does not produce satisfactory results. It was conjectured that this is due to the intrinsic nature of pictorial works, where the presence of colour plays an important role, and posterisation, instead of helping attribution, generates noise and new information that make the representation of data unreliable.
+
+\paragraph{\gls{cada}}
+%Seguendo la stessa linea di ricerca della tesi di \begin{toDo} inserire riferimento \end{toDo}, abbiamo proposto un riadattamento della metodologia al fine di indagare su quale possa essere la strategia più efficace per l'analisi automatica di immagini caratterizzate da un vasto alfabeto di colori. L'obiettivo è costruire una \gls{cada} che possa analizzare i colori nel loro spazio naturale, ovvero in uno spazio continuo. Ciò ci consentirà di superare il vincolo del discreto di \gls{dada} e di ottenere risultati più accurati e dettagliati.
+Following the same line of research as the thesis of \citet{thesis}, we have proposed a re-adaptation of the methodology in order to investigate what might be the most effective strategy for the automatic analysis of images characterised by a large alphabet of colours. The aim is to construct a \gls{cada} that can analyse colours in their natural space, i.e. in a continuous space. This will allow us to overcome the discrete constraint of \gls{dada} and obtain more accurate and detailed results.
+
+\noindent Image analysis in \gls{dada} is a process in five stages: acquisition, pre-processing, synthesis, comparison and attribution. In this paper we are going to focus on the first four phases, detailing the process up to image comparison, while attribution will be briefly discussed as the concluding phase.
+
+\noindent The acquisition phase digitises two-dimensional works of art by scanning or photography. Scanning, in particular, allows a high resolution and accurate representation of the original document, while photography allows greater flexibility when the size of the work or physical conditions make scanning complex. The result of this phase is a digital image that accurately represents the work to be analysed.
+
+\noindent The pre-processing phase prepares the image for analysis by removing irrelevant elements through pixel-wise and work-size transformations. Pixel-wise techniques, such as greyscale conversion, act on each individual pixel. Work-size transformations, on the other hand, act on the image as a whole, e.g. with compression techniques or normalisation of colour scales.
+
+\noindent The synthesis phase deconstructs the image into a list of tiles of size $N\times N$, generating a sequence of discrete elements representing portions of the image. This process, aligned with the idea of n-gram language models, allows stylistic features to be analysed in a $\mathbb{R}^{N^2}$ space, preparing the data format for later comparison.
+
+\noindent In the comparison phase, we are going to address the real computational and theoretical challenge. Clustering techniques will be used to dynamically discretise the space of tiles and organise them according to similarity criteria. This allows us both to efficiently process the large number of tiles in a very high dimension and also to compare the target work with known works in the database.
+
+\noindent Finally, in the attribution phase, the similarities between the target work and known works are examined. The aim is to identify the author of the target work by studying the closest works in terms of stylistic and compositional characteristics. This phase focuses on identifying the works that show the greatest stylistic affinity with the target work, suggesting possible attributions.
+
+%(aggiunto direttamente in inglese)
+\noindent This research not only aims to tackle technical and computational challenges, but also to explore new perspectives in the analysis of artworks, thus opening up new horizons in the field of art criticism and art attribution.
+
+\begin{figure}[ht]
+	\centering
+	\begin{subfigure}{0.9\linewidth}
+		\includegraphics[width=\linewidth]{Figures/process.png}
+	\end{subfigure}
+\end{figure}
+
+\end{toReview}
+
+% acquisition and dataset details
+\newpage
+\input{main/methodology/DataSet}
+
+% pre-processing and digitisation theory
+\newpage
+\input{main/methodology/Digitisation}
+
+% synthesis algorithm
+\newpage
+\input{main/methodology/Synthesis}
+
+% comparison and theory
+\newpage
+\input{main/methodology/Comparison}
+
+% attribution
+%\newpage
+%\input{main/methodology/Attribution}

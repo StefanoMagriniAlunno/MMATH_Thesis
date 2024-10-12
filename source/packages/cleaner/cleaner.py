@@ -51,61 +51,6 @@ def fft(
 
         cleaner.fft(logger, "path/to/in_db", "path/to/out_db", False, 0.0001, device)
 
-    :pseudo code:
-
-    .. code-block:: none
-
-        FUNCTION fft(logger, in_db_path, out_db_path, preserve, percentile, device)
-            # Check if input and output databases exist
-            IF NOT exists(in_db_path) THEN
-                RAISE ValueError("Input database does not exist")
-            END IF
-            IF NOT exists(out_db_path) THEN
-                RAISE ValueError("Output database does not exist")
-            END IF
-
-            # Read input images
-            files = []
-            FOR each file IN in_db_path
-                IF file.endswith(".pgm") THEN
-                    files.append(file)
-                END IF
-            END FOR
-
-            # Prepare output folders
-            FOR each file IN in_db_path
-                IF file.endswith(".pgm") THEN
-                    rel_path = os.path.relpath(dirname, in_db_path)
-                    IF NOT exists(os.path.join(out_db_path, rel_path)) THEN
-                        os.mkdir(os.path.join(out_db_path, rel_path))
-                    END IF
-                END IF
-            END FOR
-
-            # Perform FFT and cleaning
-            FOR each filepath IN files
-                OPEN image FROM filepath
-                CONVERT image TO numpy array
-                CONVERT image TO tensor
-                COMPUTE mean of image tensor
-                COMPUTE FFT of image tensor
-                COMPUTE FFT amplitude of image tensor
-                FLATTEN FFT amplitude
-                SORT FFT amplitude
-                COMPUTE threshold
-                IF preserve THEN
-                    mask = FFT amplitude > threshold
-                ELSE
-                    mask = FFT amplitude < threshold
-                END IF
-                APPLY mask to FFT
-                COMPUTE inverse FFT
-                ADD mean to image tensor
-                NORMALIZE image tensor IN [0, 1]
-                SAVE image tensor to filepath
-            END FOR
-        END FUNCTION
-
     .. :no-index:
     """
 
@@ -156,7 +101,6 @@ def fft(
         fft_image = fft_image * mask
 
         image_tensor = torch.fft.ifft2(fft_image, norm="ortho").real
-        image_tensor += image_tensor_mean
 
         # normalize image
         image_tensor = (image_tensor - torch.min(image_tensor)) / (

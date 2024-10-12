@@ -1,0 +1,21 @@
+\addvspace {10\p@ }
+\contentsline {proposition}{\ifthmt@listswap Proposition~2.1.1\else \numberline {2.1.1}Proposition\fi }{3}{proposition.2.1.1}%
+\contentsline {notation}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Notation}{6}{thmt@dummyctr.dummy.2}%
+\contentsline {exempli_gratia}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Exempli Gratia}{7}{thmt@dummyctr.dummy.3}%
+\contentsline {remark}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Remark}{7}{thmt@dummyctr.dummy.4}%
+\contentsline {definition}{\ifthmt@listswap Definition~2.2.1\else \numberline {2.2.1}Definition\fi \thmtformatoptarg {membership measure}}{7}{definition.2.2.1}%
+\contentsline {remark}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Remark}{7}{thmt@dummyctr.dummy.6}%
+\contentsline {definition}{\ifthmt@listswap Definition~2.2.2\else \numberline {2.2.2}Definition\fi \thmtformatoptarg {Loss function and cluster weight}}{8}{definition.2.2.2}%
+\contentsline {remark}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Remark}{8}{thmt@dummyctr.dummy.8}%
+\contentsline {theorem}{\ifthmt@listswap Theorem~2.1\else \numberline {2.1}Theorem\fi \thmtformatoptarg {Update formula 'M'}}{8}{theorem.2.1}%
+\contentsline {remark}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Remark}{9}{thmt@dummyctr.dummy.10}%
+\contentsline {definition}{\ifthmt@listswap Definition~2.3.1\else \numberline {2.3.1}Definition\fi }{12}{definition.2.3.1}%
+\contentsline {exempli_gratia}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Exempli Gratia}{13}{thmt@dummyctr.dummy.12}%
+\contentsline {proposition}{\ifthmt@listswap Proposition~2.3.1\else \numberline {2.3.1}Proposition\fi }{13}{proposition.2.3.1}%
+\contentsline {theorem}{\ifthmt@listswap Theorem~2.2\else \numberline {2.2}Theorem\fi \thmtformatoptarg {\gls {dft}}}{14}{theorem.2.2}%
+\contentsline {exempli_gratia}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Exempli Gratia\thmtformatoptarg {Distance between distributions reformulated}}{17}{thmt@dummyctr.dummy.15}%
+\contentsline {exempli_gratia}{\ifthmt@listswap \else \numberline {\let \autodot \@empty }\fi Exempli Gratia}{21}{thmt@dummyctr.dummy.16}%
+\addvspace {10\p@ }
+\contentsline {definition}{\ifthmt@listswap Definition~3.4.1\else \numberline {3.4.1}Definition\fi \thmtformatoptarg {misura di un cluster}}{34}{definition.3.4.1}%
+\contentsline {definition}{\ifthmt@listswap Definition~3.4.2\else \numberline {3.4.2}Definition\fi \thmtformatoptarg {peso su un cluster}}{34}{definition.3.4.2}%
+\contentsline {definition}{\ifthmt@listswap Definition~3.4.3\else \numberline {3.4.3}Definition\fi }{35}{definition.3.4.3}%

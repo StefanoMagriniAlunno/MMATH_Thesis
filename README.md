@@ -7,7 +7,7 @@ Autori e finalità della repository...
 - `Python` 3.10.12 with:
   - `pip` 24.2
   - `virtualenv` 20.26.3
-  - `python3-dev` 3.10.6-1~22.04
+  - `python3-dev` 3.10.6-1~22.04.1
   - `python3-dbg` 3.10.12
 - `gcc` & `gxx` 11.4.0 with:
   - `doxygen` 1.9.1

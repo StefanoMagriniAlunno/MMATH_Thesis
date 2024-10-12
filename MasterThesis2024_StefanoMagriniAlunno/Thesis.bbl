@@ -1,0 +1,62 @@
+\begin{thebibliography}{7}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Basile et~al.(2008)Basile, Benedetto, Caglioti, and
+  Degli~Esposti]{SapAttribution}
+Chiara Basile, Dario Benedetto, Emanuele Caglioti, and Mirko Degli~Esposti.
+\newblock An example of mathematical authorship attribution.
+\newblock \emph{Journal of Mathematical Physics}, 49, 12 2008.
+\newblock \doi{10.1063/1.2996507}.
+
+\bibitem[Dunn(1973)]{FuzzyClustering_developDoc}
+J.~C. Dunn.
+\newblock A fuzzy relative of the isodata process and its use in detecting
+  compact well-separated clusters.
+\newblock \emph{Journal of Cybernetics}, 3\penalty0 (3):\penalty0 32--57, 1973.
+\newblock \doi{10.1080/01969727308546046}.
+\newblock URL \url{https://doi.org/10.1080/01969727308546046}.
+
+\bibitem[HOPLEY(1960)]{MaxWell_Colours}
+I.~B. HOPLEY.
+\newblock Clerk maxwell's experiments on colour vision.
+\newblock \emph{Science Progress (1933- )}, 48\penalty0 (189):\penalty0 46--66,
+  1960.
+\newblock ISSN 00368504, 20477163.
+\newblock URL \url{http://www.jstor.org/stable/43424831}.
+
+\bibitem[Magrini~Alunno(2021)]{thesis}
+Stefano Magrini~Alunno.
+\newblock Analisi automatica di disegni per attribuzione d'autore.
+\newblock Bachelor's thesis, La Sapienza, March 2021.
+\newblock Available at
+  \url{https://www.linkedin.com/feed/update/urn:li:activity:7182499324092694529/}.
+
+\bibitem[Martin(2024)]{Shannon_ngrammodel}
+Daniel Jurafsky \& James~H. Martin.
+\newblock An introduction to natural language processing, computational
+  linguistics, and speech recognition.
+\newblock 2024.
+\newblock URL
+  \url{https://web.stanford.edu/~jurafsky/slp3/ed3bookfeb3_2024.pdf}.
+
+\bibitem[Niépce(c.1826)]{FirstPhoto}
+Joseph~Nicéphore Niépce.
+\newblock View from the window at le gras.
+\newblock
+  \url{https://upload.wikimedia.org/wikipedia/commons/5/5c/View_from_the_Window_at_Le_Gras%2C_Joseph_Nic%C3%A9phore_Ni%C3%A9pce.jpg},
+  c.1826.
+\newblock public domain.
+
+\bibitem[WITZ(2008)]{Reflex}
+Jean~François WITZ.
+\newblock Illustrazione di una fotocamera digitale di tipo reflex.
+\newblock
+  \url{https://upload.wikimedia.org/wikipedia/commons/3/31/Reflex_camera_numeric.svg},
+  2008.
+\newblock CC BY-SA 3.0 Deed.
+
+\end{thebibliography}

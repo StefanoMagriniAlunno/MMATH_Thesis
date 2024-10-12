@@ -1,0 +1,160 @@
+\chapter{Literature Review}
+\label{chap:LiteratureReview}
+\begin{toReview}
+This chapter reviews key literature that forms the theoretical foundation of this research. Specifically, the $n$-gram language model, fuzzy clustering, and Fourier transforms will be discussed. Additionally, specific details of these topics will be examined to demonstrate their practical applications within this project.
+
+\noindent Relevant definitions and properties needed to understand these applications will be introduced, alongside examples and comparisons to provide a more comprehensive and nuanced understanding of the theory.
+
+\input{main/literature_review/n_grams}
+\input{main/literature_review/FuzzyClustering}
+\input{main/literature_review/DFT}
+\section{Application}
+In this section, we will develop specific applications of the topics discussed in the chapter to see how they can be used in the context of the thesis. The discussion will focus on the use of fuzzy clustering to address the problem of continuity in colour space, the practical implementation of the \gls{fcm} algorithm, and the use of \gls{fft} for image analysis.
+\subsection{Comparing works, the idea of clustering}
+As we have seen, a problem of \cref{eq:SapAttribution_dist} becomes apparent when the continuous space in which the $n$-tiles are defined turns out to be too fit. The proposed idea was to fix the fewest possible boxes and work with the idea that $2$ any tiles are as distinct as any other pair. However, this is not a credible assumption due to the loss of information, for this reason in this thesis we would like to approach the problem more dynamically by increasing the variety of tiles without running into sparsity problems.
+
+\noindent The idea is to use the clustering of the merged data between the two samplings as a basis for fitting the continuous space. The expectation is that the result will certainly be more accurate, however, it is necessary to consider the problem of the shape of the clusters (which will no longer be boxes).
+
+\begin{exempli_gratia}[Distance between distributions reformulated]
+	In this paragraph we will adopt the theoretically easy clustering \gls{kmeans}. Let us take $\num{10000}$ samples from $\mathcal{N}(-1,0.25)$ and $\num{40000}$ from $\mathcal{N}(+1,1)$, the two distributions will be denoted by $\mathcal{A}$ and $\mathcal{B}$ respectively.
+
+	\noindent The two samplings will be merged and clustered with \gls{kmeans} using $32$ centroids, resulting in a predictor $\mathcal{P}$. Each cluster will be viewed as a region with a certain measure that will be the mean square of the distances of each datum in the cluster from its centroid. Given a cluster of centroid $c$, we want to estimate:
+	\[
+	\mu(c)=\sqrt{\mathbb{E}_\mathcal{L}\left[\|x-c\|^2|\mathcal{P}\left(x\right)=c\right]}
+	\]
+	where $\mathcal{L}$ is the law of the two merged samples.
+
+	\noindent We can see in the first image that regions have been captured and that automatically the regions are denser where the frequency is higher. Furthermore, the image shows the weights of each cluster $c$ defined as  $\mathbb{P}_\mathcal{L}\left[\mathcal{P}(x)=c\right]$
+
+	\noindent We now study the two samples separately over this clustering. The densities will be weighted on the new measure $\mu$, so the density on the centroid $c$ of measure $\mu(c)$ respectively for the distribution $\mathcal{A}$ will be:
+	\[
+	d_A(c)=\frac{\mathbb{P}_{\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(c)}
+	\]
+	similarly for $\mathcal{B}$.
+
+	\noindent In the second figure we show the cluster membership probabilities of the two densities $\mathcal{A}$ and $\mathcal{B}$.
+
+	\noindent Let us try to calculate the distance formulated \cref{eq:SapAttribution_dist} considering the measure:
+	\[
+	d(\mathcal{A},\mathcal{B})=(1+J_{D_\mathcal{A},D_\mathcal{B}})^{-1}\frac{1}{\mu(D_\mathcal{A}\cup D_\mathcal{B})}\int d\mu(x) \left(\frac{r(x)-1}{r(x)+1}\right)^2
+	\]
+	where $D_{\mathcal{A}}$ is the support for the discretisation of ${\mathcal{A}}$ and similarly for $D_{\mathcal{B}}$. The result for $32$ centroids is $0.54$.
+
+	\begin{center}
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{Figures/fused_analysis.png}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{Figures/separated_analysis.png}
+		\end{minipage}
+	\end{center}
+
+\end{exempli_gratia}
+
+In the example, it is basically shown that the number of nodes can be reduced and can be adapted to the distributions of the tiles, and can also be very effective at high dimensions by counteracting the curse of dimensionality. In \cref{fig:fused_data_2D} we take an example very similar to the previous one but in $2$ dimensions and with less data.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{Figures/fused_data_2D.png}
+	\caption[Dati in 2D sintetici]{In the figure, the data from the set $\mathcal{A}$ are shown in red and the data from the set $\mathcal{B}$ in green. They were obtained by merging normal Gaussians with different representability.}
+	\label{fig:fused_data_2D}
+\end{figure}
+Let us try clustering using more and more nodes, repeating the calculation carried out in the example, studying how the distance changes by increasing the number of nodes. In \cref{tab:kmeans_tessellation_comparison} we can see how the clustering shows more stable results.
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|c|c|}
+		\hline
+		Number of nodes & 1 & 4 & 16 & 64 & 256 & 1024 \\
+		\hline
+		Distance with clustering & 0.00 & 0.13 & 0.21 & 0.30 & 0.34 & 0.37 \\
+		\hline
+		Distance without clustering & 0.00 & 0.40 & 0.49 & 0.45 & 0.49 & 0.48 \\
+		\hline
+	\end{tabular}
+	\caption[Comparing distance results with/without clustering]{Comparison between \gls{kmeans} clustering and box tessellation with same number of nodes.}
+	\label{tab:kmeans_tessellation_comparison}
+\end{table}
+
+\subsection{Fuzzy Clustering as a Noise Filtering Method}
+In this thesis, a variant of the algorithm \gls{fcm} will be used to compare two datasets. The variant will be used both to consider data of different weights and to consider machine error in the computation of centroids.
+\paragraph{data's weight}
+We introduce a vector $w$ indicating the weight of the data as a positive real value. As stated in \cref{thm:Mupdate} the update follows the following law:
+\[
+C^{\texttt{new}}_j = \frac{\sum_{i=1}^Nu_{ij}^2x_{i}}{\sum_{i=1}^Nu_{ij}^2} \text{\hspace{1cm}} \forall j
+\]
+Since it is a weighted average over $u_{ij}^2$, if a datum has a higher weight then it should increase its influence, thus having the following result:
+\[
+C^{\texttt{new}}_j = \frac{\sum_{i=1}^Nu_{ij}^2w_{i}x_{i}}{\sum_{i=1}^Nu_{ij}^2w_{i}} \text{\hspace{1cm}} \forall j
+\]
+
+\paragraph{machine error}
+The use of \gls{fcm} in this thesis involves millions of pieces of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. An example that might exist is a value $D_{ik}^2 \approx 0$ that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it is infinity.\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NCk)$ \marginnote{\tiny$N$ is the number of data and $C$ is the number of centroids, $k$ is the size of the tiles} however scalability allows us to reduce this cost to $O(\text{log}(kC))$ by exploiting the independence of each cycle and scalable binary operations (details in \cref{chap:methodology}).
+
+\begin{algorithm}[h]
+\caption[Membership update stable computation.]{Membership update stable computation.\\
+	\begin{minipage}[t]{\linewidth}
+		\textsc{INPUT}
+		\begin{itemize}[noitemsep, topsep=0pt]
+			\item[$\mathcal{S}$:] set of data $x_1,\dots,x_N$
+			\item[$\mathcal{C}$:] centroids $c_1,\dots,c_C$
+		\end{itemize}
+	\end{minipage}
+}
+\begin{algorithmic}[1]
+\Procedure{MembershipUpdateStable}{$\mathcal{S}, \mathcal{C}$}
+    \State $D^2 \gets (d^2_{ij})$ with $d_{ij}=\|x_i-C_j\|^2$
+    \For{$i \gets 0$ to $N$}
+        \State $l \gets \min_t\{D_{it}^2\}$
+        \If{$l = 0$}
+            \Where{$D_{ij}^2=0$}{$u_{ij}\gets1$}
+            \Where{$D_{ij}^2\neq0$}{$u_{ij}\gets0$}
+        \Else
+            \State $u_{ij} \gets \frac{l}{D_{ij}^2}\; \forall j$
+        \EndIf
+        \State $S_i \gets \sum_j u_{ij}^2$
+        \State $u_{ij} \gets u_{ij}^2 / S_i\;\forall j$
+    \EndFor
+\EndProcedure
+\end{algorithmic}
+\label{alg:MembershipUpdateSafe}
+\end{algorithm}
+
+\subsection{Analysis of images with \gls{dft}}
+It was seen in the introductory section of \gls{dft} that the algorithm \gls{fft} can only be applied to time series or, more generally, to a sequence of complex numbers. However, it is also possible to extend this concept to the analysis of the spectrum of a matrix with periodic behaviour.
+
+\noindent Consider a matrix $x \in \mathbb{C}^{N \times M}$ defined as follows:
+\[
+x = \left(\cos\left(\omega_rn+\omega_cm\right)\right)_{n,m}
+\]
+It can be shown that its \gls{dft} results in a matrix of the same shape as $x$, where the only nonzero component is in the row corresponding to $\omega_r$ and in the column corresponding to $\omega_c$.
+
+\noindent This is analogous to the application of \gls{cft} on $\mathbb{R}^2$. In particular, we would like to obtain the following inverse relation to reconstruct $x$ from its Fourier coefficients:
+\begin{equation}
+	x_{n,m} = \frac{1}{NM}\sum_{r,c} X_{r,c} e^{i2\pi\left(\frac{rn}{N} + \frac{cm}{M}\right)}
+\end{equation}
+Where the Fourier coefficients $X_{r,c}$ are given by:
+\begin{equation}
+	X_{r,c} = \sum_{n,m} x_{n,m}e^{-i2\pi\left(\frac{nr}{N} + \frac{mc}{M}\right)}
+\end{equation}
+At the algorithmic level, the two-dimensional \gls{fft} is obtained by applying the algorithm to the columns first and to the rows of the original matrix $x$. In particular:
+\begin{align*}
+	y_{r,m} &= \sum_{n} x_{n,m}e^{-i2\pi\frac{nr}{N}} & \;\;\text{over each column apply \gls{fft}}\\
+	X_{r,c} &=\sum_{m}y_{r,m}e^{-i2\pi\frac{mc}{M}} & \;\;\text{over each row apply \gls{fft}}
+\end{align*}
+\begin{exempli_gratia}
+	We analyse a matrix composed of several overlapping frequencies and Gaussian noise with variance $1$.
+	\begin{align*}
+	x_{n,m} &= 2\cos\left(2\pi(2n + 3m) + 3\right) \\
+	&+ 0.8\cos\left(2\pi(n + 5m) + 2\right) \\
+	&+ \cos\left(2\pi(7n + 5m)\right) + \mathcal{N}_{n,m}
+	\end{align*}
+	In the figure, the Fourier coefficients are shown. They are computed from the matrix $x$ using a \texttt{viridis} colour scale.
+	\begin{center}
+		\centering \includegraphics[width=0.6\textwidth]{Figures/fft2d_example.png}
+	\end{center}
+\end{exempli_gratia}
+
+\noindent The two-dimensional \gls{fft} can be used to analyse periodic patterns in matrices that represent images or signals. Typical applications include filtering, image compression and pattern recognition, where the spectral decomposition allows significant components to be distinguished from the noise.
+\end{toReview}

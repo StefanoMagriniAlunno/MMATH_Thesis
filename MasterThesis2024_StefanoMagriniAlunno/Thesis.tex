@@ -1,0 +1,302 @@
+% !TeX encoding = UTF-8
+% !TeX program = pdflatex
+% !TeX spellcheck = en-UK
+%Qui tutto ciò che c’ è da saper su LaTeX: http://www.lorenzopantieri.net/LaTeX_files/ArteLaTeX.pdf
+%Per scrivere la bibliografia puoi vedere il seguente link: https://www.guitex.org/home/images/doc/GuideGuIT/bibliografia.pdf
+% Per usare in locale questo progetto latex è necessario eseguire le seguenti installazioni:
+% sudo apt install texlive texstudio texlive-publishers texlive-latex-extra texlive-fonts-extra texlive-science texlive-bibtex-extra texlive-lang-english
+
+\documentclass[a4paper, oneside]{sapthesis}
+
+%pacchetti per LaTeX
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{imakeidx}
+\usepackage[acronym]{glossaries}
+\usepackage{appendix}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{cleveref}
+\usepackage{enumitem}
+\usepackage{marginnote}
+\usepackage{tocloft}
+\usepackage{float}
+%pacchetti matematici
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{siunitx}
+% ATTENZIONE: c'è un bug in thmtools, per approfondire vedere: https://tex.stackexchange.com/questions/305174/proof-environment-produces-proof-proof-only-when-thmbox-is-used
+\usepackage{letltxmacro}
+\LetLtxMacro\amsproof\proof
+\LetLtxMacro\amsendproof\endproof
+\usepackage{thmtools}
+\AtBeginDocument{%
+	\LetLtxMacro\proof\amsproof
+	\LetLtxMacro\endproof\amsendproof
+}
+\usepackage{dsfont}
+%pacchetti per le immagini
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{color}
+\usepackage[dvipsnames, table]{xcolor}
+%pacchetti per la scrittura di codice
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algorithmicx}
+%pacchetti per la gestione di citazioni e bibliografia
+\usepackage[sort]{natbib}
+
+
+\bibliographystyle{plainnat} %ordine della bibliogragia
+\setcitestyle{numbers}
+\setcitestyle{square}
+
+%preparazione SAPthesis
+\title{Exploring Authorial Identity through Data Mining Techniques}
+\subtitle{Analyzing Artistic Traits for Authorship Attribution}
+\author{Stefano Magrini Alunno}
+\IDnumber{1851728}
+\course{Master degree in Applied Mathematics}
+\courseorganizer{Faculty of Mathematics, Physics and Natural Sciences}
+\AcademicYear{2023/2024}
+\advisor{Prof. Grabriella Anna Puppo}
+%\customadvisorlabel{Advisor}
+\authoremail{stefanomagrini99@gmail.com}
+\copyyear{2024}
+\thesistype{Master thesis}
+\examdate{00/00/00}
+\examiner{Prof. uno}  % presidente
+\examiner{Prof. due}
+\examiner{Prof. tre}
+\examiner{Prof. ...}
+\examiner{Prof. ...}
+\examiner{Prof. ...}
+\examiner{Prof. ...}
+\versiondate{\today}
+
+%preparazione
+\lstdefinestyle{code}{
+    backgroundcolor=\color{white},
+    commentstyle=\bfseries\itshape\color{gray},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{gray},
+    numbersep=5pt,
+    stringstyle=\color{orange},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=true,
+    numbers=left,
+    prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+    captionpos=t,
+    frame=bottomline,
+    breakatwhitespace=true,
+    breaklines=true,
+    keepspaces=true,
+    tabsize=2,
+    escapeinside={\%*}{*)}
+}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=red,
+	citecolor=green,
+	filecolor=magenta,
+	urlcolor=cyan,
+	pdftitle={Esempio di Documento},
+	pdfauthor={Nome Autore},
+	pdfkeywords={Latex, hyperref, hyperlink}
+}
+
+\definecolor{revisioncolor}{RGB}{25, 25, 112}
+\definecolor{modifiedcolor}{RGB}{128, 0, 32}
+\definecolor{todocolor}{RGB}{34, 139, 34}
+\definecolor{notecolor}{RGB}{102, 68, 34}
+\newenvironment{toReview}{\addtoReview\color{revisioncolor}\marginnote{\textbf{To Review}}}{\ignorespacesafterend}
+\newenvironment{modified}{\addmodified\color{modifiedcolor}\marginnote{\textbf{Modified}}}{\ignorespacesafterend}
+\newenvironment{toDo}{\addtoDo\color{todocolor}\marginnote{\textbf{To Do}}}{\ignorespacesafterend}
+\newenvironment{note}{\addnote\color{notecolor}\marginnote{\textbf{Note}}}{\ignorespacesafterend}
+\newlistof{ambienti}{amb}{Special contents}
+\newcommand{\customindex}{\listofambienti}
+\newcommand{\addtoReview}{\addcontentsline{amb}{ambienti}{To Review}}
+\newcommand{\addmodified}{\addcontentsline{amb}{ambienti}{Modified}}
+\newcommand{\addtoDo}{\addcontentsline{amb}{ambienti}{To Do}}
+\newcommand{\addnote}{\addcontentsline{amb}{ambienti}{Note}}
+
+\definecolor{kernel}{rgb}{0.96,0.9,0.9} % 0.9 luminosità, 0.6 saturazione, (1,0,0)
+\definecolor{python}{rgb}{0.9,0.96,0.9} % 0.9 luminosità, 0.6 saturazione, (0,1,0)
+\definecolor{source}{rgb}{0.9,0.9,0.96} % 0.9 luminosità, 0.6 saturazione, (0,0,1)
+\lstdefinestyle{CCode}{
+	backgroundcolor = \color{source},
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	commentstyle=\color{ForestGreen},
+	firstnumber=1,
+	keepspaces=true,
+	keywordstyle=\bfseries\color{blue},
+	language=C,
+	morekeywords={*,...},
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\tiny\color{gray},
+	showspaces=false,
+	showstringspaces=false,
+	stringstyle=\itshape\color{orange},
+	tabsize=2
+}
+\lstdefinestyle{CuCode}{
+	backgroundcolor = \color{kernel},
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	commentstyle=\color{ForestGreen},
+	firstnumber=1,
+	keepspaces=true,
+	keywordstyle=\bfseries\color{blue},
+	language=C,
+	morekeywords={*,...},
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\tiny\color{gray},
+	showspaces=false,
+	showstringspaces=false,
+	stringstyle=\itshape\color{orange},
+	tabsize=2
+}
+\lstdefinestyle{PyCode}{
+	backgroundcolor = \color{python},
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	commentstyle=\color{ForestGreen},
+	firstnumber=1,
+	keepspaces=false,
+	keywordstyle=\bfseries\color{blue},
+	language=Python,
+	morekeywords={*,...},
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\tiny\color{gray},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	stringstyle=\itshape\color{orange},
+	tabsize=2
+}
+
+% 3 famiglie: remark, definition, theorem
+% remark: la massima utilità è aiutare la comprensione, contiene:
+    % remark
+    % exempli gratia
+\declaretheorem[
+    name=Remark,
+    numbered=no,
+    style=remark
+]{remark}
+\declaretheorem[
+    name=Exempli Gratia,
+    numbered=no, shaded,
+    style=remark
+]{exempli_gratia}
+\declaretheorem[
+    name=Definition,
+    numberwithin=section,
+    style=definition
+]{definition}
+\declaretheorem[
+    name=Notation,
+    numbered=no, shaded,
+    style=definition
+]{notation}
+\declaretheorem[
+    name=Theorem,
+    numberwithin=chapter, thmbox=M,
+    style=plain
+]{theorem}
+\declaretheorem[
+    name=Proposition,
+    numberwithin=section,
+    style=plain
+]{proposition}
+\declaretheorem[
+    name=Lemma,
+    numberwithin=section, shaded,
+    style=plain
+]{lemma}
+\declaretheorem[
+    name=Corollary,
+    numbered=no,
+    style=plain
+]{corollary}
+
+\algnewcommand{\Where}[2]{\State \textbf{where}\ #1\ \textbf{do} #2}
+
+\definecolor{mint}{rgb}{0.88, 1.0, 0.88}
+\definecolor{lavender}{rgb}{0.9, 0.9, 0.98}
+\definecolor{honeydew}{rgb}{0.94, 1.0, 0.94}
+
+\includeonly{
+    abstract,
+    acknowledgments,
+    glossary,
+    bibliography,
+    main/Introduction,
+    main/LiteratureReview,
+    main/Methodology,
+    main/Discussion,
+    main/Conclusion,
+    main/Results,
+    main/Appendix
+}
+
+\makeindex
+\makeglossaries  % produce il glossario
+\input{glossary}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\dedication{Mater artium necessitas}
+%\include{abstract}
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+\listoftheorems[ignoreall, show={theorem, definition, exempli_gratia}]
+\newpage
+\customindex
+\printglossary[type=\acronymtype]
+\phantomsection
+\addcontentsline{toc}{chapter}{Acronyms}
+
+\mainmatter
+\include{main/Introduction}  % Introduzione
+\include{main/LiteratureReview}  % Revisione della bibliografia
+\include{main/Methodology}  % Corpo vero della tesi in cui si mostra cosa si è fatto
+\include{main/Results}  % Risultati (analisi dei risultati ottenuti in merito la tesi)
+\include{main/Discussion}  % Discussione (confronto tra i risultati e la teoria)
+\include{main/Conclusion}  % Conclusioni (riepilogo e prospettive future)
+\appendix
+\include{main/Appendix}  % Appendici
+
+\backmatter
+\cleardoublepage
+\newpage
+\printglossary
+\phantomsection
+\addcontentsline{toc}{chapter}{\glossaryname}
+\newpage
+\bibliography{bibliography}
+\phantomsection
+\addcontentsline{toc}{chapter}{\bibname}
+\newpage
+%\include{Acknowledgments}
+
+\end{document}

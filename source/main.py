@@ -114,7 +114,10 @@ def main_comparing(logger, synthetized_path, n_tiles, n_clusters, fcm_tollerance
 
 
 def main_synthesis(
-    logger, db_preprocessed_path, synthetized_path, n_tiles, n_centroids, fcm_tollerance
+    logger,
+    db_preprocessed_path,
+    synthetized_path,
+    n_tiles,
 ):
     try:
         synthesis.synthetizer(
@@ -136,7 +139,6 @@ def main_synthesis(
         logger.error("Unexcpected error")
         raise
     logger.info("Synthesis completed!")
-    main_comparing(logger, synthetized_path, n_tiles, n_centroids, fcm_tollerance)
 
 
 def main_cleaning(
@@ -144,10 +146,6 @@ def main_cleaning(
     device,
     db_path,
     db_preprocessed_path,
-    synthetized_path,
-    n_tiles,
-    n_centroids,
-    fcm_tollerance,
 ):
     try:
         cleaner.fft(
@@ -160,14 +158,6 @@ def main_cleaning(
         logger.error("Unexpected error")
         raise
     logger.info("Cleaning completed!")
-    main_synthesis(
-        logger,
-        db_preprocessed_path,
-        synthetized_path,
-        n_tiles,
-        n_centroids,
-        fcm_tollerance,
-    )
 
 
 def main():
@@ -194,7 +184,7 @@ def main():
         logger.warning("CUDA is not available, using CPU")
 
     # shutil.rmtree("data/out")
-    db_path = "data/db/cutted_set/Author1"
+    db_path = "data/db/cutted_set"
     n_tiles = 4
     n_centroids = 1024
     fcm_tollerance = 0.1
@@ -208,10 +198,10 @@ def main():
         exit()
 
     # pulisco le immagini con fft
-    db_preprocessed_path = "data/out/preprocessed"
+    db_preprocessed_path = "data/.out/preprocessed"
     os.makedirs(db_preprocessed_path, exist_ok=True)
     # eseguo la sintesi delle immagini
-    synthetized_path = "data/out/synthetized"
+    synthetized_path = "data/.out/synthetized"
     os.makedirs(synthetized_path, exist_ok=True)
 
     if args.cleaning:
@@ -220,24 +210,16 @@ def main():
             device,
             db_path,
             db_preprocessed_path,
-            synthetized_path,
-            n_tiles,
-            n_centroids,
-            fcm_tollerance,
         )
-    elif args.synthesis:
+    if args.synthesis:
         main_synthesis(
             logger,
             db_preprocessed_path,
             synthetized_path,
             n_tiles,
-            n_centroids,
-            fcm_tollerance,
         )
-    elif args.comparing:
+    if args.comparing:
         main_comparing(logger, synthetized_path, n_tiles, n_centroids, fcm_tollerance)
-    else:
-        logger.error("No process selected")
 
 
 if __name__ == "__main__":

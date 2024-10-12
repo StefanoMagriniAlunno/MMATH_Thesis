@@ -1,0 +1,20 @@
+\babel@toc {english}{}\relax
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.2}{\ignorespaces example of data for clustering}}{11}{figure.caption.6}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Dati in 2D sintetici}}{18}{figure.caption.9}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces BW transformation}}{23}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Pixel grid detail}}{27}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Synthetic FFT test}}{31}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Illustration of synthesis process}}{33}{figure.caption.26}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces We want to calculate the sum of the values in the first row. The idea is to divide the vector into $2$ regions, sum the components, and repeat over the new vector with half the size of the previous vector.\relax }}{39}{figure.caption.31}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Come si osserva i grigi si sono molto avvicinati tra loro dopo \gls {fft}, ma è possibile ribilanciare i colori confrontandoli con l'immagine originale.\relax }}{41}{figure.caption.32}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {A.1}{\ignorespaces example of \gls {kmeans} clustering}}{44}{figure.caption.33}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces example of \gls {gmm} clustering}}{45}{figure.caption.34}%
+\contentsline {figure}{\numberline {A.3}{\ignorespaces example of \gls {fcm} clustering}}{46}{figure.caption.35}%
+\addvspace {10\p@ }
