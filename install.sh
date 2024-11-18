@@ -30,7 +30,7 @@ true > "$logfile"
 
 # System prerequisites
 echo -e "\e[33mChecking prerequisites...\e[0m"
-if ! scripts/check_prerequisites.sh "$python3_executable"; then
+if ! scripts/check_prerequisites.sh "$python3_executable" "$gcc_executable" "$gxx_executable" "$nvcc_executable"; then
     echo -e "\e[31mERROR\e[0m Prerequisites check failed"
     exit 1
 fi
