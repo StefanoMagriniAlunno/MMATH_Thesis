@@ -5,7 +5,6 @@
 
 # Variabili: elenco dei progetti in projects
 PROJECTS = $(shell ls -d lib/* | cut -d "/" -f 2)
-PYTHON_VENV = ".venv"
 
 all:
 	@echo "Building projects: $(PROJECTS)"

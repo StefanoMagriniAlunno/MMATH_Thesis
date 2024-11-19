@@ -21,7 +21,11 @@ cd /path/where/download/repository
 git clone https://github.com/StefanoMagriniAlunno/MMATH_thesis
 cd MMATH_thesis
 # Install repository
-./install.sh /path/of/python/executable
+./repo.sh -i
+./repo.sh -a build.sh
+./repo.sh -a pre_commit.sh
+./repo.sh -a make_doc.sh
+./repo.sh -a cuda_check.sh
 ```
 
 ![Example_install_screen](assets/install_screen.png "Example of installation")
