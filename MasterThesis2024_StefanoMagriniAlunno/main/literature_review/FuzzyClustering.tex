@@ -1,6 +1,6 @@
 \section{Fuzzy clustering}
 %La clusterizzazione fuzzy, nota anche come soft k-means, è una tecnica avanzata di analisi dei dati che consente ai punti dati di appartenere a più di un cluster. Questa modalità differisce dalla tradizionale clusterizzazione "hard", dove ogni punto dati è assegnato esclusivamente a un singolo cluster, utilizzando invece una logica fuzzy per determinare l'appartenenza di un dato a ciascun cluster. In altre parole, anziché avere un'affermazione binaria di appartenenza (1 o 0), si ha una misura continua di appartenenza che varia da 0 a 1. Questo è espresso attraverso una funzione di similarità, $\mu_x(C)$, che rappresenta il grado di appartenenza di un dato $x$ a un cluster $C$.
-FFuzzy clustering, also known as soft k-means, is a data analysis technique that allows data points to be assigned to more than one cluster. Unlike traditional "hard" clustering, where each data point is assigned exclusively to a single cluster, fuzzy clustering employs fuzzy logic to determine the degree of membership for each data point within multiple clusters. Instead of a binary membership statement ($1$ or $0$), fuzzy clustering provides a continuous measure of membership that ranges from $0$ to $1$. This is represented by a similarity function, $\mu_x(C)$, which quantifies the degree to which a data point $x$ belongs to a cluster $C$.
+Fuzzy clustering, also known as soft k-means, is a data analysis technique that allows data points to be assigned to more than one cluster. Unlike traditional "hard" clustering, where each data point is assigned exclusively to a single cluster, fuzzy clustering employs fuzzy logic to determine the degree of membership for each data point within multiple clusters. Instead of a binary membership statement ($1$ or $0$), fuzzy clustering provides a continuous measure of membership that ranges from $0$ to $1$. This is represented by a similarity function, $\mu_x(C)$, which quantifies the degree to which a data point $x$ belongs to a cluster $C$.
 
 % referenza K-Means
 %La clusterizzazione fuzzy ha le sue radici nel lavoro di J.C. Dunn, che nel 1973 ha introdotto questo concetto come un'estensione dell'algoritmo di clustering k-means. Dunn ha evidenziato la maggiore precisione e robustezza della clusterizzazione fuzzy rispetto alla clusterizzazione rigida, soprattutto nella gestione dei dati anomali (outlier) \citep{FuzzyClustering_developDoc}.
@@ -65,7 +65,7 @@ To understand the meaning of data points and clusters, let us consider the follo
 	Given a point $x$ and a cluster $C$, the membership measure $\mu_x(C)$ is proportional to the inverse of the square of the Euclidean distance between the point $x$ and the centroid of the cluster $C$, i.e. $\frac{1}{\|x-C\|^2}$.\\ We assume that the sum of the membership measures of $x$ to all clusters in the set $\mathcal{C}$ is equal to $1$:
 	$$\sum_{C\in\mathcal{C}}\mu_x(C)=1 \quad \forall x$$
 	Consequently, the membership measure $u_{ij}$ of point $x_i$ to cluster $C_j$ is computed as:
-	$$u_{ij} = \frac{1}{\sum_{k}\frac{d^2_{ij}}{d^2_{ik}}}$$
+	$$u_{ij} := \mu_{x_i}(C_j) =  \frac{1}{\sum_{k}\frac{d^2_{ij}}{d^2_{ik}}}$$
 \end{definition}
 \begin{remark}
 	The \gls{kmeans} algorithm, which is based on Boolean logic, seeks to minimise the sum of the squared distances between each data point and the centroid of the cluster to which it is assigned. In other words, the goal of the \gls{kmeans} algorithm is to minimise the sum of intra-cluster variances, where the variance of a cluster is defined as the sum of the squared distances between each point in the cluster and the cluster centroid.
@@ -113,7 +113,7 @@ To understand the meaning of data points and clusters, let us consider the follo
 
 	\noindent The gradient is null when all partial derivatives are null, which implies:
 	\begin{equation*}
-	    \sum_{i=1}^N u_{ij}C^{\text{new}}_{j} = \sum_{i=1}^N u_{ij}x_{i} \quad \forall j
+	    \sum_{i=1}^N u_{ij}^2C^{\text{new}}_{j} = \sum_{i=1}^N u_{ij}^2x_{i} \quad \forall j
 	\end{equation*}
 
 	\noindent Since $C^{\text{new}}_j$ does not depend on the index $i$, the thesis is proved.

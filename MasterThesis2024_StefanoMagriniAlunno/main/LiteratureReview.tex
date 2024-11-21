@@ -20,7 +20,7 @@ As we have seen, a problem of \cref{eq:SapAttribution_dist} becomes apparent whe
 
 	\noindent The two samplings will be merged and clustered with \gls{kmeans} using $32$ centroids, resulting in a predictor $\mathcal{P}$. Each cluster will be viewed as a region with a certain measure that will be the mean square of the distances of each datum in the cluster from its centroid. Given a cluster of centroid $c$, we want to estimate:
 	\[
-	\mu(c)=\sqrt{\mathbb{E}_\mathcal{L}\left[\|x-c\|^2|\mathcal{P}\left(x\right)=c\right]}
+	\mu(c)=\sqrt{\mathbb{E}_\mathcal{L}\left[\left\|x-c\right\|^2\middle|\mathcal{P}\left(x\right)=c\right]}
 	\]
 	where $\mathcal{L}$ is the law of the two merged samples.
 
@@ -106,15 +106,15 @@ The use of \gls{fcm} in this thesis involves millions of pieces of data, and it 
 \Procedure{MembershipUpdateStable}{$\mathcal{S}, \mathcal{C}$}
     \State $D^2 \gets (d^2_{ij})$ with $d_{ij}=\|x_i-C_j\|^2$
     \For{$i \gets 0$ to $N$}
-        \State $l \gets \min_t\{D_{it}^2\}$
+        \State $l \gets \min_k\{D_{ik}^2\}$
         \If{$l = 0$}
             \Where{$D_{ij}^2=0$}{$u_{ij}\gets1$}
             \Where{$D_{ij}^2\neq0$}{$u_{ij}\gets0$}
         \Else
             \State $u_{ij} \gets \frac{l}{D_{ij}^2}\; \forall j$
         \EndIf
-        \State $S_i \gets \sum_j u_{ij}^2$
-        \State $u_{ij} \gets u_{ij}^2 / S_i\;\forall j$
+        \State $S_i \gets \sum_j u_{ij}$
+        \State $u_{ij} \gets u_{ij} / S_i\;\forall j$
     \EndFor
 \EndProcedure
 \end{algorithmic}

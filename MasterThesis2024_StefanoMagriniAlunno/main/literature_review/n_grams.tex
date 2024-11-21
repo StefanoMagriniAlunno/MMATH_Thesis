@@ -54,8 +54,7 @@ where $f_A(x)$ represents the frequency of the $n$-gram $x$ in the work $A$ and 
 \end{itemize}
 
 \subsection{Implications}
-We conclude this section by discussing the implications of this theory. As seen in \cref{eq
-}, no distinction is made between one $n$-gram and another. This is because $n$-grams of length 3, or slightly longer, are typically used, which are insufficient to cover a full word. However, when using $7$-grams, it becomes possible to consider the relationships between synonyms and distances between $n$-grams. For instance, we would expect some level of correlation between ‘\texttt{paper}’ and ‘\texttt{article}’ as they are synonyms.
+We conclude this section by discussing the implications of this theory. As seen in \cref{eq:ngram_model}, no distinction is made between one $n$-gram and another. This is because $n$-grams of length 3, or slightly longer, are typically used, which are insufficient to cover a full word. However, when using $7$-grams, it becomes possible to consider the relationships between synonyms and distances between $n$-grams. For instance, we would expect some level of correlation between ‘\texttt{paper}’ and ‘\texttt{article}’ as they are synonyms.
 
 \noindent In written texts, this rarely impacts the outcome, as there are relatively few synonyms for each term within the full vocabulary, and especially few long chains of synonyms. For example, it is unlikely that many synonyms for ‘\texttt{paper}’ begin with the string ‘\texttt{p}’ or ‘\texttt{pe}’.
 
@@ -64,7 +63,7 @@ We conclude this section by discussing the implications of this theory. As seen 
 \bigskip
 We further examine the properties of the distance defined in  \cref{eq:SapAttribution_dist}, particularly focusing on the problem of sparsity in $n$-grams.
 
-\noindent Let $N$ represent the samples drawn from two absolutely continuous distributions $\mathcal{A}$ and $\mathcal{B}$ defined on $\mathbb{R}$. We partition $\mathbb{R}$ into intervals (boxes) of amplitude $1;/;C$, thus transforming the original distributions into their discretized versions, $\mathcal{A}(C)$ and $\mathcal{B}(C)$, along with their respective samples.
+\noindent Let $N$ represent the samples drawn from two absolutely continuous distributions $\mathcal{A}$ and $\mathcal{B}$ defined on $\mathbb{R}$. We partition $\mathbb{R}$ into intervals (boxes) of amplitude $1 \; / \; C$, thus transforming the original distributions into their discretized versions, $\mathcal{A}(C)$ and $\mathcal{B}(C)$, along with their respective samples.
 
 \begin{figure}[ht]
 	\centering
@@ -75,7 +74,7 @@ We further examine the properties of the distance defined in  \cref{eq:SapAttrib
 	\end{subfigure}
 \end{figure}
 
-\noindent Now, let’s consider \cref{eq:SapAttribution_dist} and analyze the behavior of the estimated distance as the number of data points and the size of the boxes vary. By fixing the number of data points and decreasing the size of the boxes, the estimated distance gradually approaches $1$. This phenomenon occurs because there exists a critical dimension for $1;/;C$, such that with a sufficiently high probability, each sample becomes isolated within its own box. Consequently, this drives $J_{D_A,D_B}$ toward $0$, making each term in the summation equal to $1$.
+\noindent Now, let’s consider \cref{eq:SapAttribution_dist} and analyze the behavior of the estimated distance as the number of data points and the size of the boxes vary. By fixing the number of data points and decreasing the size of the boxes, the estimated distance gradually approaches $1$. This phenomenon occurs because there exists a critical dimension for $1 \;/ \; C$, such that with a sufficiently high probability, each sample becomes isolated within its own box. Consequently, this drives $J_{D_A,D_B}$ toward $0$, making each term in the summation equal to $1$.
 
 \bigskip
 In \cite{thesis}, the continuous nature of the $n$-tiles was addressed by discretizing the continuous space in which they were defined, fixing a resolution and applying posterization. However, this approach results in a significant loss of information. Therefore, this paper will explore a method to achieve a cleaner and more dynamic discretization.

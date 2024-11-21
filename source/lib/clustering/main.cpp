@@ -119,7 +119,7 @@ extern "C"
       ":raises RuntimeError:\n"
       ":raises Exception:\n"
       ":usage:\n"
-      ">>> import synthesis\n"
+      ">>> import clustering\n"
       ">>> synthesis.wrapper('/path/to/in/db', 'path/to/in/weight', '/path/to/out/db', "
       "'/path/to/listfile', 6, 8, '/path/to/logfile')\n" },
     { NULL, NULL, 0, NULL } // Sentinel

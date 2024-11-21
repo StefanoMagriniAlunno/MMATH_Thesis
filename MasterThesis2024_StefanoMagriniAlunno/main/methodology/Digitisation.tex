@@ -93,7 +93,7 @@ The quantisation of colours is expressed in $3$ channels \gls{rgb}, each with an
     	\caption[Synthetic FFT test]{Coefficiente di Fourier dell'immagine bidimensionale. I quadretti mostrano coefficienti di Fourier simili a quelli delle onde quadre: $\text{sqwave}(t) = \frac{4}{\pi}\sum_{k=1}^{\infty}\frac{\sin\left(2\pi(2k-1)t\right)}{2k-1}$. Le intensità più significative sono a intervalli regolari con intensità decrescenti.}
     \end{figure}
 
-    \noindent Empiricamente, analizzando $10$ immagini reali selezionate casualmente, si è osservato che i quadretti sono stati rimossi con successo senza danneggiare le scritte, annullando le ampiezze corrispondenti al primo $0.05$ percentile delle frequenze più significative.
+    \noindent Empiricamente, analizzando $10$ immagini reali selezionate casualmente, si è osservato che i quadretti sono stati rimossi con successo senza danneggiare le scritte, annullando le ampiezze corrispondenti al primo $5\%$ percentile delle frequenze più significative.
 
     \noindent Tuttavia, questa operazione distorce parzialmente i colori. Infatti, in un'immagine originale, la distribuzione dei livelli di grigio è piuttosto intuitiva: la maggior parte dei pixel è bianca, mentre solo una piccola percentuale è composta da tonalità di grigio più scure. Dopo la ricostruzione, si nota la presenza di molte tonalità di grigio intermedie, che interessano sia lo sfondo che le scritte.
 

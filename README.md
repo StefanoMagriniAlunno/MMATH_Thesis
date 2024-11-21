@@ -1,18 +1,16 @@
 # MMATH Thesis Project
 
-Autori e finalità della repository...
-
 ## Prerequisites
 - `Linux Ubuntu` 22.04
 - `Python` 3.10.12 with:
-  - `pip` 24.2
-  - `virtualenv` 20.26.3
+  - `pip` 24.3.1
+  - `virtualenv` 20.26.6
   - `python3-dev` 3.10.6-1~22.04.1
   - `python3-dbg` 3.10.12
-- `gcc` & `gxx` 11.4.0 with:
+- `gcc` & `gxx` 12.3.0 with:
   - `doxygen` 1.9.1
   - `graphviz`
-- `CUDA 12.5` with `nvcc` 12.5 (required NVIDIA drivers)
+- `CUDA 12.4` with `nvcc` 12.4 (required NVIDIA drivers)
 
 ## Download and Install the repository
 ```bash
@@ -22,13 +20,11 @@ git clone https://github.com/StefanoMagriniAlunno/MMATH_thesis
 cd MMATH_thesis
 # Install repository
 ./repo.sh -i
-./repo.sh -a build.sh
-./repo.sh -a pre_commit.sh
-./repo.sh -a make_doc.sh
-./repo.sh -a cuda_check.sh
+./repo.sh -a start build.sh
+./repo.sh -a start pre_commit.sh
+./repo.sh -a start make_doc.sh
+./repo.sh -a start cuda_check.sh
 ```
-
-![Example_install_screen](assets/install_screen.png "Example of installation")
 
 # Use the repository
 

@@ -6,30 +6,31 @@ Per comparare due opere si è deciso di usare la clusterizzazione \gls{fcm} in g
 \paragraph{Definizioni}
 Come si è già accennato in \cref{chap:LiteratureReview}, servirà fornire una definizione di misura del cluster e di probabilità di appartenenza ad un cluster da parte di una distribuzione. Ad esempio per \gls{kmeans} la misura di un cluster è stata definita come:
 \begin{equation*}
-	\mu(c) = {\sqrt{\mathbb{E}_\mathcal{L}\left[\|x-c\|^2|\mathcal{P}(x)=c\right]}\,}^{k} \sim {\sqrt{\frac{1}{|\{x:\mathcal{P}(x)=c\}|}\sum_{x:\mathcal{P}(x)=c}\|x-c\|^2}\,}^{k}
+	\mu(c) = {\sqrt{\mathbb{E}_\mathcal{L}\left[\left\|x-c\right\|^2\middle|\mathcal{P}(x)=c\right]}\,}^{k} \approx {\sqrt{\frac{1}{\left|\{x:\mathcal{P}(x)=c\}\right|}\sum_{x:\mathcal{P}(x)=c}\left\|x-c\right\|^2}\,}^{k}
 \end{equation*}
 dove $k$ è la dimensione dello spazio dei dati, $\mathcal{P}$ è il predittore di \gls{kmeans}, $\mathcal{L}$ è la distribuzione fusa delle due distribuzioni, $c$ è il centroide.
 
 \noindent Nel nostro caso non esiste un predittore poiché è stata definita una misura di appartenenza di ogni dato ad ogni cluster. Tuttavia si ricorda che \gls{fcm} nasce da una generalizzazione di \gls{kmeans} e che dunque si può riprendere la formula minimizzata dall'algoritmo \gls{em} (\cref{eq:loss})
 \begin{definition}[misura di un cluster]
 \label{def:cluster_measure}
-	Applicando \gls{fcm} al data set $\mathcal{S}$, otteniamo la misura di appartenza $\mu$ e i centroidi $\mathcal{C}$. $\mu_x(c)$ sarà così l'appartenenza del dato $x\in\mathcal{S}$ al cluster $c\in\mathcal{C}$. Chiamato $k$ la dimensione dello spazio dove sono istanziati i dati di $\mathcal{S}$, si denota con $\mu(c)$ il peso del cluster $c$. Il peso sarà il volume della sfera cui raggio è la radice della media quadratica delle distanze del cluster:
-	\begin{equation}
-		\mu(c) := {\sqrt{\frac{\sum_{x\in\mathcal{S}} \mu_x(c)^2 \|x-c\|^2}{\sum_{x\in\mathcal{S}}\mu_x(c)^2}}\,}^k
+	Applicando \gls{fcm} al data set $\mathcal{S}$ con pesi $w$, otteniamo la misura di appartenza $\mu$ e i centroidi $\mathcal{C}$. $\mu_x(c)$ sarà così l'appartenenza del dato $x\in\mathcal{S}$ al cluster $c\in\mathcal{C}$. Chiamato $k$ la dimensione dello spazio dove sono istanziati i dati di $\mathcal{S}$, si denota con $\mu(c)$ il peso del cluster $c$. Il peso sarà il volume della sfera cui raggio è la radice della media quadratica delle distanze del cluster:
+	\begin{align}
+		&u_{ij}^2 := w_i\mu_{x_i}(C_j)^2 \quad \text{or also} \quad u_{xc}^2 := w_x\mu_{x}(c)^2\\
+		&\mu(c) := {\sqrt{\frac{\sum_{x\in\mathcal{S}} u_{xc}^2 \left\|x-c\right\|^2}{\sum_{x\in\mathcal{S}}u_{xc}^2}}\,}^k
 		\label{eq:fcm_cluster_measure}
-	\end{equation}
+	\end{align}
 \end{definition}
 
-\noindent Definita la misura dei cluster sarà necessario poi parlare del peso di appartenenza della distribuzione $\mathcal{A}$ (o analogamente $\mathcal{B}$) ad un cluster $c$. In \gls{kmeans} questa appartenenza è stata facilmente attribuita alla probabilità: $\mathbb{P}_\mathcal{A}\left[\mathcal{P}(x)=c\right]$. Come già detto in precedenza, non si ha un predittore, quindi bisognerà fornire una definizione più generale.
+\noindent Definita la misura dei cluster sarà necessario poi parlare del peso di appartenenza della distribuzione $\mathcal{A}$ (o analogamente $\mathcal{B}$) ad un cluster $c$. In \gls{kmeans} questa appartenenza è stata facilmente attribuita alla probabilità: $\mathbb{P}_\mathcal{A}\left[\mathcal{P}(x)=c\right]$. Come già detto in precedenza, \gls{fcm} non propone un predittore, quindi bisognerà fornire una definizione più generale. In \gls{kmeans} si può riformulare la probabilità di appartenenza come segue:
 \begin{equation*}
-	\mathbb{P}_\mathcal{A}\left[\mathcal{P}(x)=c\right] = \int d\mu_\mathcal{A}(x) \delta_x(c) = \int d\mu_\mathcal{A}(x) \mu_x(c)^2 \sim \frac{1}{|A|}\sum_{x\in A} \mu_x(c)^2\\
+	\mathbb{P}_\mathcal{A}\left[\mathcal{P}(x)=c\right] = \int d\mu_\mathcal{A}(x) \delta_x(c) = \int d\mu_\mathcal{A}(x) \mu_x(c)^2 \approx \frac{1}{|A|}\sum_{x\in A} \mu_x(c)^2\\
 \end{equation*}
-Ne consegue la definizione:
-\begin{definition}[peso su un cluster]
+Ne consegue la definizione per \gls{fcm}:
+\begin{definition}[peso di un cluster]
 \label{def:weightovercluster}
 	Si denota con $\omega_A(c)$ il peso del set $A$ sul cluster $c$ ottenuto con \gls{fcm}.
 	\begin{equation}
-		\omega_A(c) := \frac{1}{|A|}\sum_{x\in A} \mu_x(c)^2
+		\omega_A(c) := \frac{\sum_{x\in A} u_{xc}^2}{\sum_{x\in A}w_x}
 	\end{equation}
 \end{definition}
 
@@ -51,13 +52,13 @@ a giudicare da quanto detto in \cref{def:cluster_measure}, tuttavia questa defin
 
 	\noindent L'appartenenza di un cluster $c$ al dizionario $D_A$ sarà così definita:
 	\begin{equation}
-		\mu_c(D_A) = \max_{x\in A}(\mu_x(c)^2)
+		\mu_c(D_A) = \max_{x\in A}(u_{xc}^2)
 	\end{equation}
 	analogamente per $\mu_c(D_B)$.
 
 	\noindent Per questa ragione la definizione di indice di Jaccard che ne segue sarà:
 	\begin{equation}
-		J_{D_A,D_B} := \frac{|D_A \cap D_B|}{|D_A \cup D_B|} = \frac{\sum_c \min\{\max_{x\in A}(\mu_x(c)^2),\max_{x\in B}(\mu_x(c)^2)\}}{\sum_c \max\{\max_{x\in A}(\mu_x(c)^2),\max_{x\in B}(\mu_x(c)^2)\}}
+		J_{D_A,D_B} := \frac{|D_A \cap D_B|}{|D_A \cup D_B|} = \frac{\sum_c \min\{\max_{x\in A}(u_{xc}^2),\max_{x\in B}(u_{xc}^2)\}}{\sum_c \max\{\max_{x\in A}(u_{xc}^2),\max_{x\in B}(u_{xc}^2)\}}
 	\end{equation}
 \end{definition}
 
@@ -67,8 +68,8 @@ a giudicare da quanto detto in \cref{def:cluster_measure}, tuttavia questa defin
 \paragraph{L'algoritmo}
 L'algoritmo prevede inizialmente di applicare \gls{fcm} al set fuso di dati delle due opere, al fine definire la misura e la discretizzazione dello spazio delle tessere. Non sarà necessario aver memoria dei centroidi, sarà altresì utile poter calcolare:
 \begin{itemize}
-	\item $ \mu(c) = {\sqrt{\frac{\sum_{x\in\mathcal{S}} \mu_x(c)^2 \|x-c\|^2}{\sum_{x\in\mathcal{S}}\mu_x(c)^2}}\,}^k $
-	\item $ \omega_A(c) := \frac{1}{|A|}\sum_{x\in A} \mu_x(c)^2 $ e analogamente $ \omega_B(c) := \frac{1}{|B|}\sum_{x\in B} \mu_x(c)^2 $
+	\item $ \mu(c) = {\sqrt{\frac{\sum_{x\in\mathcal{S}} u_{xc}^2 \|x-c\|^2}{\sum_{x\in\mathcal{S}}u_{xc}^2}}\,}^k $
+	\item $ \omega_A(c) = \frac{\sum_{x\in A} u_{xc}^2}{\sum_{x\in A}w_x} $ e analogamente $ \omega_B(c) = \frac{\sum_{x\in B} u_{xc}^2}{\sum_{x\in B}w_x} $
 	\item $ J_{D_A, D_B} $ definito in \cref{def:Jaccard_fcm}
 \end{itemize}
 La distanza tra opere sarà così definita come:

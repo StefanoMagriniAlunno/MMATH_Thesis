@@ -52,10 +52,10 @@ def main_comparing(logger, synthetized_path, n_tiles, n_clusters, fcm_tollerance
                 .astype(np.float32)
                 / 255.0
             )
-            # unisco le due sintesi in un unica matrice
+            # unisco le due sintesi in un' unica matrice
             synth_merge = np.vstack((synth_1, synth_2))
             # salvo la matrice in un file temporaneo come float32 binario (i dati da clusterizzare)
-            with open("temp/synth_merge", "bw") as f:
+            with open("./temp/synth_merge", "bw") as f:
                 f.write(synth_merge.tobytes())
             # estraggo un campione di n_clusters righe da synth_merge
             synth_sample = np.random.choice(
@@ -63,7 +63,7 @@ def main_comparing(logger, synthetized_path, n_tiles, n_clusters, fcm_tollerance
             )
             synth_sample = synth_merge[synth_sample]
             # salvo il campione in un file temporaneo come float32 binario (i centroidi iniziali)
-            with open("temp/synth_sample", "bw") as f:
+            with open("./temp/synth_sample", "bw") as f:
                 f.write(synth_sample.tobytes())
 
             # costruisco il campione dei pesi, tutti uguali per i rispettivi synth
@@ -78,15 +78,17 @@ def main_comparing(logger, synthetized_path, n_tiles, n_clusters, fcm_tollerance
                 synth_weights[: synth_1.shape[0]] = 1.0
                 synth_weights[synth_1.shape[0] :] = synth_2.shape[0] / synth_1.shape[0]
             # salvo i pesi in un file temporaneo come float32 binario
-            with open("temp/synth_weights", "bw") as f:
+            with open("./temp/synth_weights", "bw") as f:
                 f.write(synth_weights.tobytes())
 
             # libero la ram (fondamentale per evitare memory error)
+            del values
             del synth_1
             del synth_2
-            del synth_merge
-            del synth_sample
-            del synth_weights
+            del synth_merge  # ora presente in ./temp/synth_merge
+            del synth_sample  # ora presente in ./temp/synth_sample
+            del synth_weights  # ora presente in ./temp/synth_weights
+
             # eseguo il clustering fcm
             try:
                 clustering.fcm(
@@ -173,6 +175,7 @@ def main():
     )
     args = parser.parse_args()
 
+    os.makedirs("logs", exist_ok=True)
     logger = common.main(r"logs/dev.log")
 
     if not torch.cuda.is_available():
