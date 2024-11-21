@@ -93,13 +93,13 @@ def main_comparing(logger, synthetized_path, n_tiles, n_clusters, fcm_tollerance
             try:
                 clustering.fcm(
                     logger,
-                    "temp/synth_merge",
-                    "temp/synth_weights",
-                    "temp/synth_sample",
-                    "temp/centroids",
+                    "./temp/synth_merge",
+                    "./temp/synth_weights",
+                    "./temp/synth_sample",
+                    "./temp/centroids",
                     n_tiles * n_tiles,
                     fcm_tollerance * (n_tiles * n_tiles),
-                    "logs/fcm.log",
+                    "./logs/fcm.log",
                 )
             except SyntaxError:
                 logger.critical("Implementation error!")

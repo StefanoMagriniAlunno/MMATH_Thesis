@@ -12,3 +12,18 @@
 
 
 # latex thesis
+**/*.acn
+**/*.amb
+**/*.aux
+**/*.bbl
+**/*.blg
+**/*.glo
+**/*.idx
+**/*.ist
+**/*.loe
+**/*.lof
+**/*.log
+**/*.lot
+**/*.out
+**/*.synctex.gz
+**/*.toc
