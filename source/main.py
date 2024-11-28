@@ -35,9 +35,9 @@ def main_comparing(
     logger.info(f"Detected {len(files)} files in {synthetized_path}")
 
     # make a dataframe of float values with shape filesxfiles, it is inizialized with nan values
-    # if exists r"./data/.out/distances.csv" load the csv file
-    if os.path.exists(r"./data/.out/distances.csv"):
-        data_frame = pandas.read_csv(r"./data/.out/distances.csv", index_col=0).astype(
+    # if exists r"./data/distances.csv" load the csv file
+    if os.path.exists(r"./data/distances.csv"):
+        data_frame = pandas.read_csv(r"./data/distances.csv", index_col=0).astype(
             numpy.float32
         )
     else:
@@ -59,6 +59,13 @@ def main_comparing(
         ]
         # work_2 reshuffling
         random.shuffle(work_2_indices)
+        # remove from work_2_indices the index with "already computed" files
+        for work_2_index in work_2_indices:
+            work_1 = files[work_1_index]
+            work_2 = files[work_2_index]
+            if not numpy.isnan(data_frame.loc[work_1, work_2]):
+                work_2_indices.remove(work_2_index)
+
         for work_2_index in tqdm.tqdm(work_2_indices, files[work_1_index], leave=False):
             work_1 = files[work_1_index]
             work_2 = files[work_2_index]
