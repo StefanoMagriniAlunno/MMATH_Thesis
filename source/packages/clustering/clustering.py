@@ -4,6 +4,7 @@ from logging import Logger
 import libclustering
 
 
+# todo: provare ad usare pycuda per semplificare il codice
 def fcm(
     logger: Logger,
     datafile_path: str,

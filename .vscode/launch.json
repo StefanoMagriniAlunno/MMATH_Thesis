@@ -1,0 +1,35 @@
+{
+  "configurations": [
+    {
+      "args": [
+        "--comparing"
+      ],
+      "console": "integratedTerminal",
+      "name": "Python Debugger: --comparing",
+      "program": "${workspaceFolder}/source/main.py",
+      "request": "launch",
+      "type": "debugpy"
+    },
+    {
+      "args": [
+        "--synthesis"
+      ],
+      "console": "integratedTerminal",
+      "name": "Python Debugger: --synthesis",
+      "program": "${workspaceFolder}/source/main.py",
+      "request": "launch",
+      "type": "debugpy"
+    },
+    {
+      "args": [
+        "--cleaning"
+      ],
+      "console": "integratedTerminal",
+      "name": "Python Debugger: --cleaning",
+      "program": "${workspaceFolder}/source/main.py",
+      "request": "launch",
+      "type": "debugpy"
+    }
+  ],
+  "version": "0.2.0"
+}

@@ -1,27 +1,26 @@
+import logging
 import os
-from logging import Logger
-from typing import List
+import typing
 
-import numpy as np
+import numpy
 import torch
+import tqdm
 from PIL import Image
-from torch import device
-from tqdm import tqdm
 
 
 def fft(
-    logger: Logger,
+    logger: logging.Logger,
     in_db_path: str,
     out_db_path: str,
     preserve: bool,
     percentile: float,
-    device: device = "cpu",
+    device: torch.device = "cpu",
 ):
     """This function cleans all images in a directory using FFT.
     In particular, this function considers significant the frequencies with high amplitude.
 
-    :param logger: Logger object
-    :type logger: Logger
+    :param logger: logging.Logger object
+    :type logger: logging.Logger
     :param in_db_path: Input database path
     :type in_db_path: str
     :param out_db_path: Output database path
@@ -60,7 +59,7 @@ def fft(
         raise ValueError(f"output database {out_db_path} does not exist")
 
     # rilevo tutti i file da convertire come path relative
-    files: List[str] = []
+    files: typing.List[str] = []
     for dirname, _, filenames in os.walk(in_db_path):
         for filename in filenames:
             rel_path = os.path.relpath(dirname, in_db_path)
@@ -75,10 +74,10 @@ def fft(
                 os.mkdir(os.path.join(out_db_path, rel_path))
                 break
 
-    for rel_path in tqdm(files, "fft", leave=False):
+    for rel_path in tqdm.tqdm(files, "fft", leave=False):
         logger.info(f"Processing file: {rel_path}")
         image = Image.open(os.path.join(in_db_path, rel_path)).convert("L")
-        image_matrix = np.array(image, dtype=float) / 255.0
+        image_matrix = numpy.array(image, dtype=float) / 255.0
         image_tensor = torch.tensor(image_matrix, dtype=torch.float32, device=device)
 
         # analizzo le frequenze
@@ -107,9 +106,9 @@ def fft(
             torch.max(image_tensor) - torch.min(image_tensor)
         )
         # count how many pixels are white in original image
-        Wpercentile = np.count_nonzero(image_matrix >= 0.8) / image_matrix.size
+        Wpercentile = numpy.count_nonzero(image_matrix >= 0.8) / image_matrix.size
         # count how many pixels are black in original image
-        Bpercentile = np.count_nonzero(image_matrix <= 0.2) / image_matrix.size
+        Bpercentile = numpy.count_nonzero(image_matrix <= 0.2) / image_matrix.size
         # in image_tensor the first Wpercentile pixels became white
         # and the first Bpercentile pixels became black
         thresholdW = torch.quantile(image_tensor, 1 - Wpercentile)

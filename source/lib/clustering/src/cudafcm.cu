@@ -29,7 +29,7 @@
 #include "fcm.h"
 
 // reserved memory for the system in GiB (a float castable value)
-#define GiB_SYS_RESERVED_MEM 0.5
+#define GiB_SYS_RESERVED_MEM 1.0
 // max number of threads per block
 #define MAX_THREADS_PER_BLOCK 1024
 
@@ -130,7 +130,7 @@ struct non_contiguous_access
  * d_weights[i]
  * @param[in] d_centroids : the j-th is
  * d_centroids[j * n_dimensions + k] for k = 0, ..., n_dimensions - 1
- * @param[out] d_matrix : the membership between the i-th data point
+ * @param[out] d_matrix : the weighted membership between the i-th data point
  * and the j-th centroid is stored in d_matrix[i * n_centroids + j]
  * @param n_data : number of data points
  * @param n_dimensions : dimensions of data points
@@ -150,7 +150,7 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
   size_t i = blockIdx.x;  // i-th data
   size_t j = threadIdx.x; // j-th centroid
   float value = 0;
-  float reducted = 0;
+  float min_value = 0;
 
   // compute the distance between the i-th data point and the j-th
   // centroid
@@ -178,12 +178,12 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
         sdata[j] = sdata[j + s];
       __syncthreads ();
     }
-  reducted = sdata[0];
+  min_value = sdata[0];
   // syncronyze threads of this block
   __syncthreads ();
 
   // prepare the row to a stable normalization
-  if (reducted == 0.0)
+  if (min_value == 0.0)
     {
       // let to 1 the components that are 0 and to 0 the others
       if (i < n_data && j < n_centroids)
@@ -193,7 +193,7 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
     {
       // for each component of the row, assign min/value
       if (i < n_data && j < n_centroids)
-        value = reducted / value;
+        value = min_value / value;
     }
   // syncronyze threads of this block
   __syncthreads ();
@@ -210,13 +210,13 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
         sdata[j] += sdata[j + s];
       __syncthreads ();
     }
-  reducted = sdata[0];
+  min_value = sdata[0];
   // syncronyze threads of this block
   __syncthreads ();
 
   // assign the value to the matrix
   if (i < n_data && j < n_centroids)
-    value /= reducted;
+    value /= min_value;
     d_matrix[i * n_centroids + j] = value * value * d_weights[i];
   // syncronyze threads of this block
   __syncthreads ();
@@ -337,12 +337,12 @@ compute_U2 (const float *const d_data, const float *const d_weights,
   cudaError_t err;
 
   // each block works on a single data point
-  dim3 grid (MAX_THREADS_PER_BLOCK);
-  dim3 block (n_data);
+  dim3 grid (n_data);
+  dim3 block (MAX_THREADS_PER_BLOCK);
 
   // call the kernel
   // clang-format off
-  kernel_compute_U2<<<block, grid>>> (d_data, d_weights, d_centroids, d_matrix, n_data,
+  kernel_compute_U2<<<grid, block>>> (d_data, d_weights, d_centroids, d_matrix, n_data,
                                         n_dimensions, n_centroids);
   // clang-format on
 
@@ -393,7 +393,7 @@ compute_centroids (const std::vector<float> &data,
   status = cublasCreate (&handle);
   // check for errors
   CHECK_ERROR_RUNTIME_ERROR (status == CUBLAS_STATUS_SUCCESS, PASS_INSTRUCTION,
-                             "CUBLAS initialization failed with status"
+                             "CUBLAS initialization failed with status "
                                  + std::to_string (status));
 
   // d_new_centroids is a zero-initialized vector
@@ -499,7 +499,7 @@ compute_centroids (const std::vector<float> &data,
                 cublasDestroy (handle);
                 free (h_centroids_weight);
               },
-              "CUBLAS scal failed with status" + std::to_string (status));
+              "CUBLAS scal failed with status " + std::to_string (status));
         }
     }
 
@@ -528,7 +528,7 @@ compute_centroids (const std::vector<float> &data,
         cublasDestroy (handle);
         free (h_centroids_weight);
       },
-      "CUBLAS axpy failed with status" + std::to_string (status));
+      "CUBLAS axpy failed with status " + std::to_string (status));
   // compute the norm of d_centroids
   status
       = cublasSnrm2 (handle, partitions.n_centroids * partitions.n_dimensions,
@@ -540,7 +540,7 @@ compute_centroids (const std::vector<float> &data,
         cublasDestroy (handle);
         free (h_centroids_weight);
       },
-      "CUBLAS nrm2 failed with status" + std::to_string (status));
+      "CUBLAS nrm2 failed with status " + std::to_string (status));
 
   // free data
   status = cublasDestroy (handle);

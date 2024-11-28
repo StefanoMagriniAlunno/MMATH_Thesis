@@ -33,7 +33,7 @@
  * d_weights[i]
  * @param[in] d_centroids : the j-th is
  * d_centroids[j * n_dimensions + k] for k = 0, ..., n_dimensions - 1
- * @param[out] d_matrix : the membership between the i-th data point
+ * @param[out] d_matrix : the weighted membership between the i-th data point
  * and the j-th centroid is stored in d_matrix[i * n_centroids + j]
  * @param n_data : number of data points
  * @param n_dimensions : dimensions of data points
@@ -46,15 +46,14 @@
  */
 __global__ void
 kernel_compute_U2 (const float *const d_data, const float *const d_weights,
-                   const float *const d_centroids, float *const d_matrix,
-                   size_t n_data, size_t n_dimensions, size_t n_centroids)
+const float *const d_centroids, float *const d_matrix,
+size_t n_data, size_t n_dimensions, size_t n_centroids)
 {
   __shared__ float sdata[MAX_THREADS_PER_BLOCK];
   size_t i = blockIdx.x;  // i-th data
   size_t j = threadIdx.x; // j-th centroid
   float value = 0;
-  float reducted = 0;
-
+  float min_value = 0;
   // compute the distance between the i-th data point and the j-th
   // centroid
   if (i < n_data && j < n_centroids)
@@ -62,65 +61,61 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
       for (size_t k = 0; k < n_dimensions; k++)
         {
           float diff = d_data[i * n_dimensions + k]
-                       - d_centroids[j * n_dimensions + k];
+                     - d_centroids[j * n_dimensions + k];
           value += diff * diff;
         }
     }
   // syncronyze threads of this block
   __syncthreads ();
-
   // compute the min value of the block
   if (j < n_centroids)
-    sdata[j] = value;
+  sdata[j] = value;
   else
-    sdata[j] = FLT_MAX;
+  sdata[j] = FLT_MAX;
   __syncthreads ();
   for (size_t s = MAX_THREADS_PER_BLOCK / 2; s > 0; s >>= 1)
     {
       if (j < s && sdata[j] > sdata[j + s])
-        sdata[j] = sdata[j + s];
+      sdata[j] = sdata[j + s];
       __syncthreads ();
     }
-  reducted = sdata[0];
+  min_value = sdata[0];
   // syncronyze threads of this block
   __syncthreads ();
-
   // prepare the row to a stable normalization
-  if (reducted == 0.0)
+  if (min_value == 0.0)
     {
       // let to 1 the components that are 0 and to 0 the others
       if (i < n_data && j < n_centroids)
-        value = value == 0.0 ? 1.0 : 0.0;
+      value = value == 0.0 ? 1.0 : 0.0;
     }
   else
     {
       // for each component of the row, assign min/value
       if (i < n_data && j < n_centroids)
-        value = reducted / value;
+      value = min_value / value;
     }
   // syncronyze threads of this block
   __syncthreads ();
-
   // compute the sum of the row
   if (j < n_centroids)
-    sdata[j] = value;
+      sdata[j] = value;
   else
-    sdata[j] = 0.0;
+      sdata[j] = 0.0;
   __syncthreads ();
   for (size_t s = MAX_THREADS_PER_BLOCK / 2; s > 0; s >>= 1)
     {
       if (j < s)
-        sdata[j] += sdata[j + s];
+          sdata[j] += sdata[j + s];
       __syncthreads ();
     }
-  reducted = sdata[0];
+  min_value = sdata[0];
   // syncronyze threads of this block
   __syncthreads ();
-
   // assign the value to the matrix
   if (i < n_data && j < n_centroids)
-    value /= reducted;
-    d_matrix[i * n_centroids + j] = value * value * d_weights[i];
+      value /= min_value;
+  d_matrix[i * n_centroids + j] = value * value * d_weights[i];
   // syncronyze threads of this block
   __syncthreads ();
 }\end{lstlisting}

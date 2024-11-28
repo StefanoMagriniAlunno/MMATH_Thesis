@@ -1,12 +1,12 @@
+import logging
 import os
-from logging import Logger
-from typing import List
+import typing
 
 import libsynthesis
 
 
 def synthetizer(
-    logger: Logger,
+    logger: logging.Logger,
     in_db_path: str,
     out_db_path: str,
     list_file_path: str,
@@ -16,8 +16,8 @@ def synthetizer(
 ):
     """This function synthesizes all images in a directory.
 
-    :param logger: Logger object
-    :type logger: Logger
+    :param logger: logging.Logger object
+    :type logger: logging.Logger
     :param in_db_path: input database relative path
     :type in_db_path: str
     :param out_db_path: output database relative path
@@ -144,7 +144,7 @@ def synthetizer(
         if not os.path.exists(os.path.join(out_db_completepath, relative_path)):
             os.mkdir(os.path.join(out_db_completepath, relative_path))
 
-    list_file: List[str] = []
+    list_file: typing.List[str] = []
     for dirpath, _, filenames in os.walk(in_db_completepath):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)

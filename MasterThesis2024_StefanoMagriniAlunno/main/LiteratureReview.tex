@@ -11,7 +11,7 @@ This chapter reviews key literature that forms the theoretical foundation of thi
 \section{Application}
 In this section, we will develop specific applications of the topics discussed in the chapter to see how they can be used in the context of the thesis. The discussion will focus on the use of fuzzy clustering to address the problem of continuity in colour space, the practical implementation of the \gls{fcm} algorithm, and the use of \gls{fft} for image analysis.
 \subsection{Comparing works, the idea of clustering}
-As we have seen, a problem of \cref{eq:SapAttribution_dist} becomes apparent when the continuous space in which the $n$-tiles are defined turns out to be too fit. The proposed idea was to fix the fewest possible boxes and work with the idea that $2$ any tiles are as distinct as any other pair. However, this is not a credible assumption due to the loss of information, for this reason in this thesis we would like to approach the problem more dynamically by increasing the variety of tiles without running into sparsity problems.
+As we have seen, a problem of \cref{eq:SapAttribution_dist} becomes apparent when the continuous space in which the $n$-tiles are defined turns out to be too fit. The proposed idea was to fix the fewest possible boxes and to work with the idea that $2$ any tiles are as distinct as any other pair. However, this is not a credible assumption due to the loss of information, for this reason in this thesis we would like to approach the problem more dynamically by increasing the variety of tiles without running into sparsity problems.
 
 \noindent The idea is to use the clustering of the merged data between the two samplings as a basis for fitting the continuous space. The expectation is that the result will certainly be more accurate, however, it is necessary to consider the problem of the shape of the clusters (which will no longer be boxes).
 
@@ -20,25 +20,25 @@ As we have seen, a problem of \cref{eq:SapAttribution_dist} becomes apparent whe
 
 	\noindent The two samplings will be merged and clustered with \gls{kmeans} using $32$ centroids, resulting in a predictor $\mathcal{P}$. Each cluster will be viewed as a region with a certain measure that will be the mean square of the distances of each datum in the cluster from its centroid. Given a cluster of centroid $c$, we want to estimate:
 	\[
-	\mu(c)=\sqrt{\mathbb{E}_\mathcal{L}\left[\left\|x-c\right\|^2\middle|\mathcal{P}\left(x\right)=c\right]}
+	\mu(c)=\sqrt{\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}\left(x\right)=c\right]}
 	\]
 	where $\mathcal{L}$ is the law of the two merged samples.
 
-	\noindent We can see in the first image that regions have been captured and that automatically the regions are denser where the frequency is higher. Furthermore, the image shows the weights of each cluster $c$ defined as  $\mathbb{P}_\mathcal{L}\left[\mathcal{P}(x)=c\right]$
+	\noindent We can see in the first image that regions have been captured and that automatically the regions are little where the density is higher. Furthermore, the image shows the weights of each cluster $c$ defined as  $\mathbb{P}_{x\sim\mathcal{L}}\left[\mathcal{P}(x)=c\right]$
 
 	\noindent We now study the two samples separately over this clustering. The densities will be weighted on the new measure $\mu$, so the density on the centroid $c$ of measure $\mu(c)$ respectively for the distribution $\mathcal{A}$ will be:
 	\[
-	d_A(c)=\frac{\mathbb{P}_{\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(c)}
+	d_\mathcal{A}(c)=\frac{\mathbb{P}_{x\sim\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(c)}
 	\]
 	similarly for $\mathcal{B}$.
 
-	\noindent In the second figure we show the cluster membership probabilities of the two densities $\mathcal{A}$ and $\mathcal{B}$.
+	\noindent In the second figure we show the cluster membership probabilities of the two distributions $\mathcal{A}$ and $\mathcal{B}$.
 
 	\noindent Let us try to calculate the distance formulated \cref{eq:SapAttribution_dist} considering the measure:
 	\[
-	d(\mathcal{A},\mathcal{B})=(1+J_{D_\mathcal{A},D_\mathcal{B}})^{-1}\frac{1}{\mu(D_\mathcal{A}\cup D_\mathcal{B})}\int d\mu(x) \left(\frac{r(x)-1}{r(x)+1}\right)^2
+	d(A,B)=(1+J_{D_A,D_B})^{-1}\frac{1}{\mu(D_A\cup D_B)}\int d\mu(c) \left(\frac{r(c)-1}{r(c)+1}\right)^2
 	\]
-	where $D_{\mathcal{A}}$ is the support for the discretisation of ${\mathcal{A}}$ and similarly for $D_{\mathcal{B}}$. The result for $32$ centroids is $0.54$.
+	where $D_A$ is the support for the discretisation of ${\mathcal{A}}$ and similarly for $D_B$.\\ The result for $32$ centroids is $0.54$.
 
 	\begin{center}
 		\begin{minipage}{0.48\textwidth}
@@ -58,7 +58,7 @@ In the example, it is basically shown that the number of nodes can be reduced an
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{Figures/fused_data_2D.png}
-	\caption[Dati in 2D sintetici]{In the figure, the data from the set $\mathcal{A}$ are shown in red and the data from the set $\mathcal{B}$ in green. They were obtained by merging normal Gaussians with different representability.}
+	\caption[example of clustering in 2D]{In the figure, the data from the distribution $\mathcal{A}$ are shown in red and the data from the distribution $\mathcal{B}$ in green. They were obtained by merging normal Gaussians with different representability.}
 	\label{fig:fused_data_2D}
 \end{figure}
 Let us try clustering using more and more nodes, repeating the calculation carried out in the example, studying how the distance changes by increasing the number of nodes. In \cref{tab:kmeans_tessellation_comparison} we can see how the clustering shows more stable results.
@@ -90,7 +90,7 @@ C^{\texttt{new}}_j = \frac{\sum_{i=1}^Nu_{ij}^2w_{i}x_{i}}{\sum_{i=1}^Nu_{ij}^2w
 \]
 
 \paragraph{machine error}
-The use of \gls{fcm} in this thesis involves millions of pieces of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. An example that might exist is a value $D_{ik}^2 \approx 0$ that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it is infinity.\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NCk)$ \marginnote{\tiny$N$ is the number of data and $C$ is the number of centroids, $k$ is the size of the tiles} however scalability allows us to reduce this cost to $O(\text{log}(kC))$ by exploiting the independence of each cycle and scalable binary operations (details in \cref{chap:methodology}).
+The use of \gls{fcm} in this thesis involves millions of pieces of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. An example that might exist is a value $D_{ik}^2 \approx 0$ that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it is infinity.\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NCk)$ \marginnote{\tiny$N$ is the number of data and $C$ is the number of centroids, $k$ is the size of the tiles} however scalability allows us to reduce this cost to $O(\text{log}(kC))$ by exploiting the independence of each cycle and scalable binary operations (details in \cref{chap:methodology}).\\
 
 \begin{algorithm}[h]
 \caption[Membership update stable computation.]{Membership update stable computation.\\

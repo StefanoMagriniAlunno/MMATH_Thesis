@@ -1,7 +1,7 @@
 \section{Synthesis}
 The tessellation phase extracts tiles $N\times N$ from each image. Starting from a matrix of grey pixels, represented as a matrix in $\left[0,1\right]^{h \times w}$, where $h$ is the height and $w$ the width of the image.
 
-\noindent Al termine di questa procedura, ogni immagine viene rappresentata come un elenco di tessere, motivo per cui questa fase è chiamata "sintesi": infatti, risulta difficile ricostruire l'immagine originale a partire dalle tessere. Questo processo complica notevolmente qualsiasi tentativo di falsificazione dell'opera, poiché ricostruire manualmente un'immagine con una distribuzione di tessere simile a quella originale è estremamente complicato. Inoltre, la dimensione delle tessere nella rappresentazione è ridotta, ma sufficientemente grande da catturare piccoli automatismi della mano dell'autore, dettagli che sono difficilmente riproducibili in modo volontario.
+\noindent At the end of this procedure, each image is represented as a list of tiles, which is why this phase is called ‘synthesis’: in fact, it is difficult to reconstruct the original image from the tiles. This process considerably complicates any attempt to falsify the work, as manually reconstructing an image with a tessellation distribution similar to the original is extremely complicated. Furthermore, the size of the tiles in the representation is small, but large enough to capture small automatisms of the author's hand, details that are difficult to reproduce voluntarily.
 
 \begin{algorithm}[ht]
 \caption{Algorithm for tile extraction}

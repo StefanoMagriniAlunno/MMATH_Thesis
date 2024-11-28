@@ -73,38 +73,12 @@ This repository use pre-commit:
 - shellcheck
 - black
 
-# Issue
-
-**Don't have a git command on your device? No problem...**
+# Usage
+Start the script
 ```bash
-sudo apt install git-all
+  python3 source/main.py
 ```
 
-## How to install virtualenv
+Start a debug session
 ```bash
-sudo apt install python3-pip
-sudo apt install python3-dev
-pip install --upgrade pip==24.1.2
-pip install virtualenv
-```
-## How to install GCC
-```bash
-sudo apt install build-essential
-sudo apt install cmake
-sudo apt install doxygen graphviz
-```
-## How to install CUDA
-Open Additional Drivers in Software&Updates and select the recommended nvidia driver.
-Restart your device and install the cuda toolkit:
-```bash
-sudo apt install nvidia-cuda-toolkit
-sudo apt install nvtop
-```
-It's possible that the software use cudnn's packages, in this case:
-```bash
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
-sudo dpkg -i cuda-keyring_1.1-1_all.deb
-sudo apt update
-sudo apt install cudnn
-sudo apt install cudnn-cuda-12
 ```

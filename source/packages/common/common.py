@@ -1,7 +1,6 @@
 import logging
 import os
 import tempfile
-from logging import Logger
 from typing import IO
 
 
@@ -14,7 +13,7 @@ class LogBase:
     .. code-block:: python
 
         class my_class(LogBase):
-            def __init__(self, logger: Logger):
+            def __init__(self, logger: logging.Logger):
                 super().__init__(logger)
                 self.logger.info("Hello, world!")
            def __del__(self):
@@ -26,7 +25,7 @@ class LogBase:
 
     """
 
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: logging.Logger):
         logger.debug(f"{self.__class__.__name__}.__init__()")
         self.logger = logger
 
@@ -34,7 +33,7 @@ class LogBase:
         self.logger.debug(f"{self.__class__.__name__}.__del__()")
 
 
-def main(log_path: str) -> Logger:
+def main(log_path: str) -> logging.Logger:
     """Call this function to get the logger"""
     logging.basicConfig(
         filename=os.path.join(os.getcwd(), log_path),
