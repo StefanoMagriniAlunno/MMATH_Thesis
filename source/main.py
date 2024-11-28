@@ -57,14 +57,24 @@ def main_comparing(
             for i in range(len(files))
             if (i - work_1_index + (i >= work_1_index)) % 2 == 0
         ]
-        # work_2 reshuffling
-        random.shuffle(work_2_indices)
+
+        # ? clustering of graph described by dataframe (using N clusters)
+        # ? sort work_1_index using size of the clusters
+        # ? take next work_1_index using a work from a little cluester
+
         # remove from work_2_indices the index with "already computed" files
+        work_2_indices_new = []
         for work_2_index in work_2_indices:
             work_1 = files[work_1_index]
             work_2 = files[work_2_index]
-            if not numpy.isnan(data_frame.loc[work_1, work_2]):
-                work_2_indices.remove(work_2_index)
+            if numpy.isnan(data_frame.loc[work_1, work_2]):
+                work_2_indices_new.append(work_2_index)
+            else:
+                logger.info(f"{work_1} and {work_2} already computed")
+        work_2_indices = work_2_indices_new
+
+        # work_2 reshuffling
+        random.shuffle(work_2_indices)
 
         for work_2_index in tqdm.tqdm(work_2_indices, files[work_1_index], leave=False):
             work_1 = files[work_1_index]
