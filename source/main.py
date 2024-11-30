@@ -51,16 +51,34 @@ def main_comparing(
             data_frame.loc[file, file] = 0.0
         data_frame.to_csv(r"./data/distances.csv", float_format="%.16f")
 
-    for work_1_index in tqdm.tqdm(range(len(files)), "clustering", leave=False):
+    work_1_indices = list(range(len(files)))
+    work_1_indices_new = []
+    # remove from work_1_indices
+    for work_1_index in work_1_indices:
         work_2_indices = [
             i
             for i in range(len(files))
             if (i - work_1_index + (i >= work_1_index)) % 2 == 0
         ]
+        work_2_indices_new: typing.List[int] = []
+        for work_2_index in work_2_indices:
+            work_1 = files[work_1_index]
+            work_2 = files[work_2_index]
+            if numpy.isnan(data_frame.loc[work_1, work_2]):
+                work_1_indices_new.append(work_1_index)
+                break
+        else:
+            logger.info(f"{work_1} already computed")
+    work_1_indices = work_1_indices_new
 
-        # ? clustering of graph described by dataframe (using N clusters)
-        # ? sort work_1_index using size of the clusters
-        # ? take next work_1_index using a work from a little cluester
+    random.shuffle(work_1_indices)
+
+    for work_1_index in tqdm.tqdm(work_1_indices, "clustering", leave=False):
+        work_2_indices = [
+            i
+            for i in range(len(files))
+            if (i - work_1_index + (i >= work_1_index)) % 2 == 0
+        ]
 
         # remove from work_2_indices the index with "already computed" files
         work_2_indices_new = []

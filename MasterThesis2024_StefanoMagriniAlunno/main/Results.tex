@@ -1,23 +1,74 @@
 \chapter{Results}
 \begin{toDo}
 	\section{Architecture}
-	Come accennato nei capitoli precedenti il sistema di analisi delle immagini richiede di confrontare l'opera sconosciuta con quelle note. In particolare l'immagine viene preprocessata rimuovendo elementi inquinanti che non riguardano la grafia, lasciando essenzialmente un'immagine in scala di grigi con in scuro la grafia dell'autore e lo sfondo bianco. Inoltre potrebbe servire che il tratto dell'autore abbia uno spessore specifico rispetto i caratteri impressi e che anche la risoluzione (espressa in \gls{dpi}) sia adatta al dataset.
+	Come accennato nei capitoli precedenti, il sistema di analisi delle immagini richiede di confrontare l'opera sconosciuta con quelle note.
 
-	\noindent L'immagine così preprocessata sarà quindi sintetizzata, un programma ne estrae tutte le tessere con un size specifico conforme al dataset. In seguito l'immagine sarà confrontata con ogni immagine del dataset (o le più rappresentative per ogni autore).
+	\noindent L'immagine viene preprocessata rimuovendo elementi inquinanti che non riguardano la grafia, lasciando essenzialmente un'immagine in scala di grigi con la grafia dell'autore in tonalità scura e lo sfondo bianco. Inoltre, il tratto dell'autore potrebbe necessitare di uno spessore specifico rispetto ai caratteri impressi e la risoluzione (espressa in \gls{dpi}) deve essere adatta al dataset.
+
+	\noindent L'immagine così preprocessata sarà quindi sintetizzata: un programma ne estrae tutte le tessere con una dimensione specifica conforme al dataset. In seguito, l'immagine sarà confrontata con ogni immagine del dataset (o con le più rappresentative per ogni autore).
 
 	\noindent In questo capitolo si effettueranno analisi di ogni passaggio illustrato in questa tesi al fine di vedere come ogni singola componente agisce sulle immagini esaminate. Non solo, si mostreranno anche le analisi effettuate per stabilire specifiche decisioni e parametri usati durante la fase di progettazione.
 
-	\subsection{Implementation}
-	L'implementazione del codice ha richiesto notevoli sforzi poiché gran parte dei frame-work richiesti non erano esistenti, inoltre anche le limitazioni della potenza di calcolo e il tempo a disposizione sono state un forte vincolo che ha richiesto la stesura di codice altamente prestante e sofisticato.
+	\bigskip\noindent La costruzione del dataset avviene con un procedimento lievemente diverso. Ogni immagine di cui l'autore è noto viene confrontata completamente con tutte le altre già note. Essendo l'indice di dissimilarità simmetrico, sarà sufficiente esaminare la metà di tutti i confronti possibili. Se si è in possesso di $n$ immagini ed assumendo dissimilarità $0$ tra immagini con se stesse, si può concludere che in totale saranno richiesti $\frac{n^2-n}{2}$ confronti.
 
-	\noindent In generale il progetto ha richiesto largo uso di \gls{Python} e \gls{CUDA}, durante la sua realizzazione si sono usati software specifici per debugging, logging e testing utili per monitorare il corretto funzionamento del software, in particolare si sta parlando di:
-	\begin{itemize}
-		\item Debugger di \gls{Python} fornito da \gls{VSCode}, \gls{gdb} to debug \gls{cxx} and \gls{CUDA} code
-		\item Separate logging of compiled and scripting code, in this way it was possible see in real-time each main calculus and eventually find rapidly some important error and how to fix it
-		\item Test library of \gls{Python} to compare high level code and low level code
-	\end{itemize}
+	\noindent Per questa ragione, l'algoritmo per ogni riga esaminerà la metà dei possibili confronti come mostrato in \cref{fig:distance_computation}. In particolare, se $n$ è dispari, per ogni riga si faranno $\frac{n-1}{2}$ confronti (e altrettanti saranno memorizzati per via della simmetria), mentre se $n$ è pari, allora $\frac{n}{2}$ confronti saranno effettuati se la riga $i$ è pari (la prima riga è la riga $0$) e $\frac{n}{2}-1$ se la riga $i$ è dispari.
 
-	\noindent Sono stati usati strumenti di documentazione automatica come \gls{doxygen} e \gls{sphinx} e strumenti di gestione automatica del codice come \gls{github}. Inoltre è stato adottato un robusto sistema di gestione di errori e di sessioni di calcolo, in questo modo da scongiurare di perdere dati preziosi e tempo di calcolo tramite backup (detti "checkpoint").
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.7\linewidth]{Figures/analysis_sort.png}
+		\caption[Visit all couples]{The algorithm for each row computes half of all components. In the image, the algorithm follows the order of the numbers and alternately takes the cells such that the lower diagonal is not directly computed and the upper diagonal is directly computed. For example, in the $3^\text{-th}$ row, the algorithm computes directly the first column (number $5$ in cyan) and the next-to-last column (number $6$ in cyan), while the second column is already computed (number $3$ in green square) and the last column is not yet computed.}
+		\label{fig:distance_computation}
+	\end{figure}
+
+	\subsection{Challenges}
+	L'implementazione del codice ha richiesto notevoli sforzi poiché gran parte dei framework richiesti non erano esistenti, inoltre le limitazioni della potenza di calcolo e il tempo a disposizione hanno rappresentato un forte vincolo. Questo ha richiesto la stesura di codice altamente prestante e sofisticato per ottimizzare l'efficienza computazionale.
+
+	\noindent In generale, il progetto ha richiesto largo uso di \gls{Python} e \gls{CUDA}. Durante la sua realizzazione si sono utilizzati software specifici per debugging, logging e testing, utili per monitorare il corretto funzionamento del software. Sono stati impiegati strumenti di documentazione automatica e gestione delle versioni del codice. Inoltre, è stato adottato un robusto sistema di gestione degli errori e delle sessioni di calcolo, con meccanismi di backup (detti "checkpoint") per scongiurare la perdita di dati preziosi. Il software utilizza anche file temporanei per aumentare la capacità di memorizzazione oltre i limiti della memoria principale.
+
+	\noindent Per queste ragioni, il codice (composto da un totale di $3480$ righe) è difficilmente riportabile per intero in questo testo ed è consultabile nella repository \gls{github}:\\ \url{https://github.com/StefanoMagriniAlunno/MMATH_thesis}.
+
+	\bigskip\noindent La macchina che ha prodotto i risultati illustrati in questo capitolo ha le seguenti specifiche tecniche:
+	\texttt{\begin{itemize}
+		\item \textbf{processor}: 11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz
+		\begin{itemize}
+			\item[-] Cores: 4
+			\item[-] Thread(s) per core: 2
+			\item[-] CPU max MHz: 4800, 0000
+			\item[-] Caches:
+			\begin{itemize}
+				\item[*] L1d 192KiB (4 instances)
+				\item[*] L1i 128KiB (4 instances)
+				\item[*] L2 5MiB (4 instances)
+				\item[*] L3 12MiB (1 instances)
+			\end{itemize}
+		\end{itemize}
+		\item \textbf{memory}: 16 GiB
+		\begin{itemize}
+			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
+			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
+		\end{itemize}
+		\item \textbf{memory}: 16 GiB
+		\begin{itemize}
+			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
+			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
+		\end{itemize}
+		\item \textbf{graphic processor unit}: NVIDIA GeForce GTX 1650
+		\begin{itemize}
+			\item[-] Cores: 896
+			\item[-] stream multiprocessor: 14
+			\item[-] VRAM: GDDR5 4096 MiB
+			\item[-] CUDA capability: 7.5
+		\end{itemize}
+	\end{itemize}}
+	Saranno visionate anche le prestazioni per sottolineare come l'uso di processori grafici possa essere estremamente utile per questo tipo di fini.
+
+	\noindent Il codice è organizzato usato la tecnologia del wrapping. Essendo il linguaggio \gls{cxx} altamente prestante ma complesso nella progettazione e nella compatibilità con il sistema operativo, si è realizzato codice \gls{Python} per avviare le sessioni di calcolo, preparando file e report utili, recuperando specifiche tecniche e configurazioni del calcolo da eseguire. Lo script \gls{Python} può chiamare codice \gls{cxx} ma anche avviare facilmente programmi di \gls{r} o MATLAB. Il questo modo il codice \gls{cxx} potrà essere più essenziale e quindi leggibile.
+
+	\noindent Per fare un esempio di avvio di una comparazione tra opere, lo script principale di \gls{Python} avvia uno script che si occupa di preparare il sistema operativo, convalidare i parametri usati ed eventuali checkpoint. Quindi, fornisce tutti gli input richiesti al wrapper (scritto in \gls{cxx}) il quale convalida eventuali errori di sintassi e traduce i tipi di valori di \gls{Python} in tipi comprensibili al \gls{cxx}. Di seguito, questi valori vengono passati ad uno starter che prepara un logger e legge eventuali file inizializzando di fatto la memoria principale. Infine, il programma scritto in \gls{cxx} chiama il programma scritto con \gls{CUDA} il quale si occupa di leggere i dettagli tecnici della \gls{gpu} (usando apposite librerie) configurare un piano di calcolo che massimizza le prestazioni e che sia robusto e quindi comunicare le istruzioni alla \gls{gpu} in formato di kernel (codice che compilerà la \gls{gpu} stessa in runtime) e di trasferire dati o richiederne.
+
+	\noindent I dati ottenuti dalla \gls{gpu} vengono passati alla funzione chiamante in \gls{cxx} la quale li memorizza in modo opportuno e restituisce il controllo allo script di \gls{Python} chiamante. In caso di errori tutto viene documentato e riportato al chiamante per gestirli in modo opportuno.
+
+	\noindent Questo tipo di strategie per realizzare codice prestante sono tipiche nelle librerie di calcolo scientifico che spesso mostrano una funzione principale chiamante e funzioni compilate nascoste, come CuPy la quale fase di installazione prevede anche la compilazione.
 
     \section{Pre processing}
     Mostrare i risultati del pre processing.
