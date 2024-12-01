@@ -3,15 +3,15 @@
 	\section{Architecture}
 	Come accennato nei capitoli precedenti, il sistema di analisi delle immagini richiede di confrontare l'opera sconosciuta con quelle note.
 
-	\noindent L'immagine viene preprocessata rimuovendo elementi inquinanti che non riguardano la grafia, lasciando essenzialmente un'immagine in scala di grigi con la grafia dell'autore in tonalità scura e lo sfondo bianco. Inoltre, il tratto dell'autore potrebbe necessitare di uno spessore specifico rispetto ai caratteri impressi e la risoluzione (espressa in \gls{dpi}) deve essere adatta al dataset.
+	\noindent L'immagine viene preprocessata rimuovendo elementi inquinanti che non riguardano la grafia, lasciando essenzialmente un'immagine in scala di grigi con la grafia dell'autore in tonalità scura e lo sfondo bianco. Inoltre, il tratto dell'autore potrebbe necessitare di uno spessore specifico rispetto ai caratteri impressi e la risoluzione (espressa in \gls{dpi}) deve essere conforme al dataset.
 
 	\noindent L'immagine così preprocessata sarà quindi sintetizzata: un programma ne estrae tutte le tessere con una dimensione specifica conforme al dataset. In seguito, l'immagine sarà confrontata con ogni immagine del dataset (o con le più rappresentative per ogni autore).
 
 	\noindent In questo capitolo si effettueranno analisi di ogni passaggio illustrato in questa tesi al fine di vedere come ogni singola componente agisce sulle immagini esaminate. Non solo, si mostreranno anche le analisi effettuate per stabilire specifiche decisioni e parametri usati durante la fase di progettazione.
 
-	\bigskip\noindent La costruzione del dataset avviene con un procedimento lievemente diverso. Ogni immagine di cui l'autore è noto viene confrontata completamente con tutte le altre già note. Essendo l'indice di dissimilarità simmetrico, sarà sufficiente esaminare la metà di tutti i confronti possibili. Se si è in possesso di $n$ immagini ed assumendo dissimilarità $0$ tra immagini con se stesse, si può concludere che in totale saranno richiesti $\frac{n^2-n}{2}$ confronti.
+	\bigskip\noindent La costruzione del dataset avviene con un procedimento lievemente diverso. Ogni immagine di cui l'autore è noto viene confrontata completamente con tutte le altre già note. Essendo l'indice di dissimilarità simmetrico, sarà sufficiente esaminare la metà di tutti i confronti possibili. Se si è in possesso di $n$ immagini, pensiamo di voler riempire una tabella quadrata $n\times n$ con valori reali. Assumendo dissimilarità $0$ tra immagini con se stesse, si può concludere che in totale saranno richiesti $\frac{n^2-n}{2}$ confronti.
 
-	\noindent Per questa ragione, l'algoritmo per ogni riga esaminerà la metà dei possibili confronti come mostrato in \cref{fig:distance_computation}. In particolare, se $n$ è dispari, per ogni riga si faranno $\frac{n-1}{2}$ confronti (e altrettanti saranno memorizzati per via della simmetria), mentre se $n$ è pari, allora $\frac{n}{2}$ confronti saranno effettuati se la riga $i$ è pari (la prima riga è la riga $0$) e $\frac{n}{2}-1$ se la riga $i$ è dispari.
+	\noindent Per questa ragione, l'algoritmo per ogni riga esaminerà la metà dei possibili confronti come mostrato in \cref{fig:distance_computation}. In particolare, se $n$ è dispari, per ogni riga si faranno $\frac{n-1}{2}$ confronti (e altrettanti saranno memorizzati per via della simmetria), mentre se $n$ è pari, allora $\frac{n}{2}$ confronti saranno effettuati se la riga $i$ è pari (la prima riga ha indice $0$) e $\frac{n}{2}-1$ se la riga $i$ è dispari.
 
 	\begin{figure}[h]
 		\centering
