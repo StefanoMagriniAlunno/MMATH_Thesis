@@ -11,7 +11,7 @@
 
 	\bigskip\noindent La costruzione del dataset avviene con un procedimento lievemente diverso. Ogni immagine di cui l'autore è noto viene confrontata completamente con tutte le altre già note. Essendo l'indice di dissimilarità simmetrico, sarà sufficiente esaminare la metà di tutti i confronti possibili. Se si è in possesso di $n$ immagini, pensiamo di voler riempire una tabella quadrata $n\times n$ con valori reali. Assumendo dissimilarità $0$ tra immagini con se stesse, si può concludere che in totale saranno richiesti $\frac{n^2-n}{2}$ confronti.
 
-	\noindent Per questa ragione, l'algoritmo per ogni riga esaminerà la metà dei possibili confronti come mostrato in \cref{fig:distance_computation}. In particolare, se $n$ è dispari, per ogni riga si faranno $\frac{n-1}{2}$ confronti (e altrettanti saranno memorizzati per via della simmetria), mentre se $n$ è pari, allora $\frac{n}{2}$ confronti saranno effettuati se la riga $i$ è pari (la prima riga ha indice $0$) e $\frac{n}{2}-1$ se la riga $i$ è dispari.
+	\noindent Per questa ragione, l'algoritmo per ogni riga esaminerà la metà dei possibili confronti come mostrato in \cref{fig:distance_computation}. In particolare, se $n$ è dispari, per ogni riga si faranno $\frac{n-1}{2}$ confronti (e altrettanti saranno memorizzati per via della simmetria), mentre se $n$ è pari, allora $\frac{n}{2}$ confronti saranno effettuati se la riga $i$ è pari (la prima riga ha indice $0$) e $\frac{n}{2}-1$ se la riga $i$ è dispari. Questa procedura permette una analisi più uniforme ed efficiente per numerosi dati, specie se accompagnata da shuffle per riga e per colonna.
 
 	\begin{figure}[h]
 		\centering
@@ -33,7 +33,7 @@
 		\begin{itemize}
 			\item[-] Cores: 4
 			\item[-] Thread(s) per core: 2
-			\item[-] CPU max MHz: 4800, 0000
+			\item[-] CPU max MHz: 4800
 			\item[-] Caches:
 			\begin{itemize}
 				\item[*] L1d 192KiB (4 instances)
@@ -60,17 +60,42 @@
 			\item[-] CUDA capability: 7.5
 		\end{itemize}
 	\end{itemize}}
-	Saranno visionate anche le prestazioni per sottolineare come l'uso di processori grafici possa essere estremamente utile per questo tipo di fini.
+	\noindent Saranno visionate anche le prestazioni per sottolineare come l'uso di processori grafici possa essere estremamente utile per questo tipo di fini.
 
-	\noindent Il codice è organizzato usato la tecnologia del wrapping. Essendo il linguaggio \gls{cxx} altamente prestante ma complesso nella progettazione e nella compatibilità con il sistema operativo, si è realizzato codice \gls{Python} per avviare le sessioni di calcolo, preparando file e report utili, recuperando specifiche tecniche e configurazioni del calcolo da eseguire. Lo script \gls{Python} può chiamare codice \gls{cxx} ma anche avviare facilmente programmi di \gls{r} o MATLAB. Il questo modo il codice \gls{cxx} potrà essere più essenziale e quindi leggibile.
+	\bigskip\noindent Il codice fa uso di wrapping, ossia di programmi in grado di far scorrere il flusso di uno script di \gls{Python} in un codice precompilato di \gls{cxx}.In questo modo si è realizzato con codice \gls{Python} uno script di avvio per le sessioni di calcolo che prepara file e report utili, recupera specifiche hardware e configurazioni del calcolo da eseguire. Laddove è richiesto un'intensivo calcolo lo script \gls{Python} chiamerà una libreria precompilata scritta in \gls{cxx}. In questo modo il codice \gls{cxx} potrà essere più essenziale e quindi leggibile.
 
-	\noindent Per fare un esempio di avvio di una comparazione tra opere, lo script principale di \gls{Python} avvia uno script che si occupa di preparare il sistema operativo, convalidare i parametri usati ed eventuali checkpoint. Quindi, fornisce tutti gli input richiesti al wrapper (scritto in \gls{cxx}) il quale convalida eventuali errori di sintassi e traduce i tipi di valori di \gls{Python} in tipi comprensibili al \gls{cxx}. Di seguito, questi valori vengono passati ad uno starter che prepara un logger e legge eventuali file inizializzando di fatto la memoria principale. Infine, il programma scritto in \gls{cxx} chiama il programma scritto con \gls{CUDA} il quale si occupa di leggere i dettagli tecnici della \gls{gpu} (usando apposite librerie) configurare un piano di calcolo che massimizza le prestazioni e che sia robusto e quindi comunicare le istruzioni alla \gls{gpu} in formato di kernel (codice che compilerà la \gls{gpu} stessa in runtime) e di trasferire dati o richiederne.
+	\noindent Per fare un esempio di avvio di una comparazione tra opere, lo script principale di \gls{Python} si occupa di preparare il sistema operativo, convalidare i parametri usati ed eventuali checkpoint. Quindi, fornisce tutti gli input richiesti al wrapper (scritto in \gls{cxx}) il quale convalida eventuali errori di sintassi e traduce i tipi di valori di \gls{Python} in tipi comprensibili al \gls{cxx}. Di seguito, questi valori vengono passati ad uno starter che prepara un logger e legge eventuali file inizializzando di fatto la memoria principale. Il programma scritto in \gls{cxx} chiama il programma scritto in \gls{CUDA} il quale si occupa di leggere i dettagli tecnici della \gls{gpu} (usando apposite librerie) per configurare un piano di calcolo che massimizza le prestazioni e che sia robusto. Infine, verranno comunicate le istruzioni alla \gls{gpu} come kernel (codice esplicito che compilerà la \gls{gpu} stessa in runtime). Poiché la memoria della \gls{gpu} è limitata, è importante far attenzione che i dati siano passati parzialmente e usare la memoria principale come appoggio.
 
 	\noindent I dati ottenuti dalla \gls{gpu} vengono passati alla funzione chiamante in \gls{cxx} la quale li memorizza in modo opportuno e restituisce il controllo allo script di \gls{Python} chiamante. In caso di errori tutto viene documentato e riportato al chiamante per gestirli in modo opportuno.
 
-	\noindent Questo tipo di strategie per realizzare codice prestante sono tipiche nelle librerie di calcolo scientifico che spesso mostrano una funzione principale chiamante e funzioni compilate nascoste, come CuPy la quale fase di installazione prevede anche la compilazione.
+	\noindent Questo tipo di strategie per realizzare codice prestante sono tipiche nelle librerie di calcolo scientifico che spesso mostrano una funzione principale chiamante e funzioni compilate nascoste, un esempio è CuPy, una libreria \gls{Python} la quale installazione prevede anche la compilazione.
 
     \section{Pre processing}
+    Il pre processing è una fase importante del confronto tra opere ignote con il dataset. In particolare si preoccupa di far rispettare delle specifiche qualitative dell'immagine per lo più soggettive, non è quindi detto che si faccia uso dello stesso algoritmo per ogni immagine. Il fine ultimo è eliminare dati evidentemente inquinanti per far rispettare un certo standard e presentare l'immagine al software nel giusto modo. Essenzialmente si avvicina il dato reale al dato ideale ammissibile teoricamente dal software.
+
+    \noindent Come già illustrato in \cref{alg:CleaningFFT}, il preprocessing adottato per i dati raccolti fa uso principalmente di una compressione con \gls{fft}. In questa sezione saranno illustrati i risultati passo passo seguendo l'algoritmo.
+
+    \paragraph{FFT}
+    Il primo step dell'algoritmo di preprocessing è applicare \gls{fft} all'immagine normalizzata, quindi con pixel grigi aventi valori di media $0$ e varianza $1$. Come osservato, attraverso immagini sintetiche, i quadretti nello sfondo delle pagine di appunti sono pattern ricorrenti che tipicamente non sono propri della scrittura di un testo. Questa ricorrenza è meglio visibile attraverso l'uso di trasformate di Fourier.
+
+   	\noindent In \cref{fig:fft_application} è visibile il pattern dei quadretti come frequenze alte separatamente su $x$ e su $y$ di significiativa intensità.
+
+    \begin{figure}[h]
+    	\centering
+    	\includegraphics[width=1.0\linewidth]{Figures/fft_application.png}
+    	\caption[fft application]{We can observe significant frequencies along the edge of the second image. The template of the sheet is captured from \gls{fft}, the frequencies along the edges are high for an ax and low for the other ax.}
+    	\label{fig:fft_application}
+    \end{figure}
+
+	\noindent Il programma rimuove il $p$-percentile delle frequenze con più alta intensità. Dopodiché ricostruisce l'immagine originale usando le frequenze rimaste, cui intensità non è stata annullata. In \cref{fig:fft_percentile} si vedono varie ricostruzioni usando differenti percentili e una normalizzazione tra $0,1$ dei grigi ottenuti. Osserviamo come $p=0.1\%$ è una scelta appropriata da cui cominciare le analisi.
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=1.0\linewidth]{Figures/fft_percentile.png}
+		\caption[comparing different percentiles in fft]{.}
+		\label{fig:fft_percentile}
+	\end{figure}
+
     Mostrare i risultati del pre processing.
     \begin{itemize}
         \item serie di Fourier applicate a griglie sintetiche per dedurre quali sono le frequenze di nostro interesse: griglie dritte e ruotate, griglie chiare e scure, griglie con elementi inquinanti, confronto tra teoria e aspettativa

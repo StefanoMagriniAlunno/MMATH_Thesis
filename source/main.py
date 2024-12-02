@@ -275,7 +275,7 @@ def main_cleaning(
     try:
         cleaner.fft(
             logger, db_path, db_preprocessed_path, False, 0.0005, device
-        )  # remove best 0.1%
+        )  # remove best 0.05%
     except ValueError:
         logger.error("Unvalid inputs")
         raise
