@@ -91,9 +91,18 @@
 
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=1.0\linewidth]{Figures/fft_percentile.png}
-		\caption[comparing different percentiles in fft]{.}
+		\includegraphics[width=0.8\linewidth]{Figures/fft_percentile.png}
+		\caption[comparing different percentiles in fft]{Si può osservare che un percentile tra $0.1\%$ e $0.05\%$ è un buon compromesso, i quadretti sembrano sparire e la scrittura rimane intaccata.}
 		\label{fig:fft_percentile}
+	\end{figure}
+
+	\noindent Si può osservare che la normalizzazione effettuata per visualizzare queste immagini nasconde il fatto che i pixel sono in realtà tutti visibilmente uguali tra loro. L'idea quindi è individuare quanti pixel erano parte certamente dello sfondo bianco della pagina e quanti invece delle grafie. Analizzando le immagini si è osservato che i pixel con valore di grigio inferiore a $0.2$ sono certamente parte delle grafie, invece se il valore è superiore a $0.8$ sono certamente parte dello sfondo bianco della pagina. Quindi l'algoritmo recupera quanti pixel sono certamente delle grafie e quanti lo sono per la scrittura. In figura \cref{fig:fft_diagrams} un'illustrazione di questa analisi.
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.8\linewidth]{Figures/fft_diagrams.png}
+		\caption[different density after fft compression]{Si può osservare che la densità dei grigi nell'immagine originale presentava, per ovvie ragioni, molti pixel bianchi. Mentre nell'immagine ricostruita sono per lo più grigi. Per mantenere una distribuzione quanto meno simile a quella di partenza bisogna separare di più i colori tra loro.}
+		\label{fig:fft_gray}
 	\end{figure}
 
     Mostrare i risultati del pre processing.

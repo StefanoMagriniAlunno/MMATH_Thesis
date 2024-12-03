@@ -109,7 +109,7 @@ static PyMethodDef methods[] = {
     "- (str) complete path of input dataset\n"
     "- (str) complete path of output dataset\n"
     "- (str) complete path of file with all relative paths\n"
-    "- (int) size of tailse (the length of side)\n"
+    "- (int) size of tiles (the length of side)\n"
     "- (int) num of dedicated threads\n"
     "- (str) complete path of log file\n"
     ":raises SyntaxError:\n"
