@@ -121,6 +121,40 @@
 	\end{figure}
 
     \section{Synthesis}
+    Una volta che le immagini sono state preprocessate e quindi rese conformi al dataset secondo parametri "umani", si procede con la sintesi che di fatto rende le opere conformi da un punto di vista oggettivo. In particolare le opere saranno ridefinite come un elenco (ordinato o meno) delle loro tessere che saranno quadrate e aventi la stessa forma.
+
+    \noindent Come già accennato, lo script \gls{Python} si occupa di preparare il sistema operativo e ricavare velocemente input e parametri hardware per i programmi precompilati a più basso livello. In questo caso lo script \texttt{synthesis.py} in poche linee di codice crea le cartelle utili nelle quali un programma \gls{cxx} può memorizzare le sintesi ottenute con il seguente loop:
+
+\begin{lstlisting}[style=code, language=C, rulecolor=\color{blue}]
+/** @brief In this code we use OpenMP API to realize an array with all tiles.
+ *
+ *  @param[in] byte_board : the array with all pixels
+ *  @param[out] cells : the array with all tiles of the image
+ *  @param n_threads : the number of used threads in the first loop
+ *  @param height : the height of the image
+ *  @param width : the width of the image
+ *  @param n_tiles : the size of tiles
+ *
+ *  @details This code uses a bijective map from tiles and "short"image, i.e. an image with shape width_short, height_short. Each tiles will be assigned to its first pixel (up/sx).
+ *           "omp parallel for" is a directive of OpenMP that executes a for cycle using more indipendent threads. In this case the schedule is "static" i.e. each thread knows in advance all its loops.
+ */
+unsigned width_short = width - n_tiles + 1,
+         height_short = height - n_tiles + 1;
+#pragma omp parallel for schedule(static) num_threads(n_threads)
+for (unsigned row = 0; row < height_short; ++row)
+for (unsigned col = 0; col < width_short; ++col)
+    for (unsigned i = 0; i < n_tiles; ++i)
+    for (unsigned j = 0; j < n_tiles; ++j) {
+        long unsigned index_out = ((row * width_short + col) * n_tiles + i) * n_tiles + j; // [row-i, col-j, i,j]
+        long unsigned index_in = (row + i) * width + col + j;
+        cells[index_out] = byte_board[index_in];
+    }\end{lstlisting}
+
+    \paragraph{Details}
+    Usare più \gls{thread} per compiere un ciclo aiuta ad aumentare le prestazioni del ciclo di un fattore moltiplicativo. In questo caso non si temono nemmeno problemi di concorrenza, ossia più \gls{thread} che scrivono sulla medesima cella di memoria. In questo caso il tempo di esecuzione nominale di un loop non dipende dalla scelta della riga, per questa ragione una schedule statica riduce di molto anche i tempi stessi per gestire il gruppo di thread generati.
+
+    \noindent La tecnica del multi-threading si usa per ottimizzare i tempi di esecuzione di piccoli passaggi parallellizzabili. E' quindi inusuale vedere applicati questo tipo di algoritmi a
+
     Mostrare una piccola analisi delle sintesi ottenute e della velocità del programma, magari con dettagli implementativi
     \section{Comparison}
    		Mostrare dettagli del clustering a livello esecutivo, come velocità del programma e confronto con l'esecuzione su CPU
