@@ -101,16 +101,25 @@
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.8\linewidth]{Figures/fft_diagrams.png}
-		\caption[different density after fft compression]{Si può osservare che la densità dei grigi nell'immagine originale presentava, per ovvie ragioni, molti pixel bianchi. Mentre nell'immagine ricostruita sono per lo più grigi. Per mantenere una distribuzione quanto meno simile a quella di partenza bisogna separare di più i colori tra loro.}
-		\label{fig:fft_gray}
+		\caption[different density after fft compression]{Nell'immagine originale si osserva che la densità dei grigi presentava, per ovvie ragioni, molti pixel bianchi. Mentre nell'immagine ricostruita sono per lo più grigi medi. Per mantenere una distribuzione quanto meno simile a quella di partenza bisogna separare di più i colori tra loro. Per questa ragione si contano quanti pixel avevano un livello grigio superiore ad un certo threshold che ne certifichi l'appartenenza allo sfondo, così anche per la quantità di pixel sufficientemente scuri da considerarsi parte delle grafie.}
+		\label{fig:fft_diagrams}
 	\end{figure}
 
-    Mostrare i risultati del pre processing.
-    \begin{itemize}
-        \item serie di Fourier applicate a griglie sintetiche per dedurre quali sono le frequenze di nostro interesse: griglie dritte e ruotate, griglie chiare e scure, griglie con elementi inquinanti, confronto tra teoria e aspettativa
-        \item serie di Fourier applicate a immagini vere, confronto con le immagini sintetiche
-        \item mostrare alcuni risultati della pulizia dei quadretti attraverso le varie fasi dell'algoritmo di pulizia
-    \end{itemize}
+	\noindent Noti i due estremi nell'immagine ricostruita, si esegue una trasformazione lineare dei livelli di pixel che fa sì che gli estremi abbiano livelli rispettivamente $0$, $1$:
+	\[
+		\texttt{gray}_\texttt{new} = \frac{\texttt{gray}_\texttt{old} - \texttt{h}_\texttt{low}}{\texttt{h}_\texttt{up} - \texttt{h}_\texttt{low}}
+	\]
+	dove $\texttt{h}_\texttt{low}$ e $\texttt{h}_\texttt{up}$ indicano i threshold nell'immagine ricostruita. Di conseguenza i pixel con un livello inferiore a $0$ o superiore a $1$ saranno resi automaticamente $0$, $1$, rispettivamente, usando la trasformazione \texttt{clamp}.
+
+	\noindent In \cref{fig:fft_results} si mostrano i risultati di questo processo per percentili $0.1\%$ e $0.05\%$ su $2$ campioni. Come si osserva, il risultato non è molto differente ad occhio nudo. Per preservare meglio le grafie, a costo di lasciare più segni di quadretti, si è deciso di usare $p=0.05\%$. L'idea è sperare che questo rumore sia in qualche modo catturato dal clustering fuzzy.
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=1.0\linewidth]{Figures/fft_results.png}
+		\caption[results of "fft cleaner"]{In figura sono mostrate due immagini preprocessate usando differenti percentili. La prima colonna fa uso di $p=0.05\%$, la seconda di $p=0.1\%$, ogni riga fa riferimento ad un'opera del dataset.}
+		\label{fig:fft_results}
+	\end{figure}
+
     \section{Synthesis}
     Mostrare una piccola analisi delle sintesi ottenute e della velocità del programma, magari con dettagli implementativi
     \section{Comparison}
