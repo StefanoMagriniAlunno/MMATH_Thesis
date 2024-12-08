@@ -24,6 +24,12 @@
 **/*.lof
 **/*.log
 **/*.lot
+**/*.acr
+**/*.alg
+**/*.glg
+**/*.gls
+**/*.ilg
+**/*.ind
 **/*.out
 **/*.synctex.gz
 **/*.toc

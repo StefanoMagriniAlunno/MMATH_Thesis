@@ -3,24 +3,33 @@
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\linewidth]{Figures/dati_kmeans.png}
-    \caption[example of \gls{kmeans} clustering]{The data points are coloured according to the calculated label and the estimated centroid is indicated with a \texttt{X}.}
+    \caption[example of \gls{kmeans} clustering]{The data points are coloured according to the calculated label and the estimated centroid is indicated with an $\times$.}
     \label{fig:data_kmeans}
 \end{figure}
+\begin{modified}
+	Modificato da \texttt{X} a $\times$
+\end{modified}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\linewidth]{Figures/dati_gmm.png}
-    \caption[example of \gls{gmm} clustering]{The data points are coloured according to the Mahalanobis distance and the estimated centroid is indicated with a \texttt{X}. The ellipse of the normal distribution represents the covariance and is a confidence region of $95\%$.}
+    \caption[example of \gls{gmm} clustering]{The data points are coloured according to the Mahalanobis distance and the estimated centroid is indicated with an $\times$. The ellipse of the normal distribution represents the covariance and is a confidence region of $95\%$.}
     \label{fig:data_gmm}
 \end{figure}
+\begin{modified}
+Modificato da \texttt{X} a $\times$
+\end{modified}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\linewidth]{Figures/dati_fcm.png}
-    \caption[example of \gls{fcm} clustering]{The data points are coloured according to the most probable label and the estimated centroid is indicated with a \texttt{X}. The lines indicate the assignments with the greatest degree of affiliation of each point to the clusters; the darker the lines, the stronger the assignment.}
+    \caption[example of \gls{fcm} clustering]{The data points are coloured according to the most probable label and the estimated centroid is indicated with an $\times$. The lines indicate the assignments with the greatest degree of affiliation of each point to the clusters; the darker the lines, the stronger the assignment.}
     \label{fig:data_fcm}
 \end{figure}
+\begin{modified}
+Modificato da \texttt{X} a $\times$
+\end{modified}
 
-\chapter{FCM implementation with CUDA}
-\gls{cuda} è un'architettura hardware supportata dai processori grafici di \emph{NVIDIA}, un'azienda statunitense. E' possibile realizzare il codice che definisce la comunicazione tra \gls{cpu} e \gls{gpu} in un dialetto del \gls{cxx}. Il codice che effettivamente esegue il processore grafico può essere già implementato con funzioni speciali delle librerie \gls{thrust} e \gls{cuBLAS} o realizzato personalmente attraverso dei kernel. In questa appendice si mostra il kernel usato per realizzare il calcolo della matrice $U^2$ in \gls{fcm}. In particolare l'algoritmo è ottimizzato per compiere il calcolo su al più MAX\_THREAD\_PER\_BLOCK centroidi, poiché nel medesimo
+\chapter{FCM implementation with CUDA} \label{appendix:fcm_kernel}
+\gls{cuda} è un'architettura hardware supportata dai processori grafici di \emph{NVIDIA}, un'azienda statunitense. E' possibile realizzare il codice che definisce la comunicazione tra \gls{cpu} e \gls{gpu} in un dialetto del \gls{cxx}. Il codice che effettivamente esegue il processore grafico può essere già implementato con funzioni speciali delle librerie \gls{thrust} e \gls{cuBLAS} o realizzato personalmente attraverso dei kernel. In questa appendice si mostra il kernel usato per realizzare il calcolo della matrice $u^2$ in \gls{fcm}. In particolare l'algoritmo è ottimizzato per compiere il calcolo su al più MAX\_THREAD\_PER\_BLOCK centroidi, in questo modo si hanno le maggiori prestazioni poiché si possono usare al meglio le proprietà hardware della \gls{gpu}.
 
 \begin{lstlisting}[style=code, language=C, rulecolor=\color{blue}]
 /**
@@ -87,13 +96,13 @@ size_t n_data, size_t n_dimensions, size_t n_centroids)
     {
       // let to 1 the components that are 0 and to 0 the others
       if (i < n_data && j < n_centroids)
-      value = value == 0.0 ? 1.0 : 0.0;
+       value = value == 0.0 ? 1.0 : 0.0;
     }
   else
     {
       // for each component of the row, assign min/value
       if (i < n_data && j < n_centroids)
-      value = min_value / value;
+        value = min_value / value;
     }
   // syncronyze threads of this block
   __syncthreads ();

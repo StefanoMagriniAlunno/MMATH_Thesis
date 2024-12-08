@@ -619,7 +619,7 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
     // set a memory pool for the device over the remaining memory
     size_t free, total;
     cudaMemGetInfo (&free, &total);
-    size_t pool_memory = total - reserved_memory;
+    size_t pool_memory = free - reserved_memory;
     LOGGER (log_stream, "INFO",
             "Total memory: " + std::to_string (total) + " bytes");
     LOGGER (log_stream, "INFO",
