@@ -165,7 +165,7 @@ for (unsigned col = 0; col < width_short; ++col)
 
     \begin{figure}[h]
     	\centering
-    	\includegraphics[width=0.9\linewidth]{Figures/synth_glbvisual.png}
+    	\includegraphics[width=0.8\linewidth]{Figures/synth_glbvisual.png}
     	\caption[global visualisation of a synthesis using PCA]{In figura è mostrato, con degli scatter di ugual dimensione, un campione di tessere raccolte da un'immagine. Usando i colori si possono riconoscere $6$ dimensioni. Come si può osservare, le tessere del background sono per lo più concentrate in $\vec{0}$. Mentre le tessere delle grafie sono più rarefatte.}
     	\label{fig:synth_glbvisual}
     \end{figure}
@@ -175,7 +175,7 @@ for (unsigned col = 0; col < width_short; ++col)
     \begin{itemize}
     	\item Numero di iterazioni usate per il calcolo dei centroidi in \gls{fcm}.
     	\item Numero di centroidi usati in \gls{fcm}.
-    	\item Ridurre la dimensionalità prima di eseguire \gls{fcm}
+    	\item Ridurre la dimensionalità con \gls{pca} prima di eseguire \gls{fcm}
     	\item Ridurre il numero di dati prima di eseguire \gls{fcm}
     \end{itemize}
 
@@ -211,25 +211,29 @@ for (unsigned col = 0; col < width_short; ++col)
 		}
 		\begin{algorithmic}[1]
 			\Function{FCMwrapper}{$\mathcal{C}$, $\mathcal{X}$, $\text{stop}$}
-				\State $c^\text{num} \gets $ array with $J$ real values into thr Device
+				\State $c^\text{num} \gets $ array with $J$ real values into the Device
 				\State $c^\text{den} \gets $ array with $J$ real values into the Device
 				\State Initialise $c^\text{num}$ and $c_\text{den}$ with zeros
 				\State $\mathcal{C}'$ a copy of centroids $\mathcal{C}$ into the Device
 				\State $s \gets \infty$
 				\While{$s > \text{stop}$}
 					\State Compute batch size and alloc memory from $\mathcal{X}$
+					\State $c^\text{num}\gets \vec{0}$
+					\State $c^\text{den}\gets \vec{0}$
+					\State $L\gets 0$
 					\For{each $B$ batch}
 						\State move $B$ into the Device (also the respective weights)
 						\State Call $x$ as $B.x$
 						\State Call $w$ as $B.w$
-						\State Compute $u_{ij}^2$ between $B$ and $\mathcal{C}'$
+						\State Compute $U^2$ and $batch\_L$ between $B$ and $\mathcal{C}'$
 						\State $batch\_c^\text{num} \gets \sum_{i\in B} u_{ij}^2w_ix_i$
 						\State $batch\_c^\text{den} \gets \sum_{i\in B} u_{ij}^2w_i$
 						\State $c^\text{num} \gets c^\text{num} + batch\_c^\text{num}$
 						\State $c^\text{den} \gets c^\text{den} + batch\_c^\text{den}$
+						\State $L\gets L + batch\_L$
 					\EndFor
 					\State $C'_j \gets \frac{c^\text{num}_j}{ c^\text{den}_j} \quad \forall j$
-					\State $s \gets $ update's norm
+					\State $s \gets $ loss' update
 				\EndWhile
 				\State move $\mathcal{C}'$ into the Host
 				\State \Return $\mathcal{C}'$
@@ -293,77 +297,139 @@ for (unsigned col = 0; col < width_short; ++col)
 	\end{table}
 
 	\subsection{Stability}
-	Una volta discussi i dettagli implementativi di questo algoritmo si procede con il mostrare la sua stabilità. Come cambia la distanza tra opere usando diverse inizializzazioni? Un modo rapido e rumoroso di inizializzare i centroidi potrebbe essere quello di scegliere casualmente $J$ dati come centroidi per poi perturbarli un poco.
+	Una volta discussi i dettagli implementativi di questo algoritmo si procede con il mostrare la sua stabilità. Come cambia la distanza tra opere usando diverse inizializzazioni? Un modo rapido e rumoroso di inizializzare i centroidi potrebbe essere quello di scegliere casualmente $M$ dati come centroidi per poi perturbarli un poco.
 
-	\noindent Vedremo come cambia la distanza calcolata partendo da $10$ inizializzazioni distinte con perturbazione gaussiana di norma $0.01$. La forma delle tessere è $4\times4$ e il numero di centroidi è $\num{1024}$.
+	\noindent Vedremo come cambia la distanza calcolata partendo da $10$ inizializzazioni distinte con perturbazione gaussiana di norma $0.01$. La forma delle tessere è $6\times6$ e il numero di centroidi è $\num{1024}$.
 
-	\noindent In \cref{tab:distStability} sono confrontate le distanze tra opere di simil dimensione. Nelle due tabelle si fanno variare il numero di tessere e il criterio di stop. Come si osserva il calcolo della distanza è piuttosto stabile anche se talvolta presenta degli outlier non molto forti.
+	\noindent In \cref{tab:distStability} sono confrontate le distanze tra opere di simil dimensione. Nella tabella si fa variare il criterio di stop partendo da $0.001$ fino a $0.000001$
 
 	\begin{table}[h]
 		\centering
-		\begin{tabular}{|c|c|c|}
+		\begin{tabular}{|c|c|c|c|}
 			\hline
 			\rowcolor{ambra}
-			\multicolumn{3}{|c|}{Tiles quantity, $\texttt{stop}=0.1$} \\
+			\multicolumn{4}{|c|}{stop criteria} \\
+			\hline
 			\rowcolor{lavender}
-			$\num{20379402}$ & $\num{11409579}$ & $\num{5672826}$ \\
+			$10^{-3}$ & $10^{-4}$ & $10^{-5}$ & $10^{-6}$ \\
 			\hline
-			$\num{0.0464}$ & $\num{0.0179}$ & $\num{0.0519}$ \\
+			$\num{0.0492}$ & $\num{0.00907}$ & $\num{0.0872}$ & $\num{0.00458}$ \\
 			\hline
-			$\num{0.0465}$ & $\num{0.0172}$ & $\num{0.0508}$ \\
+			$\num{0.0675}$ & $\num{0.00920}$ & $\num{0.0817}$ & $\num{0.00452}$ \\
 			\hline
-			$\num{0.0502}$ & $\num{0.0174}$ & $\num{0.0502}$ \\
+			$\num{0.0882}$ & $\num{0.00910}$ & $\num{0.0817}$ & $\num{0.00455}$ \\
 			\hline
-			$\num{0.0468}$ & $\num{0.0176}$ & $\num{0.0503}$ \\
+			$\num{0.0522}$ & $\num{0.00948}$ & $\num{0.0828}$ & $\num{0.00472}$ \\
 			\hline
-			$\num{0.0447}$ & $\num{0.0180}$ & $\num{0.0500}$ \\
+			$\num{0.0377}$ & $\num{0.00904}$ & $\num{0.0829}$ & $\num{0.00451}$ \\
 			\hline
-			$\num{0.0441}$ & $\num{0.0177}$ & $\num{0.0597}$ \\
+			$\num{0.0655}$ & $\num{0.00884}$ & $\num{0.0817}$ & $\num{0.00457}$ \\
 			\hline
-			$\num{0.0511}$ & $\num{0.0171}$ & $\num{0.0511}$ \\
+			$\num{0.0810}$ & $\num{0.00946}$ & $\num{0.0815}$ & $\num{0.00456}$ \\
 			\hline
-			$\num{0.0467}$ & $\num{0.0180}$ & $\num{0.0532}$ \\
+			$\num{0.0135}$ & $\num{0.00865}$ & $\num{0.0815}$ & $\num{0.00465}$ \\
 			\hline
-			$\num{0.0469}$ & $\num{0.0175}$ & $\num{0.0512}$ \\
+			$\num{00.0841}$ & $\num{0.00913}$ & $\num{0.0817}$ & $\num{0.00456}$  \\
 			\hline
-			$\num{0.0471}$ & $\num{0.0175}$ & $\num{0.0662}$ \\
+			$\num{0.0587}$ & $\num{0.00926}$ & $\num{0.0827}$ & $\num{0.00451}$ \\
 			\hline
 		\end{tabular}
-		\begin{tabular}{|c|c|c|}
-			\hline
-			\rowcolor{ambra}
-			\multicolumn{3}{|c|}{Stop criteria, $\texttt{size}\approx3\times10^6$} \\
-			\rowcolor{lavender}
-			$\num{0.05}$ & $\num{0.1}$ & $\num{0.2}$ \\
-			\hline
-			$\num{0.0240}$ & $\num{0.00755}$ & $\num{0.0924}$ \\
-			\hline
-			$\num{0.0265}$ & $\num{0.00805}$ & $\num{0.0889}$ \\
-			\hline
-			$\num{0.0241}$ & $\num{0.00768}$ & $\num{0.0893}$  \\
-			\hline
-			$\num{0.0264}$ & $\num{0.00790}$ & $\num{0.0923}$ \\
-			\hline
-			$\num{0.0266}$ & $\num{0.00823}$ & $\num{0.0893}$ \\
-			\hline
-			$\num{0.0240}$ & $\num{0.00844}$ & $\num{0.0913}$ \\
-			\hline
-			$\num{0.0240}$ & $\num{0.00770}$ & $\num{0.0905}$ \\
-			\hline
-			$\num{0.0242}$ & $\num{0.00858}$ & $\num{0.0899}$ \\
-			\hline
-			$\num{0.0241}$ & $\num{0.00790}$ & $\num{0.0893}$ \\
-			\hline
-			$\num{0.0240}$ & $\num{0.00815}$ & $\num{0.0917}$ \\
-			\hline
-		\end{tabular}
-		\caption[Stability of comparison algorithm]{In questa tabella sono mostrate le distanze a seguito di $10$ calcoli ripetuti con differenti parametri. Si può osservare come un criterio di stop più alto implichi maggior noise e che in genere per $\texttt{stop}=0.1$ i valori rimangono piuttosto stabili ad eccezione di qualche outlier.}
+		\caption[Stability of comparison algorithm]{In questa tabella sono mostrate le distanze a seguito di $10$ calcoli ripetuti con differenti stop. Si può osservare come un criterio di stop più alto implichi maggior noise e che in genere per $\texttt{stop}=10^{-6}$ i valori rimangono piuttosto stabili ad eccezione di qualche outlier.}
 		\label{tab:distStability}
 	\end{table}
 
 	\subsection{Tuning}
-	Una volta capito che la stabilità dell'algoritmo non dipende tanto dal numero di dati quanto per il criterio di stop, si vedrà come varia la distanza al variare del numero di centroidi e della dimensionalità. In particolare si imposterà un criterio di stop a $0.02$ per mantenere i risultati molto più stabili di quanto visto sino ad ora.
+	Una volta capito che la stabilità dell'algoritmo dipende dal criterio di stop, si vedrà come varia la distanza al variare del numero di centroidi e della dimensionalità. In particolare si imposterà un criterio di stop a $10^{-8}$ per mantenere i risultati molto più stabili di quanto visto sino ad ora. Si vedrà come settare un giusto numero di centroidi, si studierà come una \gls{pca} può influenzare il risultato e infine si valuterà se ridurre il numero di dati usati attraverso un campionamento montecarlo.
+
+	\paragraph{Centroids quantity}
+	La quantità di centroidi si può studiare dall'indice di Jaccard calcolato per le distanze. Infatti a seguito di uno studio su centinaia di confronti la cardinalità $\left|D_A \cup D_B\right|$ difficilmente ha superato $16$ e mai $32$. Questo suggerisce che il clustering usato come base per il calcolo della distanza non usa a pieno tutti i centroidi, ma che forse ne sta usando solo meno di $32$ oppure sta usando poco di tutti i centroidi. Quindi in \cref{tab:distCentroids} sarà mostrato come cambia la distanza tra opere usando varie quantità di centroidi per le medesime opere partendo da $16$ centroidi. Si osserva che non è necessario usare $1024$ centroidi ma ci si può limitare anche a soli $32$ o $64$ centroidi. Notando che, per queste quantità, non si hanno risultati troppo dissimili da $1024$ centroidi.
+
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
+			\hline
+			\rowcolor{lavender}
+			number of centroids & $16$ & $64$ & $256$ & $1024$ \\
+			\hline
+			$|D_A \cup D_B|$ & $2.7$ & $2.8$ & $1.6$ & $2.4$ \\
+			\hline
+			comparison value & $0.00587$ & $0.00598$ & $0.00510$ & $0.00622$ \\
+			\hline
+			\hline
+			$|D_A \cup D_B|$ & $2.0$ & $1.4$ & $0.7$ & $0.3$ \\
+			\hline
+			comparison value & $0.00852$ & $0.00798$ & $0.00787$ & $0.00778$ \\
+			\hline
+			\hline
+			$|D_A \cup D_B|$ & $4.7$ & $3.7$ & $2.8$ & $3.5$ \\
+			\hline
+			comparison value & $0.0996$ & $0.0954$ & $0.0818$ & $0.0843$ \\
+			\hline
+			\hline
+			$|D_A \cup D_B|$ & $2.8$ & $2.0$ & $1.3$ & $0.4$ \\
+			\hline
+			comparison value & $0.0550$ & $0.0508$ & $0.0450$ & $0.0488$ \\
+			\hline
+			\hline
+			\rowcolor{lavender}
+			number of centroids & $16$ & $32$ & $64$ & $128$ \\
+			\hline
+			$|D_A \cup D_B|$ & $2.2$ & $1.8$ & $1.7$ & $1.4$ \\
+			\hline
+			comparison value & $0.00944$ & $0.00767$ & $0.00618$ & $0.00761$ \\
+			\hline
+		\end{tabular}
+		\caption[comparison values for different number of centroids]{Comparison values for different number of centroids between $2$ works, using hyperparameters: $\texttt{stop}=10^{-8}$, tiles with shape $6\times6$. In particular there are $5$ tests and generally the results are stable (without strong outliers along comparison values).}
+		\label{tab:distCentroids}
+	\end{table}
+
+	\paragraph{Dimensions}
+	Un altro punto da trattare è la dimensione dei dati, ci si chiede se è possibile ridurre la dimensionalità tramite \gls{pca}. In questo paragrafo si analizzerà come cambia la distanza man mano che si riduce la dimensione.  La riduzione della dimensionalità pulirà il rumore ma rischia anche, qualora sia troppo forte la riduzione, di cancellare i dati rari, sui i quali l'algoritmo lavora per stabilire il comparison value tra opere.
+
+	\noindent Un altro punto su cui fare attenzione è il \textbf{plateau effect}. In sostanza, riducendo la dimensionalità ma non il numero di centroidi e il numero di dati, si ha un numero superiore di iterazioni prima di raggiungere il criterio di stop. In altre parole il clustering ha difficoltà a stabilire la posizione ottima dei centroidi. Paradossalmente nel costo computazionale $O(INCK)$ anche se diminuisce $K$ si sta aumentando $I$ talvolta peggiornado il costo computazionale.
+
+	\noindent In tabella \cref{tab:distDimensions} si usano come numero di centroidi $16$, $32$, $64$, $1024$ e come dimensioni da $36$ (per tessere $6\times6$) a $18$, a $9$, a $4$. Inoltre durante questo calcolo si è osservato che i costi computazionali a dimensioni $4$ e $9$ sono molto più alti del previsto e i risultati non sembrano essere convincenti.
+
+	\begin{comment}
+		final_dim = 36
+		n_centroids = 32 64 256 1024
+		distances = 0.0282 0.0275 0.0263 0.0256
+
+		final_dim = 18
+		n_centroids = 32 64 256 1024
+		distances = 0.0675 0.0668 0.0654 0.0625
+
+		final_dim = 9
+		n_centroids = 32 64 256 1024
+		distances = 0.0442 0.0426 0.0431 0.0429
+
+		final_dim = 4
+		n_centroids = 32 64 256 1024
+		distances = 0.00733 0.0107 0.0349 0.133
+	\end{comment}
+
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
+			\cline{2-5}
+			\multicolumn{1}{c}{} & \multicolumn{4}{|c|}{\cellcolor{lavender} number of centroids}\\
+			\hline
+			\cellcolor{lavender} final dimension & \cellcolor{pink} $32$ & \cellcolor{pink} $64$ & \cellcolor{pink} $256$ & \cellcolor{pink} $1024$ \\
+			\hline
+			$36$ & $0.0282$ & $0.0275$ & $0.0263$ & $0.0256$ \\
+			\hline
+			$18$ & $0.0675$ & $0.0668$ & $0.0654$ & $0.0625$ \\
+			\hline
+			$9$ & $0.0442$ & $0.0426$ & $0.0431$ & $0.0429$ \\
+			\hline
+			$4$ & $0.00733$ & $0.0107$ & $0.0349$ & $0.133$ \\
+			\hline
+		\end{tabular}
+		\caption[comparison values for different dimension]{Comparison values for different dimension between $2$ works, using hyperparameters: $\texttt{stop}=10^{-8}$, tiles with shape $6\times6$. In particular there are $4$ tests and generally the results are stable (without strong outliers along comparison values).}
+		\label{tab:distDimensions}
+	\end{table}
 
 	\subsection{Results}
-	Studio della matrice delle distanze.
+	Dallo studio effettuato precedentemente si può provare ad fare comparazioni tra opere usando $32$ centroidi e \gls{pca} da $36$ dimensioni a $18$ dimensioni. Ma prima di effettuare dei confronti massivi tra tutte le possibili coppie di opere sarà più prudente esaminare questi iperparametri in termini di stabilità e qualità di attribuzione su piccoli campioni anche per controllare se non è cambiato il criterio di stop.
+	Si vedrà anche l'aumento delle prestazioni rispetto a $1024$ centroidi e $36$ dimensioni.
 \end{toDo}

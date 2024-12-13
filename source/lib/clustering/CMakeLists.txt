@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(clustering LANGUAGES CXX CUDA)
 
-set(MODE_FLAG -O3)
+set(MODE_FLAG -g)
 
 set(CMAKE_CXX_COMPILER ${CXX})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

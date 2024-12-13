@@ -62,8 +62,7 @@ int cxxfcm (const char *const datafile_path,
  * and the j-th cluster. so U[i][j] = 1/dist(i,j)^2 / sum(1/dist(i,j)^2) for
  * all j. Then the centroids are updated as the weighted average of the data
  * points. C[j] = sum(U[i][j]^2 * X[i]) / sum(U[i][j]^2) for all i. The
- * algorithm stops when the centroids do not change significantly (under a
- * certain tollerance).
+ * algorithm stops when the energy of the system is not changing anymore.
  */
 std::vector<float>
 cudafcm (const std::vector<float> &data, const std::vector<float> &weights,

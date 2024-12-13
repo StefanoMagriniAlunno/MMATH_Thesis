@@ -199,11 +199,6 @@
     style=remark
 ]{remark}
 \declaretheorem[
-    name=Exempli Gratia,
-    numbered=no, shaded,
-    style=remark
-]{exempli_gratia}
-\declaretheorem[
     name=Definition,
     numberwithin=section, shaded,
     style=definition
@@ -233,7 +228,11 @@
     numbered=no,
     style=plain
 ]{corollary}
-
+\declaretheorem[
+	name=Exempli Gratia,
+	numbered=no, shaded,
+	style=remark
+]{exempli_gratia}
 \algnewcommand{\Where}[2]{\State \textbf{where}\ #1\ \textbf{do} #2}
 
 \definecolor{mint}{rgb}{0.68, 0.92, 0.70}
@@ -276,7 +275,7 @@
 \addcontentsline{toc}{chapter}{Acronyms}
 
 \mainmatter
-%\include{main/Introduction}  % Introduzione
+\include{main/Introduction}  % Introduzione
 \include{main/LiteratureReview}  % Revisione della bibliografia
 \include{main/Methodology}  % Corpo vero della tesi in cui si mostra cosa si è fatto
 \include{main/Results}  % Risultati (analisi dei risultati ottenuti in merito la tesi)

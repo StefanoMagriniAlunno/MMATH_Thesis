@@ -311,7 +311,7 @@ def main():
 
     # shutil.rmtree("data/out")
     db_path = r"./data/db/cutted_set"
-    n_tiles = 4
+    n_tiles = 6
     n_centroids = 1_024
     fcm_tollerance = 0.1
     if (

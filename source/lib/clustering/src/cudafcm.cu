@@ -89,6 +89,7 @@ struct partition
   float *d_data;       /*!< device memory for data points in a single batch */
   float *d_weights;    /*!< device memory for weights of data points */
   float *d_matrix;     /*!< device memory for matrix of distances */
+  float *d_energies;   /*!< device memory for energies of data points */
   size_t batch_size;   /*!< number of data points to use in a single
                           batch */
   size_t n_centroids;  /*!< number of centroids */
@@ -132,6 +133,8 @@ struct non_contiguous_access
  * d_centroids[j * n_dimensions + k] for k = 0, ..., n_dimensions - 1
  * @param[out] d_matrix : the weighted membership between the i-th data point
  * and the j-th centroid is stored in d_matrix[i * n_centroids + j]
+ * @param[out] d_energies : the energy of the i-th data point is stored in
+ * d_energies[i]
  * @param n_data : number of data points
  * @param n_dimensions : dimensions of data points
  * @param n_centroids : number of centroids
@@ -144,13 +147,15 @@ struct non_contiguous_access
 __global__ void
 kernel_compute_U2 (const float *const d_data, const float *const d_weights,
                    const float *const d_centroids, float *const d_matrix,
-                   size_t n_data, size_t n_dimensions, size_t n_centroids)
+                   float *const d_energies, size_t n_data, size_t n_dimensions,
+                   size_t n_centroids)
 {
   __shared__ float sdata[MAX_THREADS_PER_BLOCK];
   size_t i = blockIdx.x;  // i-th data
   size_t j = threadIdx.x; // j-th centroid
   float value = 0;
   float min_value = 0;
+  float d2 = 0;
 
   // compute the distance between the i-th data point and the j-th
   // centroid
@@ -163,6 +168,7 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
           value += diff * diff;
         }
     }
+  d2 = value;
   // syncronyze threads of this block
   __syncthreads ();
 
@@ -218,6 +224,33 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
   if (i < n_data && j < n_centroids)
     value /= min_value;
     d_matrix[i * n_centroids + j] = value * value * d_weights[i];
+  // syncronyze threads of this block
+  __syncthreads ();
+
+  if (i < n_data && j < n_centroids)
+    value = d_matrix[i * n_centroids + j] * d2;  // compute partial energy
+  // syncronyze threads of this block
+  __syncthreads ();
+
+  // compute the sum of the partial energies
+  if (j < n_centroids)
+    sdata[j] = value;
+  else
+    sdata[j] = 0.0;
+  __syncthreads ();
+  for (size_t s = MAX_THREADS_PER_BLOCK / 2; s > 0; s >>= 1)
+    {
+      if (j < s)
+        sdata[j] += sdata[j + s];
+      __syncthreads ();
+    }
+  value = sdata[0];  // energy of the data point
+  // syncronyze threads of this block
+  __syncthreads ();
+
+  // assign the energy to the matrix
+  if (i < n_data && j == 0)
+    d_energies[i] = value;
   // syncronyze threads of this block
   __syncthreads ();
 }
@@ -331,8 +364,8 @@ update_centroids (const float *const d_data, float *const d_matrix,
 __host__ void
 compute_U2 (const float *const d_data, const float *const d_weights,
             const float *const d_centroids, float *const d_matrix,
-            size_t n_data, size_t n_dimensions, size_t n_centroids,
-            const cudaDeviceProp &prop, std::ofstream &log_stream)
+            float *const d_energies, size_t n_data, size_t n_dimensions,
+            size_t n_centroids, const cudaDeviceProp &prop, std::ofstream &log_stream)
 {
   cudaError_t err;
 
@@ -342,7 +375,7 @@ compute_U2 (const float *const d_data, const float *const d_weights,
 
   // call the kernel
   // clang-format off
-  kernel_compute_U2<<<grid, block>>> (d_data, d_weights, d_centroids, d_matrix, n_data,
+  kernel_compute_U2<<<grid, block>>> (d_data, d_weights, d_centroids, d_matrix, d_energies, n_data,
                                         n_dimensions, n_centroids);
   // clang-format on
 
@@ -368,7 +401,7 @@ compute_U2 (const float *const d_data, const float *const d_weights,
  * @param partitions : partitions of the data points
  * @param prop : properties of the device
  * @param log_stream : log file
- * @return float : variation of centroids
+ * @return float : energy of the data points
  *
  * @details For a better performance, the log messages are written
  * only in case of error.
@@ -410,6 +443,9 @@ compute_centroids (const std::vector<float> &data,
   // check for errors
   CHECK_ERROR_BAD_ALLOC (h_centroids_weight != NULL, cublasDestroy (handle),
                          "Memory allocation failed");
+
+  // define energy of the data points
+  float energy = 0;
 
   // cicle over the data points
   size_t n_data = data.size () / partitions.n_dimensions;
@@ -454,14 +490,25 @@ compute_centroids (const std::vector<float> &data,
         {
           // compute the matrix U2
           compute_U2 (partitions.d_data, partitions.d_weights,
-                      partitions.d_centroids, partitions.d_matrix, batch_size,
-                      partitions.n_dimensions, partitions.n_centroids, prop,
+                      partitions.d_centroids, partitions.d_matrix, partitions.d_energies,
+                      batch_size, partitions.n_dimensions, partitions.n_centroids, prop,
                       log_stream);
           // update the new centroids
           update_centroids (partitions.d_data, partitions.d_matrix,
                             h_centroids_weight, partitions.d_new_centroids,
                             batch_size, partitions.n_dimensions,
                             partitions.n_centroids, prop, handle, log_stream);
+          // compute batch energy as the sum of the energies
+          // use thrust::transform_reduce
+          float *batch_energy_ptr = thrust::raw_pointer_cast (partitions.d_energies);
+          auto begin = thrust::make_transform_iterator (
+              thrust::counting_iterator<size_t> (0),
+              non_contiguous_access (batch_energy_ptr, 1));
+          auto end = begin + batch_size;
+          float batch_energy = thrust::transform_reduce (
+              begin, end, thrust::identity<float> (), 0.0f, thrust::plus<float> ());
+          // update the total energy
+          energy += batch_energy;
         }
       catch (std::runtime_error &e)
         {
@@ -475,11 +522,6 @@ compute_centroids (const std::vector<float> &data,
 
       c_data += batch_size;
     }
-
-  // define a grid of blocks with n_centroids blocks and n_dimensions
-  // threads for each block
-  dim3 block_grid (partitions.n_centroids, 1);
-  dim3 thread_grid (partitions.n_dimensions, 1);
 
   // divide d_new_centroids by the centroids weight
   for (size_t i = 0; i < partitions.n_centroids; i++)
@@ -514,39 +556,11 @@ compute_centroids (const std::vector<float> &data,
       },
       cudaGetErrorString (err));
 
-  // compute the variation of centroids
-  float delta_update = 0;
-  // d_centroids -= d_new_centroids with cublas
-  float alpha = -1.0;
-  status = cublasSaxpy (
-      handle, partitions.n_centroids * partitions.n_dimensions, &alpha,
-      partitions.d_new_centroids, 1, partitions.d_centroids, 1);
-  // check for errors
-  CHECK_ERROR_RUNTIME_ERROR (
-      status == CUBLAS_STATUS_SUCCESS,
-      {
-        cublasDestroy (handle);
-        free (h_centroids_weight);
-      },
-      "CUBLAS axpy failed with status " + std::to_string (status));
-  // compute the norm of d_centroids
-  status
-      = cublasSnrm2 (handle, partitions.n_centroids * partitions.n_dimensions,
-                     partitions.d_centroids, 1, &delta_update);
-  // check for errors
-  CHECK_ERROR_RUNTIME_ERROR (
-      status == CUBLAS_STATUS_SUCCESS,
-      {
-        cublasDestroy (handle);
-        free (h_centroids_weight);
-      },
-      "CUBLAS nrm2 failed with status " + std::to_string (status));
-
   // free data
   status = cublasDestroy (handle);
   free (h_centroids_weight);
 
-  return delta_update;
+  return energy;
 }
 
 __host__ std::vector<float>
@@ -630,15 +644,15 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
      * D is number of dimensions
      * N is number of data points
      * The required memory is:
-     *   2 x C x D + N x D + N + N x C
-     * = 2 x C x D + (D + 1 + C) x N
+     *   2 x C x D + N x D + 2 x N + N x C
+     * = 2 x C x D + (D + 2 + C) x N
      * The number of used data points is:
-     *   (pool_memory - 2 x C x D) / (D + 1 + C)
+     *   (pool_memory - 2 x C x D) / (D + 2 + C)
      */
 
     // compute the number of data points to use
     batch_size = (pool_memory - 2 * centroids.size () * sizeof (float))
-                 / ((n_dimensions + centroids.size () / n_dimensions + 1)
+                 / ((n_dimensions + centroids.size () / n_dimensions + 2)
                     * sizeof (float));
     batch_size = std::min (batch_size, data.size () / n_dimensions);
 
@@ -658,7 +672,7 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
     size_t total_memory
         = (2 * centroids.size ()
            + batch_size
-                 * (n_dimensions + 1 + centroids.size () / n_dimensions))
+                 * (n_dimensions + 2 + centroids.size () / n_dimensions))
           * sizeof (float);
 
     // try to allocate memory
@@ -679,6 +693,9 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
     .d_matrix = d_main_ptr + 2 * centroids.size () + batch_size * n_dimensions
                 + batch_size, // len = batch_size * centroids.size() /
                               // n_dimensions
+    .d_energies = d_main_ptr + 2 * centroids.size () + batch_size * n_dimensions
+                  + batch_size + batch_size * centroids.size ()
+                      / n_dimensions, // len = batch_size
     .batch_size = batch_size,
     .n_centroids = centroids.size () / n_dimensions,
     .n_dimensions = n_dimensions,
@@ -695,14 +712,17 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
   // update centroids
   try
     {
-      float delta_update = nan (""); // variation of centroids
+      float pred_energy;                    // energy of the previous iteration
+      float energy = INFINITY;              // current energy
       do
         {
+          pred_energy = energy;  // safe energy in pred_energy
+
           // update centroids
-          delta_update = compute_centroids (data, weights, partitions, prop,
+          energy = compute_centroids (data, weights, partitions, prop,
                                             log_stream);
           LOGGER (log_stream, "INFO",
-                  "delta_update: " + std::to_string (delta_update));
+                  "energy: " + std::to_string (energy));
 
           // move d_new_centroids to d_centroids
           err = cudaMemcpy (partitions.d_centroids, partitions.d_new_centroids,
@@ -712,7 +732,7 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
           CHECK_ERROR_RUNTIME_ERROR (err == cudaSuccess, cudaFree (d_main_ptr),
                                      cudaGetErrorString (err));
         }
-      while (delta_update > tollerance);
+      while (energy >= tollerance && pred_energy - energy >= tollerance);
     }
   catch (std::bad_alloc &e)
     {

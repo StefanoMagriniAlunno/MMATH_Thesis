@@ -1,6 +1,5 @@
 \chapter{Literature Review}
 \label{chap:LiteratureReview}
-\begin{toReview}
 This chapter reviews key literature that forms the theoretical foundation of this research. Specifically, the $n$-gram language model, fuzzy clustering, and Fourier transforms will be discussed. Additionally, specific details of these topics will be examined to demonstrate their practical applications within this project.
 
 \noindent Relevant definitions and properties needed to understand these applications will be introduced, alongside examples and comparisons to provide a more comprehensive and nuanced understanding of the theory.
@@ -9,35 +8,56 @@ This chapter reviews key literature that forms the theoretical foundation of thi
 \input{main/literature_review/FuzzyClustering}
 \input{main/literature_review/DFT}
 \section{Application}
-In this section, we will develop specific applications of the topics discussed in the chapter to see how they can be used in the context of the thesis. The discussion will focus on the use of fuzzy clustering to address the problem of continuity in colour space, the practical implementation of the \gls{fcm} algorithm, and the use of \gls{fft} for image analysis.
+\begin{modified}
+In this section, we will develop specific applications of the topics discussed in this chapter to see how they can be used in the context of this thesis. The discussion will focus on the use of fuzzy clustering to address the problem of continuity in colour space, the practical implementation of the \gls{fcm} algorithm, and the use of \gls{fft} for image analysis.
+\end{modified}
 \subsection{Comparing works, the idea of clustering}
-As we have seen, a problem of \cref{eq:SapAttribution_dist} becomes apparent when the continuous space in which the $n$-tiles are defined turns out to be too fit. The proposed idea was to fix the fewest possible boxes and to work with the idea that $2$ any tiles are as distinct as any other pair. However, this is not a credible assumption due to the loss of information, for this reason in this thesis we would like to approach the problem more dynamically by increasing the variety of tiles without running into sparsity problems.
+\begin{modified}
+As we have seen, the tiles used to compute \cref{eq:SapAttribution_dist} can be represented as sequences of real numbers. However, their continuous nature introduces a problem in the computation of comparison values, since it reduces the $n$-grams to unique and unrepeatable objects (\textbf{sparsity problem}). This problem renders \cref{eq:SapAttribution_dist} ineffective, so that any pair of different works is assigned a comparison value of $1$.
 
-\noindent The idea is to use the clustering of the merged data between the two samplings as a basis for fitting the continuous space. The expectation is that the result will certainly be more accurate, however, it is necessary to consider the problem of the shape of the clusters (which will no longer be boxes).
+\noindent One solution proposed in \cite{thesis} was the use of \textbf{posterization}, i.e., reducing the variety of colors. In this way, distinct $n$-grams could become equal after posterization, improving the comparison. However, this method introduced significant impurities and a loss of shade information.
 
-\begin{exempli_gratia}[Distance between distributions reformulated]
+\noindent In this thesis, a way is proposed that avoids or reduces the need for strong posterization (e.g., reduction to only two colors, \texttt{b/w}, as in \cite{thesis}). The proposed generalization is based on the dynamic use of clustering, comparing two approaches:
+
+\begin{itemize}
+	\item In \cite{thesis}: The space is clustered \textbf{a priori}, labeling the tiles with predefined boxes. The centroids take fixed values ($0$ and $1$), corresponding to the colors. For example, in the case of $1$D: the $2$-gram $(0.6, 0.8)$ will be the centroid $(1,1)$, while $(0.2, 0.8)$ will be the centroid $(0,1)$.
+	\item In this thesis: The space is clustered \textbf{a posteriori}, labeling the tiles using a clustering algorithm, such as \gls{fcm}.
+\end{itemize}
+
+\noindent In this chapter, we will use \gls{kmeans}, since its application is more similar to the box system and more intuitive than \gls{fcm}. The key idea is to apply clustering on the union of tiles extracted from two works.
+
+\noindent Doing so is expected to provide more accurate results than posterization. However, it will be necessary to provide a definition of comparative value in the case of \gls{kmeans}.
+\end{modified}
+
+\begin{exempli_gratia}[Distance between distributions reformulated with \gls{kmeans}]
 	In this paragraph we will adopt the theoretically easy clustering \gls{kmeans}. Let us take $\num{10000}$ samples from $\mathcal{N}(-1,0.25)$ and $\num{40000}$ from $\mathcal{N}(+1,1)$, the two distributions will be denoted by $\mathcal{A}$ and $\mathcal{B}$ respectively.
 
-	\noindent The two samplings will be merged and clustered with \gls{kmeans} using $32$ centroids, resulting in a predictor $\mathcal{P}$. Each cluster will be viewed as a region with a certain measure that will be the mean square of the distances of each datum in the cluster from its centroid. Given a cluster of centroid $c$, we want to estimate:
+	\begin{note}
+		\noindent 32 perché sembrava graficamente meglio da vedere: 64 faceva grafici poco comprensibili e con 16 faceva dei grafici poco esplicativi. E' solo per i fini dell'esempio. (Una potenza di 2 perché per i computer è più facile gestire in memoria potenze di 2, è solo una questione mia di abitudine)
+	\end{note}
+
+	\begin{modified}
+	\noindent The two sets of samples will be merged and clustered with \gls{kmeans} using $32$ centroids, resulting in a predictor $\mathcal{P}$. This predictor maps each data point $x$ to the centroid $c$ of the cluster it belongs to, i.e., $P(x)=c$ if $x$ belongs to the cluster with centroid $c$. Each cluster will be viewed as a region with a certain measure that will be the mean square of the distances of each datum in the cluster from its centroid. Given a cluster of centroid $c$, we want to estimate:
 	\[
 	\mu(c)=\sqrt{\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}\left(x\right)=c\right]}
 	\]
 	where $\mathcal{L}$ is the law of the two merged samples.
 
-	\noindent We can see in the first image that regions have been captured and that automatically the regions are little where the density is higher. Furthermore, the image shows the weights of each cluster $c$ defined as  $\mathbb{P}_{x\sim\mathcal{L}}\left[\mathcal{P}(x)=c\right]$
+	\noindent We can see, in the image at left, that the regions has a little measure $\mu(c)$ where the density of $\mathcal{L}$ is higher. Furthermore, the image shows the weights of each cluster $c$ defined as  $\mathbb{P}_{x\sim\mathcal{L}}\left[\mathcal{P}(x)=c\right]$
 
-	\noindent We now study the two samples separately over this clustering. The densities will be weighted on the new measure $\mu$, so the density on the centroid $c$ of measure $\mu(c)$ respectively for the distribution $\mathcal{A}$ will be:
+	\noindent We now study the two sets of samples separately over this clustering. The densities will be weighted on the new measure $\mu$, so the density on the centroid $c$ of measure $\mu(c)$ respectively for the distribution $\mathcal{A}$ will be:
 	\[
-	d_\mathcal{A}(c)=\frac{\mathbb{P}_{x\sim\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(c)}
+	d_\mathcal{A}(c):=\frac{p_\mathcal{A}(c)}{\mu(c)} := \frac{\mathbb{P}_{x\sim\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(c)}
 	\]
 	similarly for $\mathcal{B}$.
 
-	\noindent In the second figure we show the cluster membership probabilities of the two distributions $\mathcal{A}$ and $\mathcal{B}$.
+	\noindent In the figure at right we show the cluster membership probabilities of the two distributions $\mathcal{A}$ and $\mathcal{B}$.
 
-	\noindent Let us try to calculate the distance formulated \cref{eq:SapAttribution_dist} considering the measure:
-	\[
-	d(A,B)=(1+J_{D_A,D_B})^{-1}\frac{1}{\mu(D_A\cup D_B)}\int d\mu(c) \left(\frac{r(c)-1}{r(c)+1}\right)^2
-	\]
+	\noindent Let us try to calculate the comparison value formulated \cref{eq:SapAttribution_dist} considering the measure:
+	\begin{align*}
+		d(A,B)&=(1+J_{D_A,D_B})^{-1}\frac{1}{\sum_{c\in D_A\cup D_B}\mu(c)}\sum_c \mu(c)\left(\frac{p_A(c)-p_B(c)}{p_A(c)+p_B(c)}\right)^2 \\
+		&= (1+J_{D_A,D_B})^{-1}\frac{1}{\mu(D_A\cup D_B)}\int d\mu(c) \left(\frac{p_A(c)-p_B(c)}{p_A(c)+p_B(c)}\right)^2
+	\end{align*}
 	where $D_A$ is the support for the discretisation of ${\mathcal{A}}$ and similarly for $D_B$.\\ The result for $32$ centroids is $0.54$.
 
 	\begin{center}
@@ -51,46 +71,86 @@ As we have seen, a problem of \cref{eq:SapAttribution_dist} becomes apparent whe
 			\includegraphics[width=\textwidth]{Figures/separated_analysis.png}
 		\end{minipage}
 	\end{center}
+	\end{modified}
 
 \end{exempli_gratia}
 
-In the example, it is basically shown that the number of nodes can be reduced and can be adapted to the distributions of the tiles, and can also be very effective at high dimensions by counteracting the curse of dimensionality. In \cref{fig:fused_data_2D} we take an example very similar to the previous one but in $2$ dimensions and with less data.
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.8\textwidth]{Figures/fused_data_2D.png}
-	\caption[example of clustering in 2D]{In the figure, the data from the distribution $\mathcal{A}$ are shown in red and the data from the distribution $\mathcal{B}$ in green. They were obtained by merging normal Gaussians with different representability.}
-	\label{fig:fused_data_2D}
-\end{figure}
-Let us try clustering using more and more nodes, repeating the calculation carried out in the example, studying how the distance changes by increasing the number of nodes. In \cref{tab:kmeans_tessellation_comparison} we can see how the clustering shows more stable results.
-\begin{table}[h]
-	\centering
-	\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|c|c|}
-		\hline
-		Number of nodes & 1 & 4 & 16 & 64 & 256 & 1024 \\
-		\hline
-		Distance with clustering & 0.00 & 0.13 & 0.21 & 0.30 & 0.34 & 0.37 \\
-		\hline
-		Distance without clustering & 0.00 & 0.40 & 0.49 & 0.45 & 0.49 & 0.48 \\
-		\hline
-	\end{tabular}
-	\caption[Comparing distance results with/without clustering]{Comparison between \gls{kmeans} clustering and box tessellation with same number of nodes.}
-	\label{tab:kmeans_tessellation_comparison}
-\end{table}
+\begin{modified}
+	In the example, an intuitive definition of a comparison value between works is proposed using clustering. In such contexts, clustering proves to be an effective tool for handling the complexity and sparsity of high-dimensional data. This is particularly relevant for counteracting the curse of dimensionality, a phenomenon where the volume of the data space is inherently vast compared to the number of available data points. In such scenarios, rigid box-based discretisations often fail because they divide the space into a fixed grid, which becomes inefficient as the dimensionality increases. The result is an exponential increase in the number of boxes, most of which remain empty or sparsely populated, leading to poor generalization.
+
+	\noindent By contrast, dynamic clustering the data with methods such as \gls{kmeans} or \gls{fcm} allows an adaptive representation that aligns with the data distributions. Instead of imposing fixed boundaries, the centroids are positioned to capture meaningful structures in the data, improving both computational efficiency and empirical performance. This flexibility makes dynamic clustering a practical and effective choice for high-dimensional problems.
+\end{modified}
+
+\begin{toReview}
+\begin{exempli_gratia}[Curse of Dimensionality]
+	In this example, we compute the comparison value between the distribution \(\mathcal{N}\left(\vec{0}, \mathds{1}_\texttt{d}\right)\) in \(\mathbb{R}^K\) and itself for different values of \(K\).
+
+	\noindent Specifically, for each \(K\), two samples \(A\) and \(B\), each containing 128 points, are taken from the same distribution. The samples are compared using two approaches: a static clustering approach (box-based) and a dynamic clustering approach (\gls{kmeans}). In the box-based method, the space is divided into \(2^K\) boxes (2 boxes per axis), while in the \gls{kmeans} method, the number of centroids is fixed at \(2\). The table below shows the average comparison values as \(K\) varies:
+
+	\begin{minipage}{\textwidth}
+		\centering
+		\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|c|}
+			\hline
+			Dimensions & \(1\) & \(2\) & \(4\) & \(8\) & \(16\) \\
+			\hline
+			Comparison with clustering & \(0.00\) & \(0.00\) & \(0.00\) & \(0.00\) & \(0.00\) \\
+			\hline
+			Comparison without clustering & \(0.00\) & \(0.01\) & \(0.04\) & \(0.57\) & \(1.00\) \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+
+	\noindent Now consider two sets \(A\) and \(B\) of samples drawn from \(\mathcal{N}(\vec{0}, \mathds{1})\) and \(\mathcal{N}(\vec{1} / \sqrt{K}, \mathds{1})\) in \(\mathbb{R}^K\). These Gaussian distributions are equidistant regardless of the dimensionality \(K\), so we expect stable results. The table below reports the results of this comparison:
+
+	\begin{minipage}{\textwidth}
+		\centering
+		\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|c|}
+			\hline
+			Dimensions & \(1\) & \(2\) & \(4\) & \(8\) & \(16\) \\
+			\hline
+			Comparison with clustering & \(0.07\) & \(0.07\) & \(0.05\) & \(0.03\) & \(0.02\) \\
+			\hline
+			Comparison without clustering & \(0.08\) & \(0.08\) & \(0.11\) & \(0.62\) & \(1.00\) \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+
+	\noindent The number of centroids is a critical parameter. As with boxes, too many centroids can overfit, increasing the comparison value, while too few may fail to capture the data's structure efficiently. Additionally, in high-dimensional spaces, box-based clustering becomes computationally prohibitive compared to dynamic clustering, with computation times exceeding those of \gls{kmeans} by a factor of over 100. The dynamic shape of \gls{kmeans} clusters explains this difference: a single dynamically generated cluster can cover regions spanning thousands of boxes, drastically reducing computational cost while preserving accuracy.
+\end{exempli_gratia}
+\end{toReview}
 
 \subsection{Fuzzy Clustering as a Noise Filtering Method}
-In this thesis, a variant of the algorithm \gls{fcm} will be used to compare two datasets. The variant will be used both to consider data of different weights and to consider machine error in the computation of centroids.
-\paragraph{data's weight}
-We introduce a vector $w$ indicating the weight of the data as a positive real value. As stated in \cref{thm:Mupdate} the update follows the following law:
-\[
-C^{\texttt{new}}_j = \frac{\sum_{i=1}^Nu_{ij}^2x_{i}}{\sum_{i=1}^Nu_{ij}^2} \text{\hspace{1cm}} \forall j
-\]
-Since it is a weighted average over $u_{ij}^2$, if a datum has a higher weight then it should increase its influence, thus having the following result:
-\[
-C^{\texttt{new}}_j = \frac{\sum_{i=1}^Nu_{ij}^2w_{i}x_{i}}{\sum_{i=1}^Nu_{ij}^2w_{i}} \text{\hspace{1cm}} \forall j
-\]
+\begin{modified}
+In this thesis, a variant of the algorithm \gls{fcm} will be used to compare two datasets. This variant introduces a weighting factor $w$, which represents the importance or contribution of each data point in the clustering process. The weight ww can be interpreted as the effective cardinality of the point: for instance, a point with $w=2$ is treated as if it were two identical points, while $w=0.5$ corresponds to half a point. This generalization allows for cleaner comparisons between sets of samples with different cardinality, simulating a balanced dataset by appropriately scaling the influence of each point.
 
+\noindent Additionally, this variant includes specific adjustments to account for machine error in the computation of centroids (see \cref{alg:FuzzyClustering}). These adjustments improve robustness in high-dimensional spaces, with large datasets, or when using many centroids, mitigating numerical precision issues for stable clustering.
+\end{modified}
+\paragraph{Data's weight}
+We introduce a vector $w$ indicating the weight of the data as a positive real value. As stated in \cref{thm:Mupdate,thm:Eupdate,def:fuzzyloss}, the following equations summarize the key components of the fuzzy clustering algorithm discussed so far:
+\begin{align*}
+	C_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2x_i}{\sum_{i=1}^N u_{ij}^2w_i} \quad \forall j\\
+	L &= \sum_i\sum_j u_{ij}^2\left\|x_i-C_j\right\|^2 \\
+	u_{ij} &= \frac{1}{\sum_k\frac{d_{ij}^2}{d_{ik}^2}} \quad \forall i,j\\
+	d_{ij} &= \left\|x_i - C_{j}\right\| \quad \forall i,j
+\end{align*}
+Since it is a weighted average over $u_{ij}^2$, if a datum has a higher weight then it should increase its influence, thus having the following results:
+\begin{align*}
+	C_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2w_ix_i}{\sum_{i=1}^N u_{ij}^2w_i} \quad \forall j\\
+	L &= \sum_i\sum_j w_{i}u_{ij}^2\left\|x_i-C_j\right\|^2 \\
+	u_{ij} &= \frac{1}{\sum_k\frac{d_{ij}^2}{d_{ik}^2}} \quad \forall i,j\\
+	d_{ij} &= \left\|x_i - C_{j}\right\| \quad \forall i,j
+\end{align*}
+
+\begin{note}
+	Avevo scritto "pieces" perché i dati sono analizzati in batch ma questo argomento ho poi deciso di spostarlo più nelle implementazioni nel capitolo Results. Sarà rimasto come remasuio, lo tolgo...
+\end{note}
 \paragraph{machine error}
-The use of \gls{fcm} in this thesis involves millions of pieces of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. An example that might exist is a value $D_{ik}^2 \approx 0$ that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it is infinity.\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NCk)$ \marginnote{\tiny$N$ is the number of data and $C$ is the number of centroids, $k$ is the size of the tiles} however scalability allows us to reduce this cost to $O(\text{log}(kC))$ by exploiting the independence of each cycle and scalable binary operations (details in \cref{chap:methodology}).\\
+The use of \gls{fcm} in this thesis involves millions of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. \begin{modified} In \cref{alg:FuzzyClustering}, might exist is a value $D_{ik}^2 \approx 0$  that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it overshadows all other data in the sum.\end{modified}\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NCK)$ \marginnote{\tiny$N$ is the number of data and $C$ is the number of centroids, $K$ is the size of the tiles}. However scalability allows us to reduce this cost to $O(\text{log}(KC))$ by exploiting the independence of each cycle and scalable reductions (details in \cref{chap:methodology}).\\
+\begin{note}
+	In una situazione ideale dove la GPU può accettare qualsiasi livello di parallelismo, si può  lavorare sui dati indipendentemente. E usare le riduzioni (un algoritmo presentato in methodology) per abbattare i costi delle sommatorie da lineari a logaritmici.
+
+	Poi nel capitolo results faccio notare che i limiti fisici della gpu tirano fuori un costo che comunque sarà O(NCK) ma con un fattore moltiplicativo con i dettagli hardware.
+\end{note}
 
 \begin{algorithm}[h]
 \caption[Membership update stable computation.]{Membership update stable computation.\\
@@ -104,17 +164,17 @@ The use of \gls{fcm} in this thesis involves millions of pieces of data, and it 
 }
 \begin{algorithmic}[1]
 \Procedure{MembershipUpdateStable}{$\mathcal{S}, \mathcal{C}$}
-    \State $D^2 \gets (d^2_{ij})$ with $d_{ij}=\|x_i-C_j\|^2$
+    \State $D^2 \gets (d^2_{ij})_{ij}$ with $d_{ij}^2=\|x_i-C_j\|^2$
     \For{$i \gets 0$ to $N$}
         \State $l \gets \min_k\{D_{ik}^2\}$
         \If{$l = 0$}
             \Where{$D_{ij}^2=0$}{$u_{ij}\gets1$}
             \Where{$D_{ij}^2\neq0$}{$u_{ij}\gets0$}
         \Else
-            \State $u_{ij} \gets \frac{l}{D_{ij}^2}\; \forall j$
+            \State $u_{ij} \gets \frac{l}{D_{ij}^2}\quad \forall j$
         \EndIf
         \State $S_i \gets \sum_j u_{ij}$
-        \State $u_{ij} \gets u_{ij} / S_i\;\forall j$
+        \State $u_{ij} \gets u_{ij} / S_i\quad\forall j$
     \EndFor
 \EndProcedure
 \end{algorithmic}
@@ -126,7 +186,7 @@ It was seen in the introductory section of \gls{dft} that the algorithm \gls{fft
 
 \noindent Consider a matrix $x \in \mathbb{C}^{N \times M}$ defined as follows:
 \[
-x = \left(\cos\left(\omega_rn+\omega_cm\right)\right)_{n,m}
+x_{n,m} = \cos\left(\omega_rn+\omega_cm\right)
 \]
 It can be shown that its \gls{dft} results in a matrix of the same shape as $x$, where the only nonzero component is in the row corresponding to $\omega_r$ and in the column corresponding to $\omega_c$.
 
@@ -150,11 +210,12 @@ At the algorithmic level, the two-dimensional \gls{fft} is obtained by applying 
 	&+ 0.8\cos\left(2\pi(n + 5m) + 2\right) \\
 	&+ \cos\left(2\pi(7n + 5m)\right) + \mathcal{N}_{n,m}
 	\end{align*}
-	In the figure, the Fourier coefficients are shown. They are computed from the matrix $x$ using a \texttt{viridis} colour scale.
+	\begin{modified}
+		In the figure, the original data is shown on the left as a 2D matrix visualized using the \texttt{viridis} color scale, while the Fourier coefficients computed from this matrix are displayed on the right.
+	\end{modified}
 	\begin{center}
 		\centering \includegraphics[width=0.6\textwidth]{Figures/fft2d_example.png}
 	\end{center}
 \end{exempli_gratia}
 
 \noindent The two-dimensional \gls{fft} can be used to analyse periodic patterns in matrices that represent images or signals. Typical applications include filtering, image compression and pattern recognition, where the spectral decomposition allows significant components to be distinguished from the noise.
-\end{toReview}
