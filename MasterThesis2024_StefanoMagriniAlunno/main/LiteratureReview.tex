@@ -55,7 +55,7 @@ As we have seen, the tiles used to compute \cref{eq:SapAttribution_dist} can be 
 
 	\noindent Let us try to calculate the comparison value formulated \cref{eq:SapAttribution_dist} considering the measure:
 	\begin{align*}
-		d(A,B)&=(1+J_{D_A,D_B})^{-1}\frac{1}{\sum_{c\in D_A\cup D_B}\mu(c)}\sum_c \mu(c)\left(\frac{p_A(c)-p_B(c)}{p_A(c)+p_B(c)}\right)^2 \\
+		d_{\gls{kmeans}}(A,B)&=(1+J_{D_A,D_B})^{-1}\frac{1}{\sum_{c\in D_A\cup D_B}\mu(c)}\sum_c \mu(c)\left(\frac{p_A(c)-p_B(c)}{p_A(c)+p_B(c)}\right)^2 \\
 		&= (1+J_{D_A,D_B})^{-1}\frac{1}{\mu(D_A\cup D_B)}\int d\mu(c) \left(\frac{p_A(c)-p_B(c)}{p_A(c)+p_B(c)}\right)^2
 	\end{align*}
 	where $D_A$ is the support for the discretisation of ${\mathcal{A}}$ and similarly for $D_B$.\\ The result for $32$ centroids is $0.54$.
@@ -145,7 +145,7 @@ Since it is a weighted average over $u_{ij}^2$, if a datum has a higher weight t
 	Avevo scritto "pieces" perché i dati sono analizzati in batch ma questo argomento ho poi deciso di spostarlo più nelle implementazioni nel capitolo Results. Sarà rimasto come remasuio, lo tolgo...
 \end{note}
 \paragraph{machine error}
-The use of \gls{fcm} in this thesis involves millions of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. \begin{modified} In \cref{alg:FuzzyClustering}, might exist is a value $D_{ik}^2 \approx 0$  that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it overshadows all other data in the sum.\end{modified}\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NCK)$ \marginnote{\tiny$N$ is the number of data and $C$ is the number of centroids, $K$ is the size of the tiles}. However scalability allows us to reduce this cost to $O(\text{log}(KC))$ by exploiting the independence of each cycle and scalable reductions (details in \cref{chap:methodology}).\\
+The use of \gls{fcm} in this thesis involves millions of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. \begin{modified} In \cref{alg:FuzzyClustering}, might exist is a value $D_{ik}^2 \approx 0$  that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it overshadows all other data in the sum.\end{modified}\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NMK)$ \marginnote{\tiny$N$ is the number of data and $M$ is the number of centroids, $K$ is the size of the tiles}. However scalability allows us to reduce this cost to $O(\text{log}(KM))$ by exploiting the independence of each cycle and scalable reductions (details in \cref{chap:methodology}).\\
 \begin{note}
 	In una situazione ideale dove la GPU può accettare qualsiasi livello di parallelismo, si può  lavorare sui dati indipendentemente. E usare le riduzioni (un algoritmo presentato in methodology) per abbattare i costi delle sommatorie da lineari a logaritmici.
 
@@ -158,7 +158,7 @@ The use of \gls{fcm} in this thesis involves millions of data, and it is possibl
 		\textsc{INPUT}
 		\begin{itemize}[noitemsep, topsep=0pt]
 			\item[$\mathcal{S}$:] set of data $x_1,\dots,x_N$
-			\item[$\mathcal{C}$:] centroids $c_1,\dots,c_C$
+			\item[$\mathcal{C}$:] centroids $c_1,\dots,c_M$
 		\end{itemize}
 	\end{minipage}
 }

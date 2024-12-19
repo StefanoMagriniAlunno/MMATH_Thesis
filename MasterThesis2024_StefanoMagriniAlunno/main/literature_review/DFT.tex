@@ -199,7 +199,7 @@ The possibility of calculating Fourier coefficients directly by means of a simpl
 		\begin{minipage}[t]{\linewidth}
 			\textsc{INPUT}
 			\begin{itemize}[noitemsep, topsep=0pt]
-				\item[$x$:] time series $x_1,\dots,x_N$ with $N$ is even
+				\item[$x$:] time series $x_1,\dots,x_N$
 			\end{itemize}
 			\textsc{OUTPUT}
 			\begin{itemize}[noitemsep, topsep=0pt]
@@ -235,7 +235,7 @@ The possibility of calculating Fourier coefficients directly by means of a simpl
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=\textwidth]{Figures/sunspots.png}
-	\caption{On the left, the time series of the number of sunspots recorded each month from $1749$ to $1984$ (\(N = 2820\)). This representation shows the variation of sunspots over time, highlighting any cycles. On the right, the periodogram obtained by applying the \gls{dft} to the time series. Each point represents the squared modulus of a Fourier coefficient, which measures the energy associated with a given frequency. We can see a peak at frequency $0$, corresponding to the sum of the values of the time series (\(X_0 = \sum_{n=0}^{N-1} x_n\)).}
+	\caption[Periodogram of sunspots]{On the left, the time series of the number of sunspots recorded each month from $1749$ to $1984$ (\(N = 2820\)). This representation shows the variation of sunspots over time, highlighting any cycles. On the right, the periodogram obtained by applying the \gls{dft} to the time series. Each point represents the squared modulus of a Fourier coefficient, which measures the energy associated with a given frequency. We can see a peak at frequency $0$, corresponding to the sum of the values of the time series (\(X_0 = \sum_{n=0}^{N-1} x_n\)).}
 \end{figure}
 \end{modified}
 

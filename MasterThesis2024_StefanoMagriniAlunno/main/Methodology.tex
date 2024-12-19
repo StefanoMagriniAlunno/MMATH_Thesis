@@ -1,6 +1,5 @@
 \chapter{Methodology}
 \label{chap:methodology}
-\begin{toReview}
 %Questa ricerca si propone di analizzare l'attribuzione di opere grafiche, prendendo spunto dalle metodologie utilizzate per l'attribuzione di opere letterarie. In particolare, si esamina l'applicazione degli $N$-grammi, ossia sequenze di $N$ simboli adiacenti, come metodo di rappresentazione delle opere.
 This research aims to analyse the attribution of graphic works, taking its inspiration from the methodologies used for the attribution of literary works \citep[see][]{thesis}. In particular, it examines the application of $N$-grams, i.e. sequences of $N$ adjacent symbols, as a method of representing works.
 
@@ -12,10 +11,8 @@ This research aims to analyse the attribution of graphic works, taking its inspi
 
 % introduco la tesi della triennale
 \paragraph{\gls{dada}}
-%Nella tesi di ricerca \begin{toDo} inserire riferimento\end{toDo}, le opere pittoriche sono considerate come matrici di colori, e si è definito un $N$-gramma come una sottomatrice quadrata $N \times N$, denominata "tessera".
-In the thesis research about the application of $N$-gram analysis on calligraphic works, \citep[see][]{thesis}, graphics are considered as matrices of colours and an $N$-gram was defined as a square sub-matrix of size $N$, also called 'tile'.
+In the thesis research about the application of $N$-gram analysis on calligraphic works, \citep[see][]{thesis}, a graphic work is considered as matrix of pixels and an $N$-gram was defined as a square sub-matrix of size $N$, also called 'tile'.
 
-%\indent La ricerca si è concentrata sull'analisi di immagini che sono state ridotte a matrici, nelle quali i soli colori presenti sono il bianco e il nero. Questo processo, noto come "posterizzazione", ha lo scopo di ridurre la quantità di colori presenti nell'opera (nota come "profondità"). Tale scelta metodologica è stata motivata dalla necessità di gestire la dimensione dell'alfabeto; infatti, mentre in un'opera letteraria possono esistere fino a $32^N$ $N$-grammi distinti (considerando le $26$ lettere dell'alfabeto più $6$ simboli di punteggiatura), in un'opera pittorica potrebbero essere presenti $256^{3N}$ tessere distinte con lato $N$. Questa considerevole differenza ha causato delle sfide significative nell'analisi delle immagini, rendendo inefficace l'applicazione di strumenti progettati per le opere letterarie sulle opere pittoriche.
 \noindent The research focused on the analysis of images that have been reduced to matrices, in which the only colours present are black and white (see \cref{fig:example_bw}). This process, known as 'posterisation', aims to reduce the amount of colours present in the work (known as 'depth'). This methodological choice was motivated by the need to manage the size of the alphabet; indeed, while in a literary work there may exist up to $32^N$ distinct $N$-grams (considering the $26$ letters of the alphabet plus $6$ punctuation symbols), in a pictorial work there may be $256^{3N^2}$ distinct tiles with side $N$. This considerable difference caused significant challenges in image analysis, rendering the application of tools designed for literary works on graphic works ineffective.
 
 \begin{figure}[ht]
@@ -31,12 +28,15 @@ In the thesis research about the application of $N$-gram analysis on calligraphi
 	\label{fig:example_bw}
 \end{figure}
 
-%\indent La ricerca ha concluso con risultati incoraggianti, evidenziando che l'analisi automatica dei campioni di calligrafia consente attribuzioni d'autore molto precise. Tuttavia, è emerso che l'applicazione delle stesse analisi su opere pittoriche come vignette e disegni non produce risultati soddisfacenti. Si è ipotizzato che ciò sia dovuto alla natura intrinseca delle opere pittoriche, dove la presenza del colore riveste un importante ruolo, e la posterizzazione, anziché semplificare il processo, genera rumore e nuove informazioni che rendono la rappresentazione dei dati poco affidabile.
 \noindent The research concluded with promising results, showing that the automatic analysis of handwriting samples allows very precise author attributions. However, it turned out that applying the same analysis to pictorial works such as panels and drawings does not produce satisfactory results. It was conjectured that this is due to the intrinsic nature of pictorial works, where the presence of colour plays an important role, and posterisation, instead of helping attribution, generates noise and new information that make the representation of data unreliable.
+
+\begin{note} in questo paragrafo vorrei solo introdurre il concetto di \gls{dada}, potrei parlare di più della tesi triennale in literature review. \end{note}
 
 \paragraph{\gls{cada}}
 %Seguendo la stessa linea di ricerca della tesi di \begin{toDo} inserire riferimento \end{toDo}, abbiamo proposto un riadattamento della metodologia al fine di indagare su quale possa essere la strategia più efficace per l'analisi automatica di immagini caratterizzate da un vasto alfabeto di colori. L'obiettivo è costruire una \gls{cada} che possa analizzare i colori nel loro spazio naturale, ovvero in uno spazio continuo. Ciò ci consentirà di superare il vincolo del discreto di \gls{dada} e di ottenere risultati più accurati e dettagliati.
-Following the same line of research as the thesis of \citet{thesis}, we have proposed a re-adaptation of the methodology in order to investigate what might be the most effective strategy for the automatic analysis of images characterised by a large alphabet of colours. The aim is to construct a \gls{cada} that can analyse colours in their natural space, i.e. in a continuous space. This will allow us to overcome the discrete constraint of \gls{dada} and obtain more accurate and detailed results.
+Following the same line of research \cite[my bachelor thesis]{thesis}, we have proposed a re-adaptation of the methodology in order to investigate what might be the most effective strategy for the automatic analysis of images characterised by a large alphabet of colours. The aim is to construct a \gls{cada} that can analyse colours in their natural space, i.e. in a continuous space. This will allow us to overcome the discrete constraint of \gls{dada} and obtain more accurate and detailed results.
+
+\begin{note} lavoro in scale di grigi, ma è comunque uno spazio continuo \end{note}
 
 \noindent Image analysis in \gls{dada} is a process in five stages: acquisition, pre-processing, synthesis, comparison and attribution. In this paper we are going to focus on the first four phases, detailing the process up to image comparison, while attribution will be briefly discussed as the concluding phase.
 
@@ -57,19 +57,14 @@ Following the same line of research as the thesis of \citet{thesis}, we have pro
 \input{main/methodology/DataSet}
 
 % pre-processing and digitisation theory
-\newpage
 \input{main/methodology/Digitisation}
 
 % synthesis algorithm
-\newpage
 \input{main/methodology/Synthesis}
 
 % comparison and theory
-\newpage
 \input{main/methodology/Comparison}
 
 % attribution
 %\newpage
 %\input{main/methodology/Attribution}
-
-\end{toReview}

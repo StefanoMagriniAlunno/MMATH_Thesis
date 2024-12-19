@@ -221,12 +221,14 @@ kernel_compute_U2 (const float *const d_data, const float *const d_weights,
   __syncthreads ();
 
   // assign the value to the matrix
-  if (i < n_data && j < n_centroids)
+  if (i < n_data && j < n_centroids) {
     value /= min_value;
     d_matrix[i * n_centroids + j] = value * value * d_weights[i];
+  }
   // syncronyze threads of this block
   __syncthreads ();
 
+  // compute energy
   if (i < n_data && j < n_centroids)
     value = d_matrix[i * n_centroids + j] * d2;  // compute partial energy
   // syncronyze threads of this block
@@ -493,6 +495,7 @@ compute_centroids (const std::vector<float> &data,
                       partitions.d_centroids, partitions.d_matrix, partitions.d_energies,
                       batch_size, partitions.n_dimensions, partitions.n_centroids, prop,
                       log_stream);
+
           // update the new centroids
           update_centroids (partitions.d_data, partitions.d_matrix,
                             h_centroids_weight, partitions.d_new_centroids,
@@ -623,6 +626,11 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
           "Number of data points: "
               + std::to_string (data.size () / n_dimensions));
 
+  // check if number of centroids is supported
+  CHECK_ERROR_RUNTIME_ERROR(
+      centroids.size () / n_dimensions <= MAX_THREADS_PER_BLOCK,
+      PASS_INSTRUCTION, "Number of centroids not supported");
+
   // prepare cuda context:
   size_t batch_size = 0; // number of data points to use in a single batch
   float *d_main_ptr;     // pointer to the main memory pool
@@ -731,6 +739,11 @@ cudafcm (const std::vector<float> &data, const std::vector<float> &weights,
           // check for errors
           CHECK_ERROR_RUNTIME_ERROR (err == cudaSuccess, cudaFree (d_main_ptr),
                                      cudaGetErrorString (err));
+
+          // check stability
+          if (pred_energy < energy) {
+            LOGGER(log_stream, "WARNING", "Numerical stability error");
+          }
         }
       while (energy >= tollerance && pred_energy - energy >= tollerance);
     }

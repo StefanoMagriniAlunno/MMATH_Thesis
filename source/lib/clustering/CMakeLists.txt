@@ -13,6 +13,8 @@ set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${MODE_FLAG} -arch=sm_75")
 set(CUDA_HOST_COMPILER ${CXX})
 find_package(CUDAToolkit REQUIRED)
+set(CUDA_INCLUDE_DIRS /usr/local/cuda-12.4/include)
+set(CUDA_LIBRARY_DIRS /usr/local/cuda-12.4/lib64)
 
 # Includi le directory
 include_directories(inc)
@@ -20,6 +22,7 @@ include_directories(
     ${PYTHON_INCLUDE_DIRS}
     ${CUDA_INCLUDE_DIRS}
 )
+link_directories(${CUDA_LIBRARY_DIRS})
 
 # File sorgente
 set(SOURCE_FILES

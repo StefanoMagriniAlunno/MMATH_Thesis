@@ -33,49 +33,56 @@ Modificato da \texttt{X} a $\times$
 
 \begin{lstlisting}[style=code, language=C, rulecolor=\color{blue}]
 /**
- * @brief This kernel computes the matrix U2 of membership between
- * data points and centroids
- *
- * @param[in] d_data : the i-th is d_data[i * n_dimensions + k]
- * for k = 0, ..., n_dimensions - 1
- * @param[in] d_weights : the weight of the i-th data point is
- * d_weights[i]
- * @param[in] d_centroids : the j-th is
- * d_centroids[j * n_dimensions + k] for k = 0, ..., n_dimensions - 1
- * @param[out] d_matrix : the weighted membership between the i-th data point
- * and the j-th centroid is stored in d_matrix[i * n_centroids + j]
- * @param n_data : number of data points
- * @param n_dimensions : dimensions of data points
- * @param n_centroids : number of centroids
- *
- * @details This kernel requires a grid of blocks with n_data blocks
- * and MAX_THREADS_PER_BLOCK threads for each block.
- *
- * @note This kernel synchronize threads at the end of the computation
- */
+* @brief This kernel computes the matrix U2 of membership between
+* data points and centroids
+*
+* @param[in] d_data : the i-th is d_data[i * n_dimensions + k]
+* for k = 0, ..., n_dimensions - 1
+* @param[in] d_weights : the weight of the i-th data point is
+* d_weights[i]
+* @param[in] d_centroids : the j-th is
+* d_centroids[j * n_dimensions + k] for k = 0, ..., n_dimensions - 1
+* @param[out] d_matrix : the weighted membership between the i-th data point
+* and the j-th centroid is stored in d_matrix[i * n_centroids + j]
+* @param[out] d_energies : the energy of the i-th data point is stored in
+* d_energies[i]
+* @param n_data : number of data points
+* @param n_dimensions : dimensions of data points
+* @param n_centroids : number of centroids
+*
+* @details This kernel requires a grid of blocks with n_data blocks
+* and MAX_THREADS_PER_BLOCK threads for each block.
+*
+* @note This kernel synchronize threads at the end of the computation
+*/
 __global__ void
 kernel_compute_U2 (const float *const d_data, const float *const d_weights,
 const float *const d_centroids, float *const d_matrix,
-size_t n_data, size_t n_dimensions, size_t n_centroids)
+float *const d_energies, size_t n_data, size_t n_dimensions,
+size_t n_centroids)
 {
   __shared__ float sdata[MAX_THREADS_PER_BLOCK];
   size_t i = blockIdx.x;  // i-th data
   size_t j = threadIdx.x; // j-th centroid
   float value = 0;
-  float min_value = 0;
+  float reduction_solution = 0;
+  float d2 = 0;
+
   // compute the distance between the i-th data point and the j-th
   // centroid
   if (i < n_data && j < n_centroids)
+  {
+    for (size_t k = 0; k < n_dimensions; k++)
     {
-      for (size_t k = 0; k < n_dimensions; k++)
-        {
-          float diff = d_data[i * n_dimensions + k]
-                     - d_centroids[j * n_dimensions + k];
-          value += diff * diff;
-        }
+      float diff = d_data[i * n_dimensions + k]
+      - d_centroids[j * n_dimensions + k];
+      value += diff * diff;
     }
+  }
+  d2 = value;
   // syncronyze threads of this block
   __syncthreads ();
+
   // compute the min value of the block
   if (j < n_centroids)
   sdata[j] = value;
@@ -83,48 +90,81 @@ size_t n_data, size_t n_dimensions, size_t n_centroids)
   sdata[j] = FLT_MAX;
   __syncthreads ();
   for (size_t s = MAX_THREADS_PER_BLOCK / 2; s > 0; s >>= 1)
-    {
-      if (j < s && sdata[j] > sdata[j + s])
-      sdata[j] = sdata[j + s];
-      __syncthreads ();
-    }
-  min_value = sdata[0];
+  {
+    if (j < s && sdata[j] > sdata[j + s])
+    sdata[j] = sdata[j + s];
+    __syncthreads ();
+  }
+  reduction_solution = sdata[0];
   // syncronyze threads of this block
   __syncthreads ();
+
   // prepare the row to a stable normalization
-  if (min_value == 0.0)
-    {
-      // let to 1 the components that are 0 and to 0 the others
-      if (i < n_data && j < n_centroids)
-       value = value == 0.0 ? 1.0 : 0.0;
-    }
+  if (reduction_solution == 0.0)
+  {
+    // let to 1 the components that are 0 and to 0 the others
+    if (i < n_data && j < n_centroids)
+    value = value == 0.0 ? 1.0 : 0.0;
+  }
   else
-    {
-      // for each component of the row, assign min/value
-      if (i < n_data && j < n_centroids)
-        value = min_value / value;
-    }
+  {
+    // for each component of the row, assign min/value
+    if (i < n_data && j < n_centroids)
+    value = reduction_solution / value;
+  }
   // syncronyze threads of this block
   __syncthreads ();
+
   // compute the sum of the row
   if (j < n_centroids)
-      sdata[j] = value;
+    sdata[j] = value;
   else
-      sdata[j] = 0.0;
+    sdata[j] = 0.0;
   __syncthreads ();
   for (size_t s = MAX_THREADS_PER_BLOCK / 2; s > 0; s >>= 1)
-    {
-      if (j < s)
-          sdata[j] += sdata[j + s];
-      __syncthreads ();
-    }
+  {
+    if (j < s)
+      sdata[j] += sdata[j + s];
+    __syncthreads ();
+  }
   min_value = sdata[0];
   // syncronyze threads of this block
   __syncthreads ();
+
   // assign the value to the matrix
   if (i < n_data && j < n_centroids)
-      value /= min_value;
-  d_matrix[i * n_centroids + j] = value * value * d_weights[i];
+  {
+    value /= min_value;
+    d_matrix[i * n_centroids + j] = value * value * d_weights[i];
+  }
+  // syncronyze threads of this block
+  __syncthreads ();
+
+  // compute energy
+  if (i < n_data && j < n_centroids)
+    value = d_matrix[i * n_centroids + j] * d2;  // compute partial energy
+  // syncronyze threads of this block
+  __syncthreads ();
+
+  // compute the sum of the partial energies
+  if (j < n_centroids)
+    sdata[j] = value;
+  else
+    sdata[j] = 0.0;
+  __syncthreads ();
+  for (size_t s = MAX_THREADS_PER_BLOCK / 2; s > 0; s >>= 1)
+  {
+    if (j < s)
+    sdata[j] += sdata[j + s];
+    __syncthreads ();
+  }
+  value = sdata[0];  // energy of the data point
+  // syncronyze threads of this block
+  __syncthreads ();
+
+  // assign the energy to the matrix
+  if (i < n_data && j == 0)
+    d_energies[i] = value;
   // syncronyze threads of this block
   __syncthreads ();
 }\end{lstlisting}

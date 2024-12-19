@@ -188,7 +188,6 @@ To understand the meaning of data points and clusters, let us consider the follo
 		\[
 		u_{ij} = \mu^\star_{x_i}(C_j).
 		\]
-	\end{theorem}
 	\begin{proof}
 		Since the membership degrees $\mu_x(C)$ are independent for different clusters $C\in \mathcal{C}$, the optimization problem can be decoupled into independent subproblems for each cluster.
 		$$\textnormal{argmin}_{ \mu}\left[\sum_{C\in\mathcal{C}^\star}\sum_{x \in \mathcal{S}}\mu_x(C)^2\|x-C\|^2\right] = \sum_{C\in\mathcal{C}}\textnormal{argmin}_{ \mu}\left[\sum_{x \in \mathcal{S}}\mu_x(C)^2\|x-C\|^2\right]$$
@@ -228,10 +227,11 @@ To understand the meaning of data points and clusters, let us consider the follo
 		From this conclusion, we observe that, for any $j$, it can be $\eta_j=0$ since it must be non-negative and the linear combination with $\left(\mu_x(C)\right)_C$ (non-negative values) must be $0$. Thus:
 		$$\mu_x(C_j) = \frac{\lambda_1/2}{\left\|x-C\right\|^2}$$
 		And following the demonstration in \cref{def:fuzzy}, we have that:\\
-		$\mu_x(C) = \frac{1/\left\|x-C\right\|^2}{\sum_k 1/\left\|x-C_k\right\|^2}$
+		$\mu_x(C) = \frac{1/\left\|x-C_j\right\|^2}{\sum_k 1/\left\|x-C_k\right\|^2}$
 
 		\bigskip \noindent We obtain an admissible solution that satisfies all conditions and is therefore a local optimal solution. However, since this is a convex quadratic problem, we have that the local minimal solution is also optimal.
 	\end{proof}
+	\end{theorem}
 	\end{toReview}
 
 	\paragraph{Probabilistic perspective}

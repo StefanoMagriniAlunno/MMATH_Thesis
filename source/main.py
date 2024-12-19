@@ -11,12 +11,14 @@ import pycuda.driver
 import torch
 import tqdm
 from packages import cleaner, clustering, common, distance, synthesis
+from sklearn.decomposition import PCA
 
 
 def main_comparing(
     logger: logging.Logger,
     synthetized_path: str,
     n_tiles: int,
+    pca_finaldim: int,
     n_clusters: int,
     fcm_tollerance: float,
 ):
@@ -118,6 +120,10 @@ def main_comparing(
                 )
                 # unisco le due sintesi in un' unica matrice
                 synth_merge = numpy.vstack((synth_1, synth_2))
+                # eseguo una pca
+                pca = PCA(n_components=pca_finaldim)
+                synth_merge = pca.fit_transform(synth_merge)
+
                 # salvo la matrice in un file temporaneo come float32 binario (i dati da clusterizzare)
                 with open(r"./temp/synth_merge", "bw") as f:
                     f.write(synth_merge.tobytes())
@@ -134,7 +140,7 @@ def main_comparing(
 
                 # costruisco il campione dei pesi, tutti uguali per i rispettivi synth
                 synth_weights = numpy.ones((synth_merge.shape[0]), dtype=numpy.float32)
-                # mi chiedo quale sia la sintesi con più dati
+                # setto i pesi dando un peso uniforme ai due synth
                 synth_weights[: synth_1.shape[0]] = (
                     numpy.ones((synth_1.shape[0]), dtype=numpy.float32)
                     / synth_1.shape[0]
@@ -163,7 +169,7 @@ def main_comparing(
                         r"./temp/synth_weights",
                         r"./temp/synth_sample",
                         r"./temp/centroids",
-                        n_tiles * n_tiles,
+                        pca_finaldim,  # n_tiles * n_tiles,
                         fcm_tollerance,
                         r"./logs/fcm.log",
                     )
@@ -195,6 +201,10 @@ def main_comparing(
                     .astype(numpy.float32)
                     / 255.0
                 )
+                # applico pca alle sintesi
+                synth_1 = pca.transform(synth_1)
+                synth_2 = pca.transform(synth_2)
+
                 weights_1 = (
                     numpy.ones((synth_1.shape[0]), dtype=numpy.float32)
                     / synth_1.shape[0]
@@ -206,7 +216,7 @@ def main_comparing(
                 with open(r"./temp/centroids", "br") as f:
                     values = f.read()
                 centroids = numpy.frombuffer(values, dtype=numpy.float32).reshape(
-                    n_clusters, n_tiles * n_tiles
+                    n_clusters, pca_finaldim  # n_tiles * n_tiles
                 )
                 # compute distance
                 try:
@@ -312,8 +322,9 @@ def main():
     # shutil.rmtree("data/out")
     db_path = r"./data/db/cutted_set"
     n_tiles = 6
-    n_centroids = 1_024
-    fcm_tollerance = 0.1
+    n_centroids = 1024
+    pca_finaldim = 36
+    fcm_tollerance = 10**-8
     if (
         n_centroids
         > pycuda_device.get_attributes()[
@@ -345,7 +356,9 @@ def main():
             n_tiles,
         )
     if args.comparing:
-        main_comparing(logger, synthetized_path, n_tiles, n_centroids, fcm_tollerance)
+        main_comparing(
+            logger, synthetized_path, n_tiles, pca_finaldim, n_centroids, fcm_tollerance
+        )
 
 
 if __name__ == "__main__":

@@ -1,159 +1,268 @@
 \section{Comparison}
-In order to compare two works, we decided to use the clustering \gls{fcm}, which is less dependent on possible noise, especially since the comparison between two works will leverage smaller densities and therefore noise could pollute the results.
+\begin{modified}
+In order to compare two works, we decided to use the clustering \gls{fcm}, which is less sensitive to potential noise. This is particularly important in our case, as the comparison between two works leverages areas with lower densities, where noise could significantly affect the results.
 
-\noindent In this subsection, we will look in detail at the algorithm for comparing works and see an example application to better investigate its characteristics.
+\noindent In the previous study (\cite{thesis}), it was observed that the formula for comparing works was highly influenced by tiles with fewer occurrences. In our current context, which operates in a continuous space, these tiles correspond to regions with lower densities.
 
-\paragraph{Definitions}
-As already mentioned in \cref{chap:LiteratureReview}, the comparison between two distributions $\mathcal{A}$, $\mathcal{B}$ will pass through the use of a clustering algorithm.
+\noindent In this thesis, I developed an algorithm for comparing works and demonstrated its application through an example to better investigate its characteristics.
+\end{modified}
 
-\noindent In particular, we used the \gls{kmeans} to implement a clusterisation that discretized the space. Finally, over this discretisation we applied this definition of distance:
-\begin{equation}
-	\label{eq:kmeans_dist}
-	d(\mathcal{A},\mathcal{B})=(1+J_{D_\mathcal{A},D_\mathcal{B}})^{-1}\frac{1}{\mu(D_\mathcal{A}\cup D_\mathcal{B})}\int d\mu(c) \left(\frac{r(c)-1}{r(c)+1}\right)^2
-\end{equation}
+\paragraph{Comparison value using \gls{kmeans}}
+\begin{modified} As already mentioned in \cref{chap:LiteratureReview}, we compared two works using their synthesized tiles. Specifically, we extracted two sets of tiles, $\mathcal{A},\mathcal{B}$, from the two works, where each tile is represented as a vector in $\mathbb{R}^K$. In \cite{thesis}, we employed predefined boxes to cluster the tiles. Each box had the same measure but contained a different number of data points (i.e., tiles). To analyze these clusters, we used a clustering algorithm, \gls{kmeans}, as described in \cref{chap:LiteratureReview}. Each cluster represents a region in the space $\mathbb{R}^K$ with its own measure and weights respect $\mathcal{A}, \mathcal{B}$.
 
-\noindent Now, we will apply \gls{fcm} to the fused distribution $\mathcal{L}$. For each cluster with centroid $c$, we will compute the size $\mu(c)$ and the density of the set of samples $d_{A}(c)$, $d_{B}(c)$. Finally, we will give a definition of a Jaccard index between dictionaries $D_A$ and $D_B$ using the fuzzy logic.
+\noindent The clustering procedure using \gls{kmeans} can be summarized as follows:
+\begin{enumerate}
+	\item Compute the \gls{kmeans} clustering of $\mathcal{L}:=\mathcal{A}\cup\mathcal{B}$. This gives the predictor $\mathcal{P}$, where $\mathcal{P}(x)$ is the centroid of the data point $x$.
+	\item Compute the measure of each cluster: $\mu(c)=\sqrt{\mathbb{E}_{x\sim\mathcal{L}}\left[\left|x-c\right\|^2\middle| \mathcal{P}(x)=c\right]}^K$ where $c$ is the centroid of the cluster.
+	\item Compute the weight of each cluster with respect to $\mathcal{A}$: $p_\mathcal{A}(c)=\mathbb{P}_{x\sim\mathcal{A}}\left[\mathcal{P}(x)=c\right]$
+	\item Compute the weight of each cluster with respect to $\mathcal{B}$: $p_\mathcal{B}(c)=\mathbb{P}_{x\sim\mathcal{B}}\left[\mathcal{P}(x)=c\right]$
+	\item Compute the Jaccard Index:
+	\begin{align*}
+		D_\mathcal{A} &:= \texttt{clusters containing tiles from $\mathcal{A}$}\\
+		D_\mathcal{B} &:= \texttt{clusters containing tiles from $\mathcal{B}$}\\
+		\left|D_\mathcal{A}\cup D_\mathcal{B}\right| &= M \quad \texttt{(total number of clusters)} \\
+		\left|D_\mathcal{A}\cap D_\mathcal{B}\right| &= \texttt{clusters containing tiles from both $\mathcal{A}$ and $\mathcal{B}$} \\
+		J_{\mathcal{A},\mathcal{B}} &:= \frac{\left|D_\mathcal{A}\cap D_\mathcal{B}\right|}{\left|D_\mathcal{A}\cup D_\mathcal{B}\right|}
+	\end{align*}
+	\item Compute the measure of all clusters: $\mu(D_\mathcal{A}\cup D_\mathcal{B}) = \sum_{c\in D_\mathcal{A}\cup D_\mathcal{B}} \mu(c)$
+	\item Compute the comparison value between the two works:
+	\[
+		d_{\gls{kmeans}}(\mathcal{A},\mathcal{B}) = \left(1+J_{\mathcal{A},\mathcal{B}}\right)^{-1}\frac{1}{\mu(D_\mathcal{A}\cup D_\mathcal{B})}\sum_c \mu(c)\left(\frac{p_\mathcal{A}(c)-p_\mathcal{B}(c)}{p_\mathcal{A}(c)+p_\mathcal{B}(c)}\right)^2
+	\]
+\end{enumerate}
+\end{modified}
 
-\noindent Since \gls{fcm} is a generalisation of \gls{kmeans}, let us try to define these quantities starting from \gls{kmeans}. In particular, we define the weight of a cluster as a quantity proportional to the $k$-dimensional hypervolume of a hypersphere having radius the mean square distance of the data from its centroid:
+\subsection{Comparison value using \gls{fcm}}
+\begin{modified}
+\noindent Next, we will apply \gls{fcm} to the fused distribution $\mathcal{L}$. Using fuzzy clustering, each data point will be assigned a degree of membership to multiple clusters, allowing for a more flexible representation of the data. For each cluster with centroid $c$, we will compute its size $\mu(c)$ and the weights of the set of samples, $p_\mathcal{A}(c)$ and $p_\mathcal{B}(c)$. Finally, we will redefine the Jaccard index between $D_\mathcal{A}$ and $D_\mathcal{B}$ within a fuzzy logic framework to better capture the similarities between the two sets.
+
+\noindent The fuzzy nature of \gls{fcm} requires a redefinition of the cluster measure. Unlike \gls{kmeans}, where each data point is assigned to a single cluster by the predictor $\mathcal{P}$, in \gls{fcm} each data point has a degree of membership in multiple clusters. To extend the concept of cluster size, we define the measure of a cluster as a quantity proportional to the $K$ dimensional hypervolume of a hypersphere with radius equal to the mean square distance of the data from its centroid. For \gls{kmeans} this is expressed as:
 \begin{equation*}
-	\mu(c) = {\sqrt{\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}(x)=c\right]}\,}^{k} \approx {\sqrt{\frac{1}{\left|\{x\middle|\mathcal{P}(x)=c\}\right|}\sum_{x:\mathcal{P}(x)=c}\left\|x-c\right\|^2}\,}^{k}
+	\mu(c) = {\sqrt{\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}(x)=c\right]}\,}^{K} = {\sqrt{\frac{1}{\left|\{x\middle|\mathcal{P}(x)=c\}\right|}\sum_{x:\mathcal{P}(x)=c}\left\|x-c\right\|^2}\,}^{K}
 \end{equation*}
 
-\noindent In our case, there is no predictor since a measure of belonging of each datum to each cluster has been defined. However, it is recalled that \gls{fcm} is derived from a generalisation of \gls{kmeans} and that therefore the formula minimised by the algorithm \gls{em} (\cref{eq:loss}) can be taken.
-\begin{definition}[measurement of a cluster]
-\label{def:cluster_measure}
-	Applying \gls{fcm} to the data set $\mathcal{S}$ with weights $w$, we obtain the centroids $\mathcal{C}$ and the membership matrix $u_{xc}^2=w_x\mu_x(c)^2$. Calling $k$ the dimension of the space where the data are instantiated, we denote by $\mu(c)$ the weight of the cluster $c$. The weight will be proportional to the $k$-dimensional hypervolume of a hypersphere having radius the mean square distance of the data from the centroid $c$:
+\noindent In \gls{kmeans}, the algorithm aims to minimise the loss function:
+\[
+	\sum_c\sum_{x:\mathcal{P}(x)=c}\left\|x-c\right\|^2
+\]
+We get a different perspective of this loss function:
+\begin{align*}
+	\sum_c\sum_{x:\mathcal{P}(x)=c}\left\|x-c\right\|^2 &= \sum_c\left|\{x:\mathcal{P}(x)=c\}\right|\frac{1}{\left|\{x:\mathcal{P}(x)=c\}\right|}\sum_{x:\mathcal{P}(x)=c}\left\|x-c\right\|^2 \\
+	&= N\sum_c\frac{\left|\{x:\mathcal{P}(x)=c\}\right|}{N}\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}(x)=c\right] \\
+	&= N\sum_c\mathbb{P}_{x\sim\mathcal{L}}\left[\mathcal{P}(x)=c\right]\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}(x)=c\right] \\
+	&= N\sum_c p(c)E(c)
+\end{align*}
+where $p(c):= \mathbb{P}_{x\sim\mathcal{L}}\left[\mathcal{P}(x)=c\right]$ and $E(c):= \mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}(x)=c\right]$
+
+\bigskip\noindent Extending this idea, we generalize the concept using the objective function of \gls{fcm}, as defined in \cref{def:fuzzyloss}. This allows the introduction of fuzzy membership.
+\begin{definition}[cluster's values]
+\label{def:cluster_values}
+	Applying \gls{fcm} to the data set $\mathcal{S}$ with weights $w$ and tiles in $\mathbb{R}^K$, we obtain the centroids $\mathcal{C}$ and the memberships $\mu_c(x)$.
+
+	\noindent We call the representability of cluster with centroid $c$ respect all other clusters the value: $p(c) = \frac{\sum_x w_x\mu_x(c)}{\sum_x w_x}$
+
+	\noindent We call the concentration of cluster with centroid $c$ respect the membership measure the value: $\sigma(c) = \frac{\sum_x w_x\mu_x(c)^2}{\sum_x w_x\mu_x(c)}$
+	\begin{remark}
+		$\sigma(c)\in\left(0,1\right]$ because $\mu_x(c)\leq1$ and so: $\sum_x w_x\mu_x(c)^2 \leq \sum_x w_x\mu_x(c)$
+	\end{remark}
+
+	\noindent We call the mean square radius of the cluster with centroid $c$ the value: \\$E(x) = \frac{\sum_x w_x\mu_x(c)^2\left\|x-c\right\|^2}{\sum_x w_x\mu_x(c)^2}$
+
+	\noindent The loss function of algorithm \gls{fcm} is can rewritted as:
+	\[
+		\mathcal{L}_\mathcal{S}(\mathcal{C}) = \sum_x w_x\sum_c p(c)\sigma(c)E(c)
+	\]
+
+	\noindent We denote by $\mu(c)$ the measure of the cluster $c$ as:
 	\begin{equation}
-		\mu(c) := {\sqrt{\frac{\sum_{x\in\mathcal{S}} u_{xc}^2 \left\|x-c\right\|^2}{\sum_{x\in\mathcal{S}}u_{xc}^2}}\,}^k
-		\label{eq:fcm_cluster_measure}
+		\label{def:cluster_measure}
+		\mu(c) = \sigma(c)E(c)^{K/2} = \frac{\sum_x w_x\mu_x(c)^2}{\sum_x w_x\mu_x(c)}{\sqrt{\frac{\sum_{x\in\mathcal{S}} w_x\mu_x(c)^2 \left\|x-c\right\|^2}{\sum_{x\in\mathcal{S}}w_x\mu_x(c)^2}}\,}^K
 	\end{equation}
 \end{definition}
+\end{modified}
 
-\noindent Once the size of the clusters has been defined, it will then be necessary to talk about the density of belonging of the set $A$ (or similarly $B$) to a cluster $c$. As mentioned above, \gls{fcm} does not propose a predictor, so a more general definition will have to be given. In \gls{kmeans} it is possible to reformulate the density as follows:
-\begin{equation*}
-	\frac{\mathbb{P}_{x\sim\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(c)} = \frac{\int d\mu_\mathcal{A}(x) \delta_x(c)}{\mu(c)} = \frac{\int d\mu_\mathcal{A}(x) \mu_x(c)^2}{\mu(c)} \approx \frac{\frac{1}{|A|}\sum_{x\in A} \mu_x(c)^2}{\mu(c)}\\
-\end{equation*}
-The definition for \gls{fcm} follows:
-\begin{definition}[density over a cluster]
-\label{def:weightovercluster}
-	We denote by $d_A(c)$ the density of the set $A$ on the cluster $c$ obtained with \gls{fcm}.
-	\begin{equation}
-		d_A(c)\mu(c) := \frac{\sum_{x\in A} u_{xc}^2}{\sum_{x\in A}w_x} = \frac{\sum_{x\in A} w_x\mu_x(c)^2}{\sum_{x\in A}w_x}
-	\end{equation}
-	Similarly for $d_B(c)\mu(c) = \frac{\sum_{x\in B} w_x\mu_x(c)^2}{\sum_{x\in B}w_x}$
+\bigskip \noindent Similarly, we can define the values of the sets of tiles on the centroids:
+\begin{toReview}
+\begin{definition}
+	\label{def:weightovercluster}
+	Given a merged data set $\mathcal{S}=\mathcal{A}+\mathcal{B}$, where tiles belong in $\mathbb{R}^K$, and weights $w_\mathcal{A}$ and $w_\mathcal{B}$, the application of \gls{fcm} yields the set of centroids $\mathcal{C}$ and the membership degrees $\mu_c(x)$ for each data point $x\in\mathcal{S}$.
 
-	\noindent We call the weight of samples over the cluster with centroid $c$:\\ $\omega_A(c)=d_A(c)\mu(c)$ and $\omega_B(c)=d_B(c)\mu(c)$
+	\noindent The representability of the set $\mathcal{A}$ with respect to a centroid $c$ is defined as
+	$$ p_\mathcal{A}(c) = \frac{\sum_{x\in\mathcal{A}} w_x\mu_x(c)}{\sum_{x\in\mathcal{A}} w_x} $$
+
+	\noindent Similarly, the representability of the set $\mathcal{B}$ with respect to a centroid $c$ is defined as
+	$$ p_\mathcal{B}(c) = \frac{\sum_{x\in\mathcal{B}} w_x\mu_x(c)}{\sum_{x\in\mathcal{B}} w_x} $$
 \end{definition}
 
-\noindent It is now necessary to define the Jaccard index, which is not an easy task since in fuzzy logic the cardinality of a set is not defined in the same way as in Boolean logic, since membership itself does not have a binary truth value.
+\noindent In this way, we have defined both the cluster measures and the weights of each cluster for the sets of tiles $\mathcal{A}$ and $\mathcal{B}$. This completes part of the comparison formula, leaving the inclusion of the Jaccard index $J_{\mathcal{A},\mathcal{B}}$ as the next step:
+\[
+	\frac{1}{\mu(D_\mathcal{A} \cup D_\mathcal{B})} \sum_c \mu(c) \left(\frac{p_\mathcal{A}(c) - p_\mathcal{B}(c)}{p_\mathcal{A}(c) + p_\mathcal{B}(c)}\right)^2
+\]
+\end{toReview}
 
-\noindent Let us think of $D_A$ and $D_B$ as fuzzy sets of clusters. By $\mu_c(D_A)$ we denote how much the centroid $c$ is in $D_A$, same for $B$, i.e. we mean the measure in which the centroid $c$ relates to the set $A$.
+\paragraph{fuzzy logic and the Jaccard Index}
+\begin{toReview}
+\noindent Defining the Jaccard index in fuzzy logic is a non-trivial task because the cardinality of a set is not defined in the same way as in Boolean logic. Unlike Boolean logic, where membership has a binary truth value (true or false), in fuzzy logic, membership degrees are continuous.
+
+\noindent Even if \gls{fcm} is requested to produce $M$ centroids, not all clusters necessarily "exist". In Boolean logic, a cluster exists if at least one data point belongs to it. In fuzzy logic, however, no data point fully belongs to a specific cluster, and a data point can belong to multiple clusters simultaneously to varying degrees. Thus, the truth value of the statement "\texttt{$x$ belongs to the cluster with centroid $c$}" is $\mu_x(c)$. Extending this concept, the truth value of the existence of a cluster with centroid $c$ must also be defined. While there is no unique answer, we seek an acceptable and consistent definition for this operation.
+
+\noindent Let $D_\mathcal{A}$ denote the set of clusters containing at least one data point from $\mathcal{A}$, and $\mu_c(D_\mathcal{A})$ represent the degree to which the cluster with centroid $c$ exists within $\mathcal{A}$. Similarly, $\left|D_\mathcal{A}\right|$ represents the cardinality of the set of clusters, but in fuzzy logic, this cardinality is not an integer and can take continuous values. Below, we provide formal definitions for these concepts.
+
 \begin{definition}(Jaccard index)
 	\label{def:Jaccard_fcm}
-	Union and intersection operations in fuzzy logic are defined as follows:
-	\begin{align*}
-	\mu_c(D_A\cup D_B) = \max\{\mu_c(D_A),\mu_c(D_B)\} \\
-	\mu_c(D_A\cap D_B) = \min\{\mu_c(D_A),\mu_c(D_B)\}
-	\end{align*}
-	and the cardinality of a set $S$ is defined as: $|S|:=\sum_c \mu_c(S)$
+	In fuzzy logic, the truth value of a logical disjunction is defined as the maximum of the truth values of its individual propositions. Based on this, the degree to which the cluster with centroid $c$ exists in $A$ is given by:
+	$$\mu_c(D_\mathcal{A}) = \max_{x\in\mathcal{A}}\mu_x(c)$$
 
-	\noindent The membership of a cluster $c$ in the dictionary $D_A$ will be defined as follows:
-	\begin{equation}
-		\mu_c(D_A) = \max_{x\in A}(\mu_x(c)^2)
-	\end{equation}
-	similarly for $\mu_c(D_B) = \max_{x\in B}(\mu_x(c)^2)$.
+	\noindent The cardinality of a set is defined as the sum of the membership degrees of all data points to the set. Thus, the cardinality of $D_\mathcal{A}$ is:
+	$$|D_\mathcal{A}| = \sum_c \mu_c(D_\mathcal{A})$$
 
-	\noindent For this reason, the definition of the Jaccard index that follows will be:
-	\begin{equation}
-		J_{D_A,D_B} :=
+	\noindent Consequently, the cardinality of the union of $D_\mathcal{A}$ and $\mathcal{B}$ is:
+	$$|D_\mathcal{A} \cup D_\mathcal{B}| = \sum_c \mu_c(D_\mathcal{A} \cup D_\mathcal{B}) = \sum_c \max\{\mu_c(D_\mathcal{A}), \mu_c(D_\mathcal{B})\} $$
+
+	\noindent Similarly, the cardinality of the intersection of $D_\mathcal{A}$ and $D_\mathcal{B}$ is derived from the logical conjunction, which uses the minimum:
+	$$|D_\mathcal{A} \cap D_\mathcal{B}| = \sum_c \mu_c(D_\mathcal{A} \cap D_\mathcal{B}) = \sum_c \min\{\mu_c(D_\mathcal{A}), \mu_c(D_\mathcal{B})\} $$
+
+	\noindent Based on these definitions, the Jaccard index for fuzzy logic is given by:
+	\begin{equation*}
+		J_{D_\mathcal{A},D_\mathcal{B}} :=
 		\frac{
-			\left|D_A \cap D_B\right|
+			\left|D_\mathcal{A} \cap D_\mathcal{B}\right|
 		}{
-			\left|D_A \cup D_B\right|
+			\left|D_\mathcal{A} \cup D_\mathcal{B}\right|
 		}
 		= \frac{
 			\sum_c \min \left\{
-				\max_{x\in A}\left(
-					\mu_x\left(c\right)^2
-				\right), \max_{x\in B}\left(
-					\mu_x\left(c\right)^2
+				\max_{x\in \mathcal{A}}\left(
+					\mu_x\left(c\right)
+				\right), \max_{x\in \mathcal{B}}\left(
+					\mu_x\left(c\right)
 				\right)
 			\right\}
 		}{
 			\sum_c \max\left\{
-				\max_{x\in A}\left(
-					\mu_x\left(c\right)^2
-				\right),\max_{x\in B}\left(
-					\mu_x\left(c\right)^2
+				\max_{x\in \mathcal{A}}\left(
+					\mu_x\left(c\right)
+				\right),\max_{x\in \mathcal{B}}\left(
+					\mu_x\left(c\right)
 				\right)
 			\right\}
 		}
-	\end{equation}
+	\end{equation*}
 \end{definition}
+\end{toReview}
 
-\noindent \cref{def:weightovercluster,def:cluster_measure,def:Jaccard_fcm} are sufficient to formulate the distance between two proposed samplings following \gls{fcm}.
+\noindent The definitions provided in \cref{def:weightovercluster,def:cluster_measure,def:Jaccard_fcm} are sufficient to formulate the distance between two proposed samplings based on \gls{fcm}:
+\[
+d_{\text{\gls{fcm}}}\left(\mathcal{A},\mathcal{B}\right) = \left(1+J_{\mathcal{A},\mathcal{B}}\right)^{-1}\frac{1}{\mu(D_\mathcal{A} \cup D_\mathcal{B})} \sum_c \mu(c) \left(\frac{p_\mathcal{A}(c) - p_\mathcal{B}(c)}{p_\mathcal{A}(c) + p_\mathcal{B}(c)}\right)^2
+\]
 
-\paragraph{Algorithm}
+
+\subsection{Algorithm}
 The algorithm initially involves applying \gls{fcm} to the fused dataset of the two works, in order to define the size and discretisation of the space of the tiles.
 \begin{itemize}
-	\item $ \mu(c) = {\sqrt{\frac{\sum_{x\in\mathcal{S}} u_{xc}^2 \|x-c\|^2}{\sum_{x\in\mathcal{S}}u_{xc}^2}}\,}^k $
-	\item $ \omega_A(c) = \frac{\sum_{x\in A} u_{xc}^2}{\sum_{x\in A}w_x} $ and similarly $ \omega_B(c) = \frac{\sum_{x\in B} u_{xc}^2}{\sum_{x\in B}w_x} $
-	\item $ J_{D_A, D_B} $ as in \cref{def:Jaccard_fcm}
+	\item $ \mu(c) = \frac{\sum_x w_x\mu_x(c)^2}{\sum_x w_x\mu_x(c)}\sqrt{\frac{\sum_{x\in\mathcal{S}} w_x\mu_x(c)^2 \|x-c\|^2}{\sum_{x\in\mathcal{S}}w_x \mu_x(c)^2}\,}^K $
+	\item $ p_\mathcal{A}(c) = \frac{\sum_{x\in \mathcal{A}} w_x\mu_x(c)}{\sum_{x\in \mathcal{A}}w_x} $ and similarly $ p_B(c) = \frac{\sum_{x\in \mathcal{B}} w_x\mu_x(c)}{\sum_{x\in \mathcal{B}}w_x} $
+	\item $ J_{D_\mathcal{A}, D_\mathcal{B}} $ as in \cref{def:Jaccard_fcm}
 \end{itemize}
 The distance between works will be defined as:
-\begin{align}
+\begin{equation}
 \label{eq:fuzzy_distance}
-	d_{\gls{fcm}}(A, B) &= (1 + J_{D_A, D_B})^{-1} \frac{1}{\mu(D_A\cup D_B)}\int_\mathcal{C} d\mu(c) \left(\frac{r(c)-1}{r(c)+1}\right)^2 \nonumber\\
-	&= (1 + J_{D_A, D_B})^{-1}\frac{\sum_c \left(\frac{r(c)-1}{r(c)+1}\right)^2 \mu(c)}{\sum_c \mu(c)}
-\end{align}
-where $r(c)$ is the ratio of the weights i.e. between $\omega_A(c)$ and $\omega_B(c)$.
+	d_{\gls{fcm}}(A, B) = (1 + J_{D_A, D_B})^{-1}\frac{\sum_c  \mu(c)\left(\frac{p_\mathcal{A}(c)-p_\mathcal{B}(c)}{p_\mathcal{A}(c)+p_\mathcal{B}(c)}\right)^2}{\sum_c \mu(c)}
+\end{equation}
 
-\noindent A simple application for a synthetic data set is shown below. As done in \cref{chap:LiteratureReview}, data is generated in a two-dimensional space and clustered with \gls{fcm} into $64$ clusters.
+\begin{modified}
+\noindent A simple application for a synthetic dataset is shown below, where we compare three methods for clustering and comparing two distributions $\mathcal{A}$ and $\mathcal{B}$. The three methods are:
+\begin{itemize}
+	\item \textbf{Box-clustering}: the space is partitioned into fixed, predefined boxes.
+	\item \textbf{\gls{kmeans}}: the space is divided into circular clusters, where each cluster is defined by its centroid and radius.
+	\item \textbf{\gls{fcm}}: the space is divided into fuzzy circular clusters, where each data point has a degree of membership to multiple clusters.
+\end{itemize}
 
-\noindent In \cref{fig:fused_data_2D_fcm} the data used are shown, these are normal Gaussians with some representation and uniform noise. The two sets, called $A$ and $B$, were then merged and clustered with \gls{fcm} (in \cref{fig:fcm_2D_fcm} a representation). In \cref{fig:measure_data_2D_fcm} the clusters are depicted with their respective representations between the set $A$ and $B$ by means of a colour map.
+\noindent To illustrate these approaches, we generate two synthetic datasets $\mathcal{A}$ and $\mathcal{B}$ in a two-dimensional space. Each dataset consists of $150$ data points randomly sampled from six Gaussian distributions, with the addition of uniform noise. We cluster the merged dataset into $4$ clusters using each of the three methods.
 
-\newpage
-\begin{figure}[H]
+\noindent In \cref{fig:box_clustering}, we show the box-clustering method, where the space is divided into a grid of fixed-size boxes, and each box contains a certain number of points from $\mathcal{A}$ and $\mathcal{B}$. In \cref{fig:kmeans_clustering}, we apply \gls{kmeans}, where the clusters are represented as circular regions centered at their respective centroids. Finally, in \cref{fig:fcm_clustering}, we use \gls{fcm} to produce fuzzy clusters, where the degree of membership of each data point is visualized using a color map.
+
+\begin{figure}[p]
 	\centering
-	\begin{subfigure}{0.45\linewidth}
-		\includegraphics[width=\linewidth]{Figures/fused_data_2D_fcm.png}
-		\caption[Application of fcm distance - fused data]{The two sets of images are shown in the figure. \vspace{3.50em}}
-		\label{fig:fused_data_2D_fcm}
+	\begin{subfigure}{0.48\linewidth}
+		\includegraphics[width=\linewidth]{Figures/box_comparison.png}
+		\caption[Box clustering, example of comparison]{Box clustering using $4$ boxes.\\ Computed distance: $0.268$.}
+		\label{fig:box_clustering}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.45\linewidth}
-		\includegraphics[width=\linewidth]{Figures/fcm_2D_fcm.png}
-		\caption[Application of fcm distance - fcm application]{A clustering \gls{fcm} with $64$ centroids is shown in the figure; significant relationships between data and clusters are represented by means of segments.}
-		\label{fig:fcm_2D_fcm}
+	\begin{subfigure}{0.48\linewidth}
+		\includegraphics[width=\linewidth]{Figures/kmeans_comparison.png}
+		\caption[\gls{kmeans} clustering, example of comparison]{\gls{kmeans} clustering using $4$ centroids.\\ Computed distance: $0.221$.}
+		\label{fig:kmeans_clustering}
 	\end{subfigure}
 	\begin{subfigure}{\linewidth}
-		\includegraphics[width=\linewidth]{Figures/measure_2D_fcm.png}
-		\caption[Application of fcm distance - discretisation]{Clusters are shown in the figure with an area covering the size of the cluster and a colour indicating its characterisation; in particular, the colour scale is mapped onto $\frac{\omega_A-\omega_B}{\omega_A+\omega_B}$.}
-		\label{fig:measure_data_2D_fcm}
+		\includegraphics[width=\linewidth]{Figures/fcm_comparison.png}
+		\caption[\gls{fcm} clustering, example of comparison]{\gls{fcm} clustering using $4$ centroids.\\ Computed distance $0.289$.}
+		\label{fig:fcm_clustering}
 	\end{subfigure}
+	\caption[example of comparison using $3$ methods]{As can be seen, clusters are assigned a colour that is mapped to $[-1,1]$ ($-1$ is blue, $1$ is red). In particular, this colour is associated with the number $\frac{p_\mathcal{A}(c)-p_\mathcal{B}(c)}{p_\mathcal{A}(c)+p_\mathcal{B}(c)}$ for each cluster of centroid $c$. Furthermore, it is observed that $\gls{kmeans}$ and $\gls{fcm}$ have clusters represented by a circle with area $\mu(c)$ for the two clustering methods.}
 \end{figure}
+\end{modified}
 
-\newpage
-\noindent We calculate the Jaccard index:
-\begin{itemize}
-	\item $ |D_A| = 53.17 $ e $ |D_B| = 52.26 $
-	\item $ |D_A\cap D_B| = 43.91 $ e $ |D_A \cup D_B| = 61.53 $
-	\item $ J_{D_A,D_B} = 0.71 $
-\end{itemize}
-We estimate the integral and consequently the distance between the distributions:
-\begin{itemize}
-	\item $ \frac{\sum_c \left(\frac{r(c)-1}{r(c)+1}\right)^2 \mu(c)}{\sum_c \mu(c)} = 0.31 $
-	\item $ (1 + J_{D_A, D_B})^{-1} = 0.58 $
-	\item $ d(A,B) = 0.18 $
-\end{itemize}
-We observe that the result in the presence of noise is not very dissimilar to the result obtained with \gls{kmeans} in the absence of noise (see \cref{tab:kmeans_tessellation_comparison}). Another example is with $256$ nodes where the distance will be $0.38$ so again there are no noise-related problems.
+\begin{modified}
+\noindent In order to see the different perspective, we compare the different values obtained from box-clustering, \gls{kmeans} and \gls{fcm}.
 
-\noindent We verify the potential of \gls{fcm} by examining the distances computed by \gls{kmeans} in the presence of noise:
-\begin{itemize}
-	\item $64$ nodes: the estimated distance is $0.12$ versus the previous $0.30$ from \gls{kmeans}.
-	\item $256$ nodes: the estimated distance is $0.23$ versus the previous $0.34$  from \gls{kmeans}.
-\end{itemize}
-The reduction in distance is an expected phenomenon, as the noise is identical for both samples, thus making them more similar. \gls{fcm} can slightly clean the sets from noise and thus have a more accurate estimate.
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|}
+		\hline
+		\rowcolor{lavender}
+		\cellcolor{mint} Values & Box-Clustering & \gls{kmeans} & \gls{fcm} \\
+		$\left|D_\mathcal{A}\cap D_\mathcal{B}\right|$ & $4$ & $4$ & $2.889$ \\
+		\hline
+		$\left|D_\mathcal{A}\cup D_\mathcal{B}\right|$ & $4$ & $4$ & $3.980$ \\
+		\hline
+		$J_{D_\mathcal{A}, D_\mathcal{B}}$ & $1$ & $1$ & $0.7259$ \\
+		\hline
+		$\left(1+J_{D_\mathcal{A}, D_\mathcal{B}}\right)^{-1}$ & $0.5$ & $0.5$ & $0.5794$ \\
+		\hline
+		Integral & $0.5368$ & $0.4418$ & $0.4980$ \\
+		\hline
+		$d(\mathcal{A},\mathcal{B})$ & $0.268$ & $0.221$ & $0.289$ \\
+		\hline
+	\end{tabular}
+	\caption[Summary of comparison]{Comparing the values obtained from the $3$ algorithms, one can see how \gls{fcm} manages to provide a similar result using fuzzy logic.}
+\end{table}
+\end{modified}
+\begin{toReview}
+\begin{exempli_gratia}[Stability of \gls{fcm}]
+	Consider a high-dimensional example comparing two sets of samples drawn from two Gaussian distributions with the gradual addition of uniform noise.
+
+	\noindent The goal is to evaluate how noise affects the results obtained from \gls{fcm} compared to \gls{kmeans}.
+
+	\noindent Specifically, we draw two sets of samples from the Gaussian distributions \(\mathcal{N}\left(-\vec{1}, \mathds{1}\right)\) and \(\mathcal{N}\left(\vec{1}, \mathds{1}\right)\) in \(\mathbb{R}^{16}\). Uniform noise with distribution \(\textit{Unif}\left[-5, 5\right]^{16}\) is then added to the data.
+
+	\noindent Each dataset consists of \(500\) samples, combining points from the Gaussian distributions and the noise. The table below shows how the distances between the two distributions decrease as the noise density increases.
+
+	\begin{minipage}{\textwidth}
+		\centering
+		\begin{tabular}{|>{\columncolor{pink}}c|c|c|}
+			\hline
+			\rowcolor{lavender}
+			\cellcolor{mint} Noise Density & \gls{kmeans} Distance & \gls{fcm} Distance \\
+			$0\%$ & $1.000$ & $0.2975$ \\
+			\hline
+			$1\%$ & $0.5669$ & $0.2427$ \\
+			\hline
+			$2\%$ & $0.4858$ & $0.2411$ \\
+			\hline
+			$5\%$ & $0.4076$ & $0.2247$ \\
+			\hline
+			$10\%$ & $0.0491$ & $0.1921$ \\
+			\hline
+			$20\%$ & $0.0054$ & $0.1302$ \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+
+	\noindent The results demonstrate that \gls{fcm} is significantly more robust than \gls{kmeans}, as it maintains a discernible distance between the two Gaussian distributions even in the presence of high noise density.
+\end{exempli_gratia}
+\end{toReview}
 
 \paragraph{\gls{gpu}}
 %L'algoritmo presentato è una soluzione sequenziale per l'estrazione delle tessere. Esso lavora iterando attraverso le righe e le colonne dell'immagine, estrae le tessere di dimensioni $N \times N$ e le inserisce in una lista. Tuttavia, questo approccio ha un costo computazionale pari a $O(hwN^2)$.\\
