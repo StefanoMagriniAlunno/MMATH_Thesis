@@ -29,7 +29,7 @@ Modificato da \texttt{X} a $\times$
 \end{modified}
 
 \chapter{FCM implementation with CUDA} \label{appendix:fcm_kernel}
-\gls{cuda} è un'architettura hardware supportata dai processori grafici di \emph{NVIDIA}, un'azienda statunitense. E' possibile realizzare il codice che definisce la comunicazione tra \gls{cpu} e \gls{gpu} in un dialetto del \gls{cxx}. Il codice che effettivamente esegue il processore grafico può essere già implementato con funzioni speciali delle librerie \gls{thrust} e \gls{cuBLAS} o realizzato personalmente attraverso dei kernel. In questa appendice si mostra il kernel usato per realizzare il calcolo della matrice $u^2$ in \gls{fcm}. In particolare l'algoritmo è ottimizzato per compiere il calcolo su al più MAX\_THREAD\_PER\_BLOCK centroidi, in questo modo si hanno le maggiori prestazioni poiché si possono usare al meglio le proprietà hardware della \gls{gpu}.
+\gls{cuda} is a hardware architecture supported by the graphics processors of \emph{NVIDIA}, a US company. It is possible to implement the code that defines the communication between \gls{cpu} and \gls{gpu} in a dialect of \gls{cxx}. The code that actually executes the graphics processor can already be implemented with special functions of the \gls{thrust} and \gls{cuBLAS} libraries or realised by means of kernels. In this appendix we show the kernel used to realise the calculation of the $u^2$ matrix in \gls{fcm}. In particular, the algorithm is optimised to perform the calculation on at most \texttt{MAX\_THREAD\_PER\_BLOCK} centroids, which provides the highest performance since the hardware properties of \gls{gpu} can be used to the fullest.
 
 \begin{lstlisting}[style=code, language=C, rulecolor=\color{blue}]
 /**

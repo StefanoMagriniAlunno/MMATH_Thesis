@@ -31,7 +31,7 @@
 // reserved memory for the system in GiB (a float castable value)
 #define GiB_SYS_RESERVED_MEM 1.0
 // max number of threads per block
-#define MAX_THREADS_PER_BLOCK 1024
+#define MAX_THREADS_PER_BLOCK 128
 
 // used to pass a log instruction
 #define LOGGER(log_stream, level, message)                                    \

@@ -1,33 +1,38 @@
 \chapter{Results}
-\begin{toDo}
-	\section{Architecture}
-	Come accennato nei capitoli precedenti, il sistema di analisi delle immagini richiede di confrontare l'opera sconosciuta con quelle note.
+\begin{toReview}
+\section{Architecture}
+	As mentioned in the previous chapters, the image analysis system requires the comparison of an unknown work with known ones.
 
-	\noindent L'immagine viene preprocessata rimuovendo elementi inquinanti che non riguardano la grafia, lasciando essenzialmente un'immagine in scala di grigi con la grafia dell'autore in tonalità scura e lo sfondo bianco. Inoltre, il tratto dell'autore potrebbe necessitare di uno spessore specifico rispetto ai caratteri impressi e la risoluzione (espressa in \gls{ppi}) deve essere conforme al dataset.
+	\noindent The image is pre-processed to remove non-handwriting artefacts, resulting in a greyscale image where the author's handwriting appears as dark tones on a white background. In addition, the thickness of the author's strokes may need to be adjusted relative to the printed characters, and the resolution (expressed in \gls{ppi}) must match the dataset specifications.
 
-	\noindent L'immagine così preprocessata sarà quindi sintetizzata: un programma ne estrae tutte le tessere con una dimensione specifica conforme al dataset. In seguito, l'immagine sarà confrontata con ogni immagine del dataset (o con le più rappresentative per ogni autore).
+	\noindent The pre-processed image is then synthesised: a program extracts tiles of a certain size, according to the requirements of the dataset. The image is then compared with each image in the dataset (or with the most representative images for each author).
 
-	\noindent In questo capitolo si effettueranno analisi di ogni passaggio illustrato in questa tesi al fine di vedere come ogni singola componente agisce sulle immagini esaminate. Non solo, si mostreranno anche le analisi effettuate per stabilire specifiche decisioni e parametri usati durante la fase di progettazione.
+	\noindent This chapter provides an analysis of each step outlined in this thesis, evaluating the impact of each component on the images studied. It also analyses and justifies the decisions and parameters chosen during the design phase.
 
-	\bigskip\noindent La costruzione del dataset avviene con un procedimento lievemente diverso. Ogni immagine di cui l'autore è noto viene confrontata completamente con tutte le altre già note. Essendo il comparison value simmetrico, sarà sufficiente esaminare la metà di tutti i confronti possibili. Se si è in possesso di $n$ immagini, pensiamo di voler riempire una tabella quadrata $n\times n$ con valori reali. Assumendo comparison value $0$ tra immagini con se stesse, si può concludere che in totale saranno richiesti $\frac{n^2-n}{2}$ confronti.
+	\bigskip
+	\noindent The process of building the dataset is a bit different. Each image with a known author is fully compared to all other known images. Since the comparison value is symmetric, only half of all possible comparisons need to be evaluated. For $n$ images, imagine filling a square $n\times n$ table with real values. Assuming a comparison value of $0$ between identical images, the total number of comparisons required is $\frac{n^2-n}{2}$.
 
-	\noindent Per questa ragione, l'algoritmo per ogni riga esaminerà la metà dei possibili confronti come mostrato in \cref{fig:distance_computation}. In particolare, se $n$ è dispari, per ogni riga si faranno $\frac{n-1}{2}$ confronti (e altrettanti saranno memorizzati per via della simmetria), mentre se $n$ è pari, allora $\frac{n}{2}$ confronti saranno effettuati se la riga $i$ è pari (la prima riga ha indice $0$) e $\frac{n}{2}-1$ se la riga $i$ è dispari. Questa procedura permette una analisi più uniforme ed efficiente per numerosi dati, specie se accompagnata da shuffle per riga e per colonna.
+	\noindent For this reason, the algorithm computes only half of the comparisons for each row, as shown in \cref{fig:distance_computation}. Specifically
+	\begin{itemize}
+		\item If $n$ is odd, each row performs $\frac{n-1}{2}$ comparisons (with the remaining values derived by symmetry).
+		\item If $n$ is even, $\frac{n}2$ comparisons are performed for even-indexed rows (where the first row has index $0$), while $\frac{n}2-1$ comparisons are performed for odd-indexed rows.
+	\end{itemize}
+	\noindent This method provides a more consistent and efficient analysis for large datasets, especially when combined with row and column shuffling.
 
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.7\linewidth]{Figures/analysis_sort.png}
-		\caption[Visit all couples]{The algorithm for each row computes half of all components. In the image, the algorithm follows the order of the numbers and alternately takes the cells such that the lower diagonal is not directly computed and the upper diagonal is directly computed. For example, in the $3^\text{-th}$ row, the algorithm computes directly the first column (number $5$ in cyan) and the next-to-last column (number $6$ in cyan), while the second column is already computed (number $3$ in green square) and the last column is not yet computed.}
+		\caption[Visit all pairs]{The algorithm calculates half of all components for each row. In the figure, the algorithm follows the order of the numbers, taking cells alternately so that the bottom diagonal is not directly computed and the top diagonal is directly computed. For example, in the row $3^\text{-th}$, the algorithm directly computes the first column (number $5$ in cyan) and the penultimate column (number $6$ in cyan), while the second column is already computed (number $3$ in green square) and the last column is not yet computed.}
 		\label{fig:distance_computation}
 	\end{figure}
 
-	\subsection{Challenges}
-	L'implementazione del codice ha richiesto notevoli sforzi poiché gran parte dei framework richiesti non erano esistenti, inoltre le limitazioni della potenza di calcolo e il tempo a disposizione hanno rappresentato un forte vincolo. Questo ha richiesto la stesura di codice altamente prestante e sofisticato per ottimizzare l'efficienza computazionale.
+	\subsection{Challenges} The implementation of the code presented significant challenges, as many of the required frameworks did not exist, and computational and time constraints posed additional hurdles. This necessitated the development of highly efficient and sophisticated code to optimise computational performance.
 
-	\noindent In generale, il progetto ha richiesto largo uso di \gls{Python} e \gls{CUDA}. Durante la sua realizzazione si sono utilizzati software specifici per debugging, logging e testing, utili per monitorare il corretto funzionamento del software. Sono stati impiegati strumenti di documentazione automatica e gestione delle versioni del codice. Inoltre, è stato adottato un robusto sistema di gestione degli errori e delle sessioni di calcolo, con meccanismi di backup (detti "checkpoint") per scongiurare la perdita di dati preziosi. Il software utilizza anche file temporanei per aumentare la capacità di memorizzazione oltre i limiti della memoria principale.
+	\noindent The project was heavily based on \gls{Python} and \gls{CUDA}. Specialised debugging, logging and testing software was used extensively to ensure that the software worked correctly. Automated documentation tools and version control systems were used to manage and track code development. In addition, a robust error handling and session management system was implemented, which included backup mechanisms (called "checkpoints") to prevent the loss of valuable data. Temporary files were also used to extend storage capacity beyond the limits of primary storage.
 
-	\noindent Per queste ragioni, il codice (composto da un totale di $3480$ righe) è difficilmente riportabile per intero in questo testo ed è consultabile nella repository \gls{github}:\\ \url{https://github.com/StefanoMagriniAlunno/MMATH_thesis}.
+	\noindent Due to its complexity and length (a total of $3480$ lines), the code cannot be fully included in this document. However, it is available in the \gls{github} repository:\\ \url{https://github.com/StefanoMagriniAlunno/MMATH_thesis}.
 
-	\bigskip\noindent La macchina che ha prodotto i risultati illustrati in questo capitolo ha le seguenti specifiche tecniche:
+	\bigskip\noindent The machine used to produce the results discussed in this chapter has the following technical specifications:
 	\texttt{\begin{itemize}
 		\item \textbf{processor}: 11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz
 		\begin{itemize}
@@ -60,73 +65,78 @@
 			\item[-] CUDA capability: 7.5
 		\end{itemize}
 	\end{itemize}}
-	\noindent Saranno visionate anche le prestazioni per sottolineare come l'uso di processori grafici possa essere estremamente utile per questo tipo di fini.
 
-	\bigskip\noindent Il codice fa uso di wrapping, ossia di programmi in grado di far scorrere il flusso di uno script di \gls{Python} in un codice precompilato di \gls{cxx}. In questo modo si è realizzato con codice \gls{Python} uno script di avvio per le sessioni di calcolo che prepara file e report utili, recupera specifiche hardware e configurazioni del calcolo da eseguire. Laddove è richiesto un'intensivo calcolo lo script \gls{Python} chiamerà una libreria precompilata scritta in \gls{cxx}. In questo modo il codice \gls{cxx} potrà essere più essenziale e quindi leggibile.
+	\noindent The performance of the implementation is also reviewed to highlight the benefits of using \gls{gpu}s for this type of computation.
 
-	\noindent Per fare un esempio di avvio di una comparazione tra opere, lo script principale di \gls{Python} si occupa di preparare il sistema operativo, convalidare i parametri usati ed eventuali checkpoint. Quindi, fornisce tutti gli input richiesti al wrapper (scritto in \gls{cxx}) il quale convalida eventuali errori di sintassi e traduce i tipi di valori di \gls{Python} in tipi comprensibili al \gls{cxx}. Di seguito, questi valori vengono passati ad uno starter che prepara un logger e legge eventuali file inizializzando di fatto la memoria principale. Il programma scritto in \gls{cxx} chiama il programma scritto in \gls{CUDA} il quale si occupa di leggere i dettagli tecnici della \gls{gpu} (usando apposite librerie) per configurare un piano di calcolo che massimizza le prestazioni e che sia robusto. Infine, verranno comunicate le istruzioni alla \gls{gpu} come kernel (codice esplicito che compilerà la \gls{gpu} stessa in runtime). Poiché la memoria della \gls{gpu} è limitata, è importante far attenzione che i dati siano passati parzialmente e usare la memoria principale come appoggio.
+	\bigskip\noindent The code uses wrapping, which allows a \gls{Python} script to interface with pre-compiled \gls{cxx} code. This approach allows the \gls{Python} script to handle high-level tasks such as preparing input files and reports, retrieving hardware specifications, and configuring computing sessions. When intensive computations are required, the \gls{Python} script calls precompiled \gls{cxx} libraries, ensuring that the \gls{cxx} code remains streamlined and more readable.
 
-	\noindent I dati ottenuti dalla \gls{gpu} vengono passati alla funzione chiamante in \gls{cxx} la quale li memorizza in modo opportuno e restituisce il controllo allo script di \gls{Python} chiamante. In caso di errori tutto viene documentato e riportato al chiamante per gestirli in modo opportuno.
+	\noindent For example, when initiating a comparison between works, the main \gls{Python} script prepares the operating system environment, validates the parameters used, and handles any existing checkpoints. It then passes all necessary input to the wrapper (written in \gls{cxx}), which validates syntax errors and translates Python types into \gls{cxx}-compatible types. The wrapper then calls a starter function which initialises logging mechanisms and reads input files, effectively setting up main memory. The \gls{cxx} program then calls the \gls{cuda} program, which reads the GPU specifications (using dedicated libraries) and configures a computation plan to maximise performance and ensure robustness. Finally, the \gls{gpu} receives kernel instructions that it compiles at runtime to perform the computations. Given the limited memory of \gls{gpu}s, data is transferred in chunks, with main memory acting as a buffer.
 
-	\noindent Questo tipo di strategie per realizzare codice prestante sono tipiche nelle librerie di calcolo scientifico che spesso mostrano una funzione principale chiamante e funzioni compilate nascoste, un esempio è CuPy, una libreria \gls{Python} la quale installazione prevede anche la compilazione.
+	\noindent The results computed by the GPU are returned to the calling \gls{cxx} function, which stores them appropriately and returns control to the calling \gls{Python} script. In case of errors, all relevant information is documented and passed back to the caller for appropriate handling.
 
-    \section{Pre processing}
-    Il pre processing è una fase importante del confronto tra opere ignote con il dataset. In particolare si preoccupa di far rispettare delle specifiche qualitative dell'immagine per lo più soggettive, non è quindi detto che si faccia uso dello stesso algoritmo per ogni immagine. Il fine ultimo è eliminare dati evidentemente inquinanti per far rispettare un certo standard e presentare l'immagine al software nel giusto modo. Essenzialmente si avvicina il dato reale al dato ideale ammissibile teoricamente dal software.
+	\noindent These strategies for developing high-performance code are common in scientific computing libraries, which often have a main calling function with hidden compiled functions. An example is CuPy, a \gls{Python} library that requires compilation as part of its installation process.
 
-    \noindent Come già illustrato in \cref{alg:CleaningFFT}, il preprocessing adottato per i dati raccolti fa uso principalmente di una compressione con \gls{fft}. In questa sezione saranno illustrati i risultati passo passo seguendo l'algoritmo.
+	\section{Preprocessing}
+	Preprocessing is a critical stage in the comparison of unknown works with the dataset. Its primary objective is to ensure that the quality specifications of the images meet certain standards. These specifications are often subjective, and it is not guaranteed that the same algorithm will be applied to each image. The ultimate goal is to remove clearly contaminating data, standardise the image quality and prepare it for analysis by the software. Essentially, pre-processing transforms the real data into an ideal format that is theoretically acceptable to the software.
+
+	\noindent As previously illustrated in \cref{alg:CleaningFFT}, the preprocessing applied to the collected data primarily involves compression using the \gls{fft}. This section presents a step-by-step analysis of the results produced by the algorithm.
 
     \paragraph{FFT}
-    Il primo step dell'algoritmo di preprocessing è applicare \gls{fft} all'immagine normalizzata, quindi con pixel grigi aventi valori di media $0$ e varianza $1$. Come osservato, attraverso immagini sintetiche, i quadretti nello sfondo delle pagine di appunti sono pattern ricorrenti che tipicamente non sono propri della scrittura di un testo. Questa ricorrenza è meglio visibile attraverso l'uso di trasformate di Fourier.
+    The first step of the preprocessing algorithm is to apply \gls{fft} to the normalised image, where pixel values have a mean of $0$ and a variance of $1$. As noted in the summary images, the grid patterns in the background of the notebook pages are recurring features that are not typical of writing. These recurring patterns are more apparent when Fourier transforms are used.
 
-   	\noindent In \cref{fig:fft_application} è visibile il pattern dei quadretti come frequenze alte separatamente su $x$ e su $y$ di significiativa intensità.
+    \noindent In \cref{fig:fft_application} the grid pattern is visible as high-intensity frequencies almost aligned along the sides.
 
     \begin{figure}[H]
-    	\centering
-    	\includegraphics[width=1.0\linewidth]{Figures/fft_application.png}
-    	\caption[fft application]{We can observe significant frequencies along the edge of the second image.}
-    	\label{fig:fft_application}
+    	\centering \includegraphics[width=1.0\linewidth]{Figures/fft_application.png}\caption[\gls{fft} application]{Significant frequencies along the edges of the second image reveal the grid pattern.}\label{fig:fft_application}
     \end{figure}
 
-	\noindent Il programma rimuove il $p$-percentile delle frequenze con più alta ampiezza. Dopodiché ricostruisce l'immagine originale usando le frequenze rimaste, cui ampiezza non è stata annullata. In \cref{fig:fft_percentile} si vedono varie ricostruzioni usando differenti percentili e una normalizzazione tra $0,1$ dei grigi ottenuti. Osserviamo come $p=0.1\%$ è una scelta appropriata da cui cominciare le analisi.
+	\noindent The algorithm removes the $p$ percentile of the frequencies with the highest amplitude and reconstructs the original image using the remaining frequencies whose amplitudes are preserved. In \cref{fig:fft_percentile} different reconstructions using different percentiles are shown, with pixel intensities normalised between $0$ and $1$. The results suggest that $p=0.1\%$ is a reasonable starting point for analysis.
 
 	\begin{figure}[H]
-		\centering
-		\includegraphics[width=1.0\linewidth]{Figures/fft_percentile.png}
-		\caption[comparing different percentiles in fft]{Si può osservare che un percentile tra $0.1\%$ e $0.05\%$ è un buon compromesso, i quadretti sembrano sparire e la scrittura rimane intaccata.}
+		\centering \includegraphics[width=1.0\linewidth]{Figures/fft_percentile.png}\caption[Comparing different percentiles in \gls{fft}]{A percentile between $0.1\%$ and $0.05\%$ strikes a good balance by removing the grid patterns while leaving the handwriting intact.}
 		\label{fig:fft_percentile}
 	\end{figure}
 
-	\noindent Si può osservare che la normalizzazione effettuata per visualizzare queste immagini nasconde il fatto che i pixel sono in realtà tutti visibilmente uguali tra loro. L'idea quindi è individuare quanti pixel erano parte certamente dello sfondo bianco della pagina e quanti invece delle grafie. Analizzando le immagini originali si è osservato che i pixel con valore di grigio inferiore a $0.2$ sono certamente parte delle grafie, invece se il valore è superiore a $0.8$ sono certamente parte dello sfondo bianco della pagina. Quindi l'algoritmo recupera quanti pixel sono certamente delle grafie e quanti non lo sono. In figura \cref{fig:fft_diagrams} un'illustrazione di questa analisi.
+	\noindent While normalisation makes these images visually comparable, it masks the fact that the pixels in the reconstructed images tend to have very similar intensities. To overcome this, the algorithm identifies pixels that were certainly part of the white background or handwriting in the original image. Specifically
+	\begin{itemize}
+		\item Pixels with intensity below $0.2$ are considered part of the handwriting.
+		\item Pixels with intensity above $0.8$ are considered part of the white background.
+	\end{itemize}
+	\noindent Using this analysis, the algorithm calculates how many pixels belong to the handwriting and how many belong to the background. \cref{fig:fft_diagrams} illustrates this analysis.
 
 	\begin{figure}[H]
-		\centering
-		\includegraphics[width=0.8\linewidth]{Figures/fft_diagrams.png}
-		\caption[different density after fft compression]{Nell'immagine originale si osserva che la densità dei grigi presentava, per ovvie ragioni, molti pixel bianchi. Mentre nell'immagine ricostruita sono per lo più grigi medi. Per mantenere una distribuzione quanto meno simile a quella di partenza bisogna separare di più i colori tra loro. Per questa ragione si contano nell'immagine originale quanti pixel avevano un livello grigio superiore a $0.8$ (linea verde) che ne certifichi l'appartenenza allo sfondo, così anche per la quantità di pixel sufficientemente scuri da considerarsi parte delle grafie (con un livello di grigio inferiore a $0.2$, linea rossa). Così nell'immagine ricostruita è ragionevole assumere che i pixel più chiari siano parte dello sfondo e i pixel più scuri siano parte delle grafie, identificando così $2$ threshold per l'immagine ricostruita.}
-		\label{fig:fft_diagrams}
+		\centering \includegraphics[width=0.8\linewidth]{Figures/fft_diagrams.png} \caption[Density changes after FFT compression]{In the original image, most pixels are white, while the reconstructed image contains more mid-grey pixels. To preserve the original distribution, thresholds are computed based on the original image: pixels above $0.8$ (green line) are assumed to be background, while pixels below $0.2$ (red line) are assumed to be handwriting. These thresholds are used to define two new boundaries in the reconstructed image.} \label{fig:fft_diagrams}
 	\end{figure}
 
-	\noindent Quindi l'algoritmo identifica un livello di grigio $\texttt{h}_\texttt{up}$ nell'immagine ricostruita sopra il quale il numero di pixel è uguale (o poco inferiore) al numero di pixel considerati parte dello sfondo nell'immagine originale. Similmente per $\texttt{h}_\texttt{down}$, sotto il quale i pixel ricostruiti sono così scuri che risulta ragionevole pensare che facciano parte delle grafie.
-
-	\noindent Noti i due estremi nell'immagine ricostruita, si esegue una trasformazione lineare dei livelli di pixel che fa sì che gli estremi abbiano livelli rispettivamente $0$, $1$:
+	\noindent The algorithm identifies two thresholds in the reconstructed image:
+	\begin{itemize}
+		\item $\texttt{h}_\texttt{up}$: Above this intensity, the number of pixels matches (or slightly underestimates) the number of background pixels in the original image.
+		\item $\texttt{h}_\texttt{down}$: Below this intensity, the number of pixels matches (or slightly underestimates) the number of handwriting pixels in the original image.
+	\end{itemize}
+	\noindent A linear transformation is applied to the pixel intensities in the reconstructed image to scale these thresholds to $1$ and $0$ respectively:
 	\[
-		\texttt{gray}_\texttt{new} = \frac{\texttt{gray}_\texttt{old} - \texttt{h}_\texttt{down}}{\texttt{h}_\texttt{up} - \texttt{h}_\texttt{down}}
+	\texttt{gray}_\texttt{new} = \frac{\texttt{gray}_\texttt{old} - \texttt{h}_\texttt{down}}{\texttt{h}_\texttt{up} - \texttt{h}_\texttt{down}}
 	\]
-	Di conseguenza i pixel con un livello inferiore a $0$ o superiore a $1$ saranno resi automaticamente $0$, $1$, rispettivamente, usando la trasformazione \texttt{clamp}.
+	\noindent Pixel intensities outside the range $[0,1]$ are clamped to $0$ or $1$ using the \texttt{clamp} function.
+	\[
+		\texttt{clamp}\left(\texttt{gray}_\texttt{new}\right) = \begin{cases}
+			0 & \textnormal{if} \quad \texttt{gray}_\texttt{new} < 0 \\
+			1 & \textnormal{if} \quad \texttt{gray}_\texttt{new} > 1 \\
+			\texttt{gray}_\texttt{new} & \textnormal{otherwise}
+		\end{cases}
+	\]
 
-	\noindent In \cref{fig:fft_results} si mostrano i risultati di questo processo per percentili $0.1\%$ e $0.05\%$ su $2$ campioni. Come si osserva, il risultato non è molto differente ad occhio nudo. Per preservare meglio le grafie, a costo di lasciare più segni di quadretti, si è deciso di usare $p=0.05\%$. L'idea è sperare che questo rumore sia in qualche modo catturato dal clustering \gls{fcm}.
+	\noindent The \cref{fig:fft_results} shows the results of this process for $p=0.1\%$ and $p=0.05\%$ on two samples. While the results appear visually similar, using $p=0.05\%$ preserves the handwriting better, but at the cost of retaining some lattice artefacts. It is hoped that this residual noise will be captured by the \gls{fcm} clustering.
 
 	\begin{figure}[H]
-		\centering
-		\includegraphics[width=1.0\linewidth]{Figures/fft_results.png}
-		\caption[results of "fft cleaner"]{In figura sono mostrate due immagini preprocessate usando differenti percentili. La prima colonna fa uso di $p=0.05\%$, la seconda di $p=0.1\%$, ogni riga fa riferimento ad un'opera del dataset.}
-		\label{fig:fft_results}
+		\centering \includegraphics[width=1.0\linewidth]{Figures/fft_results.png} \caption[Results of the \gls{fft} cleaning process]{Two pre-processed images with different percentiles are shown. The first column corresponds to $p=0.05\%$ and the second column corresponds to $p=0.1\%$. Each row represents one work from the dataset.} \label{fig:fft_results}
 	\end{figure}
 
-    \section{Synthesis}
-    Una volta che le immagini sono state preprocessate e quindi rese conformi al dataset secondo parametri "umani", si procede con la sintesi che di fatto rende le opere conformi da un punto di vista oggettivo. In particolare le opere saranno ridefinite come un elenco (ordinato o meno) delle loro tessere che saranno quadrate e aventi la stessa forma.
+    \section{Synthesis} Once the images have been pre-processed and adapted to the data set according to "human" parameters, the synthesis phase begins. This step ensures that the works are redefined in an objectively consistent manner. Specifically, the works are transformed into an (ordered or unordered) list of square tiles with uniform sizes.
 
-    \noindent Come già accennato, lo script \gls{Python} si occupa di preparare il sistema operativo e ricavare velocemente input e parametri hardware per i programmi precompilati a più basso livello. In questo caso lo script \texttt{synthesis.py} in poche linee di codice crea le cartelle utili nelle quali un programma \gls{cxx} può memorizzare le sintesi ottenute con il seguente frame di codice:
+    \noindent As mentioned above, the \gls{Python} script manages the operating system and efficiently retrieves input and hardware parameters for lower level pre-compiled programs. In this case, the \texttt{synthesis.py} script sets up the necessary directories to allow a \gls{cxx} program to store the generated syntheses. This process is achieved using a simple code structure as shown below:
 
+\newpage
 \begin{lstlisting}[style=code, language=C, rulecolor=\color{blue}]
 /** @brief In this code we use OpenMP API to realize an array with all tiles.
  *
@@ -152,68 +162,58 @@ for (unsigned col = 0; col < width_short; ++col)
     cells[index_out] = byte_board[index_in];
     }\end{lstlisting}
 
-    \noindent Usare più \gls{thread} per compiere un ciclo aiuta ad aumentare le prestazioni del ciclo di un fattore moltiplicativo. Inoltre l'accesso in scrittura in \texttt{cells} per \texttt{row} differente non rischia problemi di concorrenze, ossia più \gls{thread} che scrivono sulla medesima cella di memoria. Poi in questo caso il tempo di esecuzione nominale di un loop non dipende dalla scelta della riga, per questa ragione una schedule statica riduce di molto anche i tempi stessi per gestire il gruppo di thread generati.
+    \noindent Using multiple \gls{thread}s to execute a loop significantly improves performance, achieving a multiplicative speedup. In addition, write access to \texttt{cells} for different \texttt{row}s does not raise concurrency issues, such as multiple \gls{thread}s attempting to write to the same memory location. In this case, the nominal execution time of the loop does not depend on the choice of row. For this reason, a static scheduling strategy greatly reduces the overhead associated with managing the set of generated threads.
 
-    \noindent La tecnica del multi-threading si usa per ottimizzare i tempi di esecuzione di piccoli passaggi parallellizzabili. E' quindi inusuale vedere applicati questo tipo di tecniche ad alto livello, come ad esempio analizzare due immagini in contemporanea. Questo perché da un lato avviare più processi ad alto livello riduce i tempi totali di avvio, ma dall'altro aumenta la memoria richiesta, questo dipende molto dal problema che ci si pone di fronte.
+    \noindent Multi-threading techniques are primarily used to optimise the execution time of small, parallelizable tasks. It is unusual to apply such techniques at a high level, such as analysing two images simultaneously. While starting multiple high-level processes can reduce overall startup times, it also increases memory requirements. The suitability of this method depends largely on the specific problem being solved.
 
-    \noindent Poiché ogni immagine diventa un insieme di tessere, è chiaro che questa potrebbe occupare più spazio in memoria. Il numero di componenti dell'array \texttt{cells} sarà:\\ $(w-n+1)(h-n+1)n^2$, dove $w,h$ sono le dimensioni dell'immagine originale e $n$ il size delle tessere.\\
-    Di conseguenza è difficile pensare di poter gestire molteplici thread ad alto livello.
+    \noindent Since each image is transformed into a set of tiles, it is obvious that this can significantly increase memory usage. The number of elements in the \texttt{cells} array is given by:\\ $(w-n+1)(h-n+1)n^2$, where $w$ and $h$ are the dimensions of the original image and $n$ is the size of the tiles. As a result, managing multiple high-level threads becomes challenging due to the significant memory requirements.
 
-    \subsection{A simple analysis}
-    Poiché le sintesi sono un set di punti ad alta dimensione è difficile poterle visualizzare. Qui di seguito sarà proposta una visualizzazione "grossolana" che riduce la dimensionalità da $\mathbb{R}^{16}$, per tessere $4\times4$, a $\mathbb{R}^6$. Questa procedura consiste in una \gls{pca} e sarà visualizzato solo un sotto-campione di $\num{5000}$ tessere. Questa visualizzazione può essere mal interpretataa poiché si ha una forte perdita di dimensionalità e numerosità dei dati, quindi i grafici qui proposti sono solo a fine illustrativo.
+    \subsection{A Simple Analysis} Since syntheses are represented as sets of high-dimensional points, visualising them can be challenging. To address this, we propose a "coarse" visualisation technique that reduces the dimensionality from $\mathbb{R}^{16}$ (for $4\times4$ tiles) to $\mathbb{R}^6$. This reduction is achieved using \gls{pca}, and only a subsample of $\num{5000}$ tiles is visualised. It is important to note that this approach introduces a significant loss of both dimensionality and data quantity, so the proposed plots are purely illustrative.
 
-    \noindent Come si può osservare in \cref{fig:synth_glbvisual} vi è una regione dove le tessere sono molto concentrate. L'ipotesi più ragionevole è che il background delle immagini produce molte tessere chiare che formano un cluster denso. Per confermare questa ipotesi si sono evidenziati questi punti con le tessere originali.
+    \noindent As shown in \cref{fig:synth_glbvisual}, there is a region where the tiles are densely clustered. The most reasonable hypothesis is that the background of the images produces many bright tiles that form a dense cluster. To confirm this hypothesis, these points are highlighted and linked to their original tiles.
 
-    \begin{figure}[H]
-    	\centering
-    	\includegraphics[width=0.8\linewidth]{Figures/synth_glbvisual.png}
-    	\caption[global visualisation of a synthesis using PCA]{In figura è mostrato, con degli scatter di ugual dimensione, un campione di tessere raccolte da un'immagine. Usando i colori si possono riconoscere $6$ dimensioni. Come si può osservare, le tessere del background sono per lo più concentrate in $\vec{0}$. Mentre le tessere delle grafie sono più rarefatte.}
+    \begin{figure}[H] \centering \includegraphics[width=0.8\linewidth]{Figures/synth_glbvisual.png}
+    	\caption[Global visualisation of a synthesis using \gls{pca}]{The figure shows a scatterplot of a sample of tiles extracted from an image. Six dimensions are represented using colours. As can be seen, the background tiles are mostly concentrated around $0$, while the handwriting tiles are more scattered.}
     	\label{fig:synth_glbvisual}
     \end{figure}
 
-    \section{Comparison}
-    Il confronto tra le distribuzioni definisce la dissimilarità tra opere, poiché questo processo ha un costo computazionale oneroso sarà importante studiare la relazione tra la qualità del risultato in confronto al tempo impiegato e i parametri scelti. In particolare si sta parlando di:
+    \section{Comparison} The comparison between distributions defines the dissimilarity between works. Given the computational cost of this process, it is important to analyse the trade-off between the quality of the result and the time required, as well as the parameters chosen. Specifically, the following strategies are considered:
     \begin{itemize}
-    	\item Ridurre il numero di iterazioni usate per il calcolo dei centroidi in \gls{fcm}.
-    	\item Ridurre il numero di centroidi usati in \gls{fcm}.
-    	\item Ridurre la dimensionalità con \gls{pca} prima di eseguire \gls{fcm}
-    	\item Ridurre il numero di dati prima di eseguire \gls{fcm}
+    	\item Reducing the number of iterations used to calculate the centroid in \gls{fcm}.
+    	\item Reduce the number of centroids in \gls{fcm}.
+    	\item Reduce dimensionality using \gls{pca} before running \gls{fcm}.
+    	\item Reducing the number of data points before running \gls{fcm}.
     \end{itemize}
 
-	\subsection{Implementation}
-	L'implementazione dell'algoritmo di comparazione è molto lunga e articolata, qui sarà mostrato solo uno schema generale. In particolare si vedrà come sono gestiti i dati attraverso la \gls{gpu} considerandone i limiti fisici.
+	\subsection{Implementation} The implementation of the comparison algorithm is long and complex; only a general framework is presented here. Specifically, we focus on how the data is managed by the \gls{gpu}, taking into account its physical limitations.
 
+	\noindent Examining the update formulas reveals the possibility of performing updates using batches. Due to the memory limitations of the \gls{gpu}, it is not possible to compute a complete update in one step. Instead, partial computations must be accumulated in smaller batches of data.
 
-	\noindent Visionando le formule di aggiornamento si può notare che è possibile usare degli update attraverso dei batch. In particolare i limiti fisici di memoria della \gls{gpu} non permettono di calcolare un update per intero ma sarà necessario cumulare calcoli parziali su dati parziali.
-
-	\noindent Qui sono esplicitate le formule di aggiornamento teoriche:
-
+	\noindent The theoretical update formulae are as follows
 	\begin{align*}
-		C_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2w_ix_i}{\sum_{i=1}^N u_{ij}^2w_i} \\
-		u_{ij} &= \frac{1}{\sum_k\frac{d_{ij}^2}{d_{ik}^2}} \\
+		C_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2w_ix_i}{\sum_{i=1}^N u_{ij}^2w_i}, \\
+		u_{ij} &= \frac{1}{\sum_k\frac{d_{ij}^2}{d_{ik}^2}}, \\
 		d_{ij} &= \left\|x_i - C_{j}\right\|
 	\end{align*}
 
-	\noindent Il singolo step di una iterazione può essere a sua volta diviso in step sui batch qui indicizzati con $B$:
-
+	\noindent A single iteration step can be further subdivided into steps across batches, indexed here by $B$:
 	\begin{equation*}
 		C_{j}^\text{new} = \frac{\sum_{B}\sum_{i\in B} u_{ij}^2w_ix_i}{\sum_{B}\sum_{i\in B} u_{ij}^2w_i}
 	\end{equation*}
 
-	\noindent Per questo la comunicazione tra l'Host, ossia il flusso del programma eseguito dalla \gls{cpu}, e il Device, ossia il flusso del programma eseguito dalla \gls{gpu}, può essere così semplificata:
-
+	\noindent Consequently, the communication between the host (the programme flow executed by the \gls{cpu}) and the device (the programme flow executed by the \gls{gpu}) can be simplified as follows:
 
 	\begin{algorithm}[H]
 		\caption{Host/Device communication\\
 			\textsc{INPUT}\\
 			$\bullet$ $\mathcal{X}$: set of data $x_1,\ldots,x_N\in\mathbb{R}^K$ and weights $w_1,\ldots,w_N$\\
-			$\bullet$ $\mathcal{C}$: centroids $C_1,\cdots,C_J$\\
+			$\bullet$ $\mathcal{C}$: centroids $C_1,\cdots,C_M$\\
 			$\bullet$ stop: stop criteria of the clustering (a positive value)
 		}
 		\begin{algorithmic}[1]
 			\Function{FCMwrapper}{$\mathcal{C}$, $\mathcal{X}$, $\text{stop}$}
-				\State $c^\text{num} \gets $ array with $J$ vectors in $\mathbb{R}^K$ into the Device
-				\State $c^\text{den} \gets $ array with $J$ real values into the Device
+				\State $c^\text{num} \gets $ array with $M$ vectors in $\mathbb{R}^K$ into the Device
+				\State $c^\text{den} \gets $ array with $M$ real values into the Device
 				\State $\mathcal{C}'$ a copy of centroids $\mathcal{C}$ into the Device
 				\State $s \gets \infty$
 				\State $L \gets \infty$
@@ -245,31 +245,44 @@ for (unsigned col = 0; col < width_short; ++col)
 		\end{algorithmic}
 	\end{algorithm}
 
-	\noindent Il calcolo della matrice $U^2$ e $L_\text{batch}$ avviene nello stesso momento senza dover memorizzare $D^2$. Questo calcolo è eseguito da un kernel \gls{cuda} cui pseudocodice è stato mostrato in \cref{alg:MembershipUpdateSafe} e il dettaglio implementativo è posto in \cref{appendix:fcm_kernel}. Il suo costo computazionale è $O(\log KM)$ per il batch passato.
+	\noindent The computation of the $U^2$ matrix and $L_\text{batch}$ is performed simultaneously, without the need to store $D^2$. This computation is performed by a \gls{cuda} kernel whose pseudocode is presented in \cref{alg:MembershipUpdateSafe}, with implementation details in \cref{appendix:fcm_kernel}. The computational cost for each batch is $O(\log KM)$.
 
-	\bigskip\noindent I limiti hardware posso restringere la grandezza del batch, sia per via della memoria che per via del parallelismo.
+	\bigskip\noindent Hardware limitations may limit the size of the batch, both due to memory constraints and parallelism limits.
 
-	\noindent L'uso della \gls{gpu} permette di aumentare notevolmente le prestazioni, questo punto è stato già ampiamente discusso in termini generali nel capitolo \cref{chap:methodology}, qui sarà visto in termini specifici considerando i limiti hardware. Seppur una \gls{gpu} sia in grado di eseguire molte operazioni in parallelo non può eseguirne un'infinità.
+	\noindent The use of \gls{gpu} greatly improves performance. This has already been discussed in general terms in \cref{chap:methodology}. Here we examine it in detail, considering specific hardware limitations. While a \gls{gpu} can perform many operations in parallel, it cannot perform an infinite number of tasks simultaneously.
 
-	\noindent Per questa ragione si introducono le quantità \gls{core} ossia il numero di processi indipendenti avviabili in contemporanea e \gls{thread} ossia il numero di computazioni parallele sincronizzate che si possono avviare all'interno di ogni \gls{core}.
+	\noindent For this reason, the concepts of \gls{core} and \gls{thread} are introduced:
+	\begin{itemize}
+		\item \gls{core}: Represents the number of independent processes that can run simultaneously.
+		\item \gls{thread}: Refers to the number of synchronised parallel computations that can run within each \gls{core}.
+	\end{itemize}
 
-	\noindent Il kernel che calcola $U^2$ e $L_\text{batch}$ ha un costo computazionale teorico (senza limiti hardware) di $O(\log KM)$ ma pratico (con limiti hardware) di:
+	\noindent The kernel responsible for computing $U^2$ and $L_\text{batch}$ has a theoretical computational cost (ignoring hardware limitations) of $O(\log KM)$. However, when hardware limitations are taken into account, the practical computational cost is
 	\[
-		O\left(\frac{|B|M}{\gls{core}}\frac{K}{\gls{thread}-1}\log\gls{thread}\right) = O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times|B|MK\right)
+		O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times|B|MK\right)
+	\]
+	where:
+	\begin{itemize}
+		\item $\left|B\right|$ is the batch size,
+		\item $M$ is the number of data points, and
+		\item $K$ is the number of clusters.
+	\end{itemize}
+
+	\noindent Examining \cref{alg:FCMwrapper}, the computational cost of the innermost loop processing a single batch remains:\\
+	$O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times\left|B\right|MK\right)$.\\ However, these operations are repeated sequentially a total of $N/\left|B\right|$ times, i.e. until all the batches have been processed. Therefore, the computational cost for a single iteration is
+	\[
+	O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times NMK\right)
+	\]
+	Considering $I$ as the number of iterations performed before reaching the stopping criterion, the total computational cost becomes
+	\[
+	O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times INMK\right)
 	\]
 
-	\noindent Osservando \cref{alg:FCMwrapper} si può osservare che il costo computazionale del ciclo più annidato che elabora il singolo batch rimane $O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times|B|MK\right)$. Tuttavia queste operazioni vengono ripetute per un certo numero sequenziale di volte pari a $N/|B|$, ossia fino ad esaurire tutti i batch. Quindi il costo computazionale di una sola iterazione sarà:
-	\[
-		O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times NMK\right)
-	\]
-	Così chiamando $I$ il numero di iterazioni eseguite prima dello stop, si avrà costo computazionale totale di:
-	\[
-		O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times INMK\right)
-	\]
+	\noindent It is worth noting that the parallelism of the \gls{gpu} does not asymptotically reduce the computational cost in terms of algorithmic parameters, since scalability limits are irrelevant from an asymptotic perspective. However, the practical efficiency gain is significant. On a \gls{cpu}, a single iteration can take hours, whereas on a \gls{gpu} it takes only a few seconds.
 
-	\noindent Si osserva che il parallelismo della \gls{gpu} non riduce il costo computazionale asintotico sui parametri dell'algoritmo poiché possiede limiti di scalabilità e in termini asintotici questi limiti rimangono irrilevanti. Tuttavia c'è un fortissimo cambio di efficienza, considerando che a livello pratico la computazione su \gls{cpu} è notevolmente più lenta, richiedendo ore per una singola iterazione, mentre su \gls{gpu} bastano pochi secondi. Inoltre si osserva che la quantità di memoria non è rilevante, anche se questa potrebbe ridurre i tempi di computazione per via delle ottimizzazioni interne del compilatore \gls{cuda} lasciando essenzialmente a cicli più innestati il compito di gestire numerosi dati.
+	\noindent In addition, memory size does not significantly affect the asymptotic cost, but it can affect computation times due to internal optimisations by the \gls{cuda} compiler. These optimisations allocate the handling of large datasets to deeply nested loops, improving efficiency.
 
-	\noindent Questa stima asintotica permette di valutare la velocità dell'algoritmo anche in termini di limiti hardware. In tabella \cref{tab:gpucomparison} è possibile confrontare come ci si aspetta che cambino le prestazioni dell'algoritmo su differenti processori. Tuttavia queste stime non sono molto indicative poiché entrano in gioco altri fattori molto tecnici come anche semplicemente la grandezza delle memorie, l'ottimizzazione del driver e del compilatore usato e molto altro.
+	\noindent This asymptotic analysis makes it possible to evaluate the speed of the algorithm, taking into account hardware constraints. The table \cref{tab:gpucomparison} compares the expected algorithm performance on different processors. However, these estimates are not entirely indicative, as many technical factors such as memory size, driver optimisation and compiler performance significantly influence real-world results.
 
 	\begin{table}[h]
 		\centering
@@ -287,16 +300,17 @@ for (unsigned col = 0; col < width_short; ++col)
 			RTX $4090$ & $128$ & $128$ & $2235 \mathrm{MHz}$ & $0.04$ \\
 			\hline
 		\end{tabular}
-		\caption[Comparing \gls{gpu}s' performances]{The values in the last one column are the proportions of operation $\frac{\log_2 \text{\gls{thread}}}{\text{\gls{thread}}\times\text{\gls{core}}} / \text{Frequency}$ for each \gls{gpu} respect the current \gls{gpu}.}
+		\caption[Comparing \gls{gpu}s' performances]{The values in the last column are the proportions of the operation $\frac{\log_2 \text{\gls{thread}}}{\text{\gls{thread}}\times\text{\gls{core}}} / \text{Frequency}$ for each \gls{gpu} respecting the current \gls{gpu}.}
 		\label{tab:gpucomparison}
 	\end{table}
 
-	\subsection{Stability}
-	Una volta discussi i dettagli implementativi di questo algoritmo si procede con il mostrare la sua stabilità. Come cambia la distanza tra opere usando diverse inizializzazioni? Un modo rapido e rumoroso di inizializzare i centroidi potrebbe essere quello di scegliere casualmente $M$ dati come centroidi per poi perturbarli un poco.
+	\bigskip\noindent As highlighted in \cref{fig:fcm_clustering}, the aim is to use \gls{fcm} clustering to improve on the box-based clustering approach. If the tiles are in $\mathbb{R}^K$, it is possible to start with $2^K$ centroids, which is the number of boxes used in \cite{thesis}. However, for $K=36$ (i.e. tiles of shape $6\times6$), managing such a large number of clusters can be computationally demanding, even for preliminary testing. The adopted implementation supports up to $1024$ centroids, constrained by hardware and the need for optimal performance. Consequently, the dimensionality $K$ should not exceed $10$.
 
-	\noindent Vedremo come cambia la distanza calcolata partendo da $10$ inizializzazioni distinte con perturbazione gaussiana di norma $0.01$. La forma delle tessere è $6\times6$ e il numero di centroidi è $\num{1024}$.
+	\subsection{Stability} Having discussed the implementation details of the algorithm, we now examine its stability. How does the calculated comparison value between works vary with different initialisations? A fast and noisy way to initialise the centroids is to randomly select $M$ data points as centroids and then slightly perturb them.
 
-	\noindent In \cref{tab:distStability} sono confrontate le distanze tra opere di simil dimensione. Nella tabella si fa variare il criterio di stop partendo da $10^{-3}$ fino a $10^{-6}$
+	\noindent To evaluate the stability, we compute the distance starting from $10$ different initialisations, each perturbed with Gaussian noise of variance $0.01$. The tile dimensions are $3\times3$, obtained by setting the resolution to $200$ \gls{ppi} instead of the original $400$ \gls{ppi}. This adjustment ensures that the coverage of $3\times3$ tiles is equivalent to that of $6\times6$ tiles at $400$ \gls{ppi}. The number of centroids is $512$.
+
+	\noindent The \cref{tab:distStability} compares the results between works using the stopping criterion $10^{-6}$ and $10^{-8}$.
 
 	\begin{table}[H]
 		\centering
@@ -306,150 +320,180 @@ for (unsigned col = 0; col < width_short; ++col)
 			\multicolumn{4}{|c|}{stop criteria} \\
 			\hline
 			\rowcolor{lavender}
-			$10^{-3}$ & $10^{-4}$ & $10^{-5}$ & $10^{-6}$ \\
+			$10^{-6}$ & $10^{-6}$ & $10^{-8}$ & $10^{-8}$ \\
 			\hline
-			$\num{0.00306}$ & $\num{0.01491}$ & $\num{0.00020}$ & $\num{0.04529}$ \\
+			$0.00233$ & $0.00188$ & $0.00279$ & $0.00074$ \\
 			\hline
-			$\num{0.00314}$ & $\num{0.01392}$ & $\num{0.00022}$ & $\num{0.04527}$ \\
+			$0.00231$ & $0.00194$ & $0.00289$ & $0.00076$ \\
 			\hline
-			$\num{0.00383}$ & $\num{0.01457}$ & $\num{0.00020}$ & $\num{0.04529}$ \\
+			$0.00232$ & $0.00201$ & $0.00302$ & $0.00076$ \\
 			\hline
-			$\num{0.00393}$ & $\num{0.01433}$ & $\num{0.00020}$ & $\num{0.04533}$ \\
+			$0.00206$ & $0.00197$ & $0.00308$ & $0.00075$ \\
 			\hline
-			$\num{0.00306}$ & $\num{0.01395}$ & $\num{0.00019}$ & $\num{0.04538}$ \\
+			$0.00216$ & $0.00198$ & $0.00293$ & $0.00076$ \\
 			\hline
-			$\num{0.00223}$ & $\num{0.01458}$ & $\num{0.00021}$ & $\num{0.04530}$ \\
+			$0.00211$ & $0.00212$ & $0.00306$ & $0.00073$ \\
 			\hline
-			$\num{0.00272}$ & $\num{0.01386}$ & $\num{0.00020}$ & $\num{0.04538}$ \\
+			$0.00213$ & $0.00211$ & $0.00310$ & $0.00081$ \\
 			\hline
-			$\num{0.00348}$ & $\num{0.01396}$ & $\num{0.00023}$ & $\num{0.04522}$ \\
+			$0.00183$ & $0.00203$ & $0.00289$ & $0.00072$ \\
 			\hline
-			$\num{0.00081}$ & $\num{0.01409}$ & $\num{0.00019}$ & $\num{0.04544}$  \\
+			$0.00234$ & $0.00208$ & $0.00309$ & $0.00072$ \\
 			\hline
-			$\num{0.00289}$ & $\num{0.01394}$ & $\num{0.00019}$ & $\num{0.04530}$ \\
+			$0.00182$ & $0.00208$ & $0.00303$ & $0.00076$ \\
 			\hline
 		\end{tabular}
-		\caption[Stability of comparison algorithm]{In questa tabella sono mostrate le distanze a seguito di $10$ calcoli ripetuti con differenti stop. Si può osservare come un criterio di stop più alto implichi risultati meno accurati e che in genere per $\texttt{stop}=10^{-6}$ i valori rimangono piuttosto stabili ad eccezione di qualche outlier.}
+		\caption[Stability of comparison algorithm]{This table shows the distances following $10$ repeated calculations with different stops. It can be seen that a higher stop criterion implies less accurate results and that in general for $\texttt{stop}=10^{-8}$ the values remain fairly stable except for a few outliers.}
 		\label{tab:distStability}
 	\end{table}
 
-	\subsection{Tuning}
-	Una volta capito che la stabilità dell'algoritmo dipende dal criterio di stop, si vedrà come varia la distanza al variare del numero di centroidi e della dimensionalità. In particolare si imposterà un criterio di stop a $10^{-8}$ per mantenere i risultati molto più stabili di quanto visto sino ad ora. Si vedrà come settare un giusto numero di centroidi, si studierà come una \gls{pca} può influenzare il risultato e infine si valuterà se ridurre il numero di dati usati attraverso un campionamento montecarlo.
+	\subsection{Tuning} Having established that the stability of the algorithm depends on the stopping criterion, we now examine how the computed distance varies with the number of centroids and the dimensionality of the data. In particular, we set a stopping criterion of $10^{-9}$ in order to obtain more stable results than those previously observed. This section examines how to determine an appropriate number of centroids, and evaluates the effects of applying \gls{pca}.
 
-	\paragraph{Centroids quantity}
-	La quantità di centroidi si può studiare dall'indice di Jaccard calcolato per le distanze. Infatti a seguito di uno studio su centinaia di confronti la cardinalità $\left|D_A \cup D_B\right|$ difficilmente ha superato $16$ e mai $32$. Questo suggerisce che il clustering usato come base per il calcolo della distanza non usa a pieno tutti i centroidi, ma che forse ne sta usando solo meno di $32$ oppure sta usando poco di tutti i centroidi. Quindi in \cref{tab:distCentroids} sarà mostrato come cambia la distanza tra opere usando varie quantità di centroidi per le medesime opere partendo da $16$ centroidi. Si osserva che non è necessario usare $1024$ centroidi ma ci si può limitare anche a soli $32$ o $64$ centroidi. Notando che, per queste quantità, non si hanno risultati troppo dissimili da $1024$ centroidi. In particolare $32$ centroidi sembra un compromesso accettabile. Inoltre si osserva, a conferma di quanto scritto in precedenza, che all'aumentare del numero di centroidi la distanza aumenta.
+	\paragraph{Number of centroids} The number of centroids can be analysed using the Jaccard index calculated for the comparison values. A study of tens of thousands of comparisons showed that the cardinality $\left|D_\mathcal{A}\cup D_\mathcal{B}\right|$ rarely exceeded $64$ and never exceeded $128$. This suggests that the clustering used as the basis for the distance calculation does not fully utilise all centroids. Instead, it is likely to be based on fewer than $32$ centroids, or only partially using the centroids that are available.
+
+	\noindent In \cref{tab:distCentroids} we show how the calculated result between works changes when the number of centroids is varied from $64$ to $512$. The results show that it is not necessary to use $512$ centroids; $64$ or $128$ centroids suffice and produce results that are not significantly different from those obtained with $512$ centroids. In particular, $128$ centroids seem to provide an acceptable balance between accuracy and computational efficiency.
 
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
 			\hline
 			\rowcolor{lavender}
-			number of centroids & $16$ & $64$ & $256$ & $1024$ \\
+			number of centroids & $64$ & $128$ & $256$ & $512$ \\
 			\hline
-			$|D_A \cup D_B|$ & $3.8$ & $4.8$ & $5.9$ & $6.6$ \\
+			$|D_A \cup D_B|$ & $9.2$ & $10.9$ & $12.2$ & $19.0$ \\
 			\hline
-			comparison value & $0.00536$ & $0.00537$ & $0.00533$ & $0.00513$ \\
-			\hline
-			\hline
-			$|D_A \cup D_B|$ & $3.1$ & $4.4$ & $4.9$ & $6.1$ \\
-			\hline
-			comparison value & $0.00184$ & $0.00190$ & $0.00189$ & $0.00197$ \\
+			comparison value & $0.00228$ & $0.00241$ & $0.00237$ & $0.00222$ \\
 			\hline
 			\hline
-			$|D_A \cup D_B|$ & $5.3$ & $7.1$ & $7.8$ & $8.4$ \\
+			$|D_A \cup D_B|$ & $12.5$ & $14.0$ & $15.4$ & $17.0$ \\
 			\hline
-			comparison value & $0.00016$ & $0.00012$ & $0.00020$ & $0.00030$ \\
+			comparison value & $0.01175$ & $0.01208$ & $0.01219$ & $0.01230$ \\
 			\hline
 			\hline
-			$|D_A \cup D_B|$ & $3.3$ & $5.1$ & $5.8$ & $6.7$ \\
+			$|D_A \cup D_B|$ & $6.5$ & $6.9$ & $10.2$ & $12.1$ \\
 			\hline
-			comparison value & $0.02534$ & $0.02677$ & $0.0274$ & $0.02910$ \\
+			comparison value & $0.01531$ & $0.01539$ & $0.01436$ & $0.01482$ \\
+			\hline
+			\hline
+			$|D_A \cup D_B|$ & $15.3$ & $17.7$ & $22.2$ & $30.0$ \\
+			\hline
+			comparison value & $0.01351$ & $0.01347$ & $0.01351$ & $0.01356$ \\
 			\hline
 			\hline
 			\rowcolor{lavender}
-			number of centroids & $16$ & $32$ & $64$ & $128$ \\
+			number of centroids & $64$ & $96$ & $128$ & $512$ \\
 			\hline
-			$|D_A \cup D_B|$ & $3.0$ & $3.6$ & $3.9$ & $4.4$ \\
+			$|D_A \cup D_B|$ & $15.8$ & $17.0$ & $19.0$ & $27.5$ \\
 			\hline
-			comparison value & $0.00328$ & $0.00334$ & $0.00334$ & $0.00342$ \\
+			comparison value & $0.01003$ & $0.00986$ & $0.01022$ & $0.01019$ \\
 			\hline
 		\end{tabular}
-		\caption[comparison values for different number of centroids]{Comparison values for different number of centroids between $2$ works, using hyperparameters: $\texttt{stop}=10^{-8}$, tiles with shape $6\times6$. In particular there are $5$ tests and generally the results are stable.}
+		\caption[comparison values for different number of centroids]{Comparison values for different numbers of centroids between $2$ works, using hyperparameters: $\texttt{stop}=10^{-9}$, tiles with shape $3\times3$ from images with $200$ \gls{ppi}. In particular, there are $5$ tests and generally the results are stable.}
 		\label{tab:distCentroids}
 	\end{table}
 
-	\paragraph{Dimensions}
-	Un altro punto da trattare è la dimensione dei dati, ci si chiede se è possibile ridurre la dimensionalità tramite \gls{pca}. In questo paragrafo si analizzerà come cambia la distanza man mano che si riduce la dimensione.  La riduzione della dimensionalità pulirà il rumore ma rischia anche, qualora sia troppo forte la riduzione, di cancellare i dati rari, sui i quali l'algoritmo lavora per stabilire il comparison value tra opere.
+	\paragraph{Dimensions} Another important aspect to consider is the dimensionality of the data and whether it can be reduced using \gls{pca}. This section analyses how the calculated comparison value changes as the dimensionality is reduced. Instead of extracting $3\times3$ tiles from images at $200$ \gls{ppi}, we reduce the dimensionality of $6\times6$ tiles from images at $400$ \gls{ppi} to $9$ dimensions using \gls{pca}, down from the original $36$. While this preserves the higher resolution of the tiles, it also filters out noise. However, excessive dimensionality reduction risks losing rare data points that are crucial for the algorithm to determine the comparison value between works.
 
-	\noindent Un altro punto su cui fare attenzione è il \textbf{plateau effect}. In sostanza, riducendo la dimensionalità ma non il numero di centroidi e il numero di dati, si ha un numero superiore di iterazioni prima di raggiungere il criterio di stop. In altre parole il clustering ha difficoltà a stabilire la posizione ottima dei centroidi. Paradossalmente nel costo computazionale $O(INCK)$ anche se diminuisce $K$ si sta aumentando $I$ talvolta peggiornado il costo computazionale.
+	\noindent Another key consideration is the \textbf{plateau effect}. Essentially, reducing the dimensionality without adjusting the number of centroids or data points can lead to an increased number of iterations before the stopping criterion is met. In other words, the clustering algorithm struggles to determine the optimal position of the centroids. Paradoxically, in the computational cost $O(INMK)$, even though $K$ decreases, $I$ increases, sometimes worsening the overall computational cost.
 
-	\noindent In tabella \cref{tab:distDimensions} si usano come numero di centroidi $16$, $32$, $64$, $1024$ e come dimensioni da $36$ (per tessere $6\times6$) a $18$, a $9$, a $4$. Inoltre durante questo calcolo si è osservato che i costi computazionali a dimensioni $4$ e $9$ sono molto più alti del previsto e i risultati non sembrano essere convincenti.
+	\noindent In \cref{tab:distDimensions} we compare the results obtained using $3\times3$ tiles extracted from images at $200$ \gls{ppi} with those obtained using $6\times6$ tiles extracted from images at $400$ \gls{ppi}, where the dimensionality of the tiles has been reduced from $\mathbb{R}^{36}$ to $\mathbb{R}^9$ using \gls{pca}.
 
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
-			\cline{2-5}
-			\multicolumn{1}{c}{} & \multicolumn{4}{|c|}{\cellcolor{lavender} number of centroids}\\
+		\begin{tabular}{|c|c||c|c|}
 			\hline
-			\cellcolor{lavender} final dimension & \cellcolor{pink} $32$ & \cellcolor{pink} $64$ & \cellcolor{pink} $256$ & \cellcolor{pink} $1024$ \\
+			\rowcolor{ambra}
+			\multicolumn{4}{|c|}{size of tiles} \\
 			\hline
-			$36$ & $0.01134$ & $0.01080$ & $0.01097$ & $0.01115$ \\
+			\rowcolor {lavender} $3\times3$ & $6\times6$ & $3\times3$ & $6\times6$ \\
 			\hline
-			$18$ & $0.01189$ & $0.01223$ & $0.01223$ & $ $ \\
+			$0.00178$ & $0.00261$ & $0.01554$ & $0.00340$ \\
 			\hline
-			 $9$ & $0.01259$ & $0.01326$ & $0.01329$ & $ $ \\
+			$0.01074$ & $0.00000$ & $0.01836$ & $0.02821$ \\
 			\hline
-			 $4$ & $0.01302$ & $0.01331$ & $0.01389$ & $ $ \\
+			$0.01016$ & $0.00435$ & $0.01056$ & $0.01203$ \\
+			\hline
+			$0.00618$ & $0.01518$ & $0.00285$ & $0.00639$ \\
+			\hline
+			$0.01829$ & $0.00559$ & $0.00368$ & $0.00453$ \\
 			\hline
 		\end{tabular}
-		\caption[comparison values for different dimension]{Comparison values for different dimension between $2$ works, using hyperparameters: $\texttt{stop}=10^{-8}$, tiles with shape $6\times6$. In particular there are $4$ tests and generally the results are stable (without strong outliers along comparison values).}
+		\caption[Comparison values for different dimension]{Comparison values for different dimensionalities were compared between $10$ works using two approaches: $3\times3$ tiles extracted from images at $200$ \gls{ppi}, and $6\times6$ tiles extracted from images at $400$ \gls{ppi} with dimensionality reduced from $36$ to $9$ using \gls{pca}. A significant difference in the results was observed between the two methods. The reduction in dimensionality introduced noticeable changes in the comparison values, particularly when using $6\times6$ tiles, suggesting that the dimensionality reduction method and resolution choice both influence the final outcome.}
 		\label{tab:distDimensions}
 	\end{table}
 
+	\paragraph{Conclusion}
+	These experiments demonstrate that using $128$ centroids yields results comparable to those obtained with $512$ centroids, while reducing computational costs by a factor of $4$. In addition, it was observed that using $6\times6$ tiles extracted from images at $400$ \gls{ppi} and reducing their dimensionality from $36$ to $9$ using \gls{pca} leads to different results compared to the original dimensionality. This indicates that dimensionality reduction causes considerable changes in the results, highlighting the importance of carefully choosing the resolution and reduction parameters.
+
+	\noindent It was also observed that using \gls{pca} allows the dimensionality of $6\times6$ tiles to be reduced to $10$, enabling the use of $1024$ initial clusters for \gls{fcm}. Repeating the stability and optimal centroid detection analyses for dimensionality reduction from $36$ to $10$, it was found that $128$ clusters are sufficient.
+
 	\subsection{Results}
-	Dallo studio effettuato precedentemente si può provare ad fare comparazioni tra opere usando $32$ centroidi e \gls{pca} da $36$ dimensioni a $18$ dimensioni. Ma prima di effettuare dei confronti massivi tra tutte le possibili coppie di opere sarà più prudente esaminare questi iperparametri in termini di stabilità e qualità di attribuzione su piccoli campioni anche per controllare se non è cambiato il criterio di stop.
-	Si vedrà anche come cambiano le le prestazioni rispetto a $1024$ centroidi e $36$ dimensioni.
+	Based on the previous analysis, comparisons between works can be performed using $128$ clusters and \gls{pca} to reduce the dimensionality from $36$ to $10$. However, before performing large-scale comparisons across all possible pairs of works, it is prudent to first evaluate these hyperparameters in terms of stability and attribution quality on smaller samples. This preliminary examination will also ensure that the stopping criterion remains consistent.
 
-	\paragraph{Test1}
-	Nel primo test si sono usati $32$ centroidi, tessere $6\times6$, un criterio di stop $10^{-8}$, una riduzione della dimensionalità tramite \gls{pca} da $36$ dimensioni a $18$ dimensioni.
+	\paragraph{Test 1}
+	The first test involves recalculating the stopping criterion, as the reduction in dimensionality and the number of centroids may allow for fewer iterations to achieve convergence.
 
-	\noindent A livello di prestazioni, la \gls{gpu} usata non ha mai concretamente usato il sistema dei batch, quindi ha usato a pieno il suo parallelismo elaborando l'intero set di tessere senza mai dividerlo.
-
-	\noindent La stabilità che gli iperparametri usati permettono di raggiungere è riportata in \cref{tab:test1stability} a seguito di $6$ prove ripeture di comparazione tra coppie casuali di opere. Possiamo vedere che i risultati sono generalmente stabili.
-
-	\begin{table}[h]
+	\begin{table}[H]
 		\centering
-		\begin{tabular}{|c|c|c|c|c|c|}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\rowcolor{ambra}
+			\multicolumn{4}{|c|}{stop criteria} \\
 			\hline
 			\rowcolor{lavender}
-			test $1$ & test $2$ & test $3$ & test $4$ & test $5$ & test $6$ \\
+			$10^{-8}$ & $10^{-8}$ & $10^{-9}$ & $10^{-9}$ \\
 			\hline
-			\(0.0492\) & \(0.0375\) & \(0.00279\) & \(0.0103\) & \(4.35\times10^{-5}\) & \(0.0640\) \\
+			$0.00756$ & $0.03902$ & $0.00984$ & $0.02824$ \\
 			\hline
-			\(0.0481\) & \(0.0369\) & \(0.00281\) & \(0.0104\) & \(5.56\times10^{-5}\) & \(0.0653\) \\
+			$0.00752$ & $0.03913$ & $0.00993$ & $0.02810$ \\
 			\hline
-			\(0.0490\) & \(0.0380\) & \(0.00270\) & \(0.0106\) & \(2.66\times10^{-5}\) & \(0.0601\) \\
+			$0.00753$ & $0.03906$ & $0.00984$ & $0.02805$ \\
 			\hline
-			\(0.0513\) & \(0.0344\) & \(0.00281\) & \(0.0104\) & \(6.25\times10^{-5}\) & \(0.0630\) \\
+			$0.00740$ & $0.03883$ & $0.00993$ & $0.02805$ \\
 			\hline
-			\(0.0506\) & \(0.0388\) & \(0.00266\) & \(0.0104\) & \(2.38\times10^{-5}\) & \(0.0640\) \\
+			$0.00750$ & $0.03895$ & $0.00995$ & $0.02809$ \\
 			\hline
-			\(0.0493\) & \(0.0359\) & \(0.00279\) & \(0.0104\) & \(1.90\times10^{-5}\) & \(0.0636\) \\
+			$0.00752$ & $0.03900$ & $0.00999$ & $0.02806$ \\
 			\hline
-			\(0.0521\) & \(0.0381\) & \(0.00265\) & \(0.0103\) & \(1.86\times10^{-5}\) & \(0.0611\) \\
+			$0.00750$ & $0.03908$ & $0.00994$ & $0.02824$ \\
 			\hline
-			\(0.0505\) & \(0.0354\) & \(0.00283\) & \(0.0103\) & \(2.77\times10^{-5}\) & \(0.0651\) \\
+			$0.00751$ & $0.03879$ & $0.00987$ & $0.02775$ \\
 			\hline
-			\(0.0510\) & \(0.0370\) & \(0.00283\) & \(0.0103\) & \(5.05\times10^{-5}\) & \(0.0639\) \\
+			$0.00744$ & $0.03906$ & $0.00993$ & $0.02782$ \\
 			\hline
-			\(0.0516\) & \(0.0355\) & \(0.00272\) & \(0.0104\) & \(3.00\times10^{-5}\) & \(0.0622\) \\
+			$0.00746$ & $0.03894$ & $0.00994$ & $0.02792$ \\
 			\hline
 		\end{tabular}
-		\caption[Stability of Test1]{In this table we compare $6$ comparisons between works, for each comparison we repeat the computation for $10$ times. Generally the result is stable using stop value $10^{-8}$.}
-		\label{tab:test1stability}
+		\caption[Stability of comparison algorithm]{This table shows the comparison values after repeated $10$ calculations with different stops. As can be seen, $10^{-9}$ is a stop criterion that gives more than stable results.}
+		\label{tab:distStability_tuning}
 	\end{table}
 
-	\noindent Vediamo quindi i risultati di una comparazione tra $9$ opere l'intero dataset per vedere la qualità delle comparazioni rispetto agli autori.
+	\paragraph{Test 2}
+	This test compares the attribution quality using $3\times3$ tiles extracted from images at $200$ \gls{ppi} and $6\times6$ tiles extracted from images at $400$ \gls{ppi}, subsequently embedded into a $\mathbb{R}^{10}$ space via \gls{pca}. A total of $\num{10000}$ comparison values between works were computed. For each work, the attributed author was the one associated with the "closest" work, i.e., the work yielding the smallest comparison value. While this method is not fully reliable and would require more detailed analyses, it serves as a good indicator of the model's adaptability to real-world scenarios.
 
+	\begin{table}[H]
+		\centering \begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
+			\hline
+			\rowcolor{pink}
+			\cellcolor{lavender} Author & $1$ & $2$ & $3$ & $4$ \\ \hline
+			$1$ & $219$ & $4$ & $16$ & $31$ \\
+			\hline
+			$2$ & $18$ & $22$ & $0$ & $3$ \\
+			\hline
+			$3$ & $41$ & $0$ & $9$ & $6$ \\
+			\hline
+			$4$ & $30$ & $0$ & $1$ & $20$ \\
+			\hline
+		\end{tabular}
+		\caption[Confusion matrix, pretest for $3\times3$ tiles]{This table shows the confusion matrix of attributions using $3\times3$ tiles.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{10000}$ comparisons were conducted. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($28\%$) and false negatives ($19\%$).}
+	\end{table}
 
-\end{toDo}
+	\begin{toDo}
+		Inserire confusion matrix nel caso di 6x6 con pca
+	\end{toDo}
+
+	\section{Final test}
+	\begin{toDo}
+		Inserire risultati ottenuti con parametri ottimali dedotti da Test2
+	\end{toDo}
+\end{toReview}

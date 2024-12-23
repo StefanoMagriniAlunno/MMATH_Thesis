@@ -99,6 +99,7 @@ def main_comparing(
         for work_2_index in tqdm.tqdm(work_2_indices, files[work_1_index], leave=False):
             work_1 = files[work_1_index]
             work_2 = files[work_2_index]
+
             if numpy.isnan(data_frame.loc[work_1, work_2]):
                 logger.info(f"Processing {work_1} and {work_2}...")
                 # estraggo le sintesi interessate
@@ -322,9 +323,9 @@ def main():
     # shutil.rmtree("data/out")
     db_path = r"./data/db/cutted_set"
     n_tiles = 6
-    n_centroids = 1024
-    pca_finaldim = 36
-    fcm_tollerance = 10**-8
+    n_centroids = 128
+    pca_finaldim = 10
+    fcm_tollerance = 10**-9
     if (
         n_centroids
         > pycuda_device.get_attributes()[
