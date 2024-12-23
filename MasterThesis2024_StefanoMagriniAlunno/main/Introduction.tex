@@ -1,39 +1,5 @@
 \chapter{Introduction}
 %Introduco la tesi magistrale.
-\begin{toDo}
-	Idee su dei contenuti:
-	\begin{itemize}
-		\item Introduzione
-		\begin{itemize}
-			\item Perché è importante confrontare opere grafiche?
-			\item Quali sono le applicazioni pratiche?
-			\item Quali problemi o limitazioni esistevano in precedenza?
-		\end{itemize}
-		\item Genesi
-		\begin{itemize}
-			\item In breve la tesi triennale
-			\item Problemi e limiti
-			\item Punto chiave: cosa succede se lavoro con molti colori?
-			\item Idee e tentativi proposti
-			\item Come cambia la tesi
-		\end{itemize}
-		\item Conclusione
-		\begin{itemize}
-			\item Raccolta del dataset
-			\item Pulizia del dataset
-			\item Realizzazione di frameworks
-			\item Analisi dei risultati
-			\item Ricerca teorica
-		\end{itemize}
-		\item Organizzazione della tesi
-		\begin{itemize}
-			\item Literature Review: Argomenti portati
-			\item Methodology: scoperte notevoli
-			\item Results: risultati notevoli
-		\end{itemize}
-	\end{itemize}
-\end{toDo}
-
 \begin{toReview}
 	\section{Attribution of handwriting works}
 		\noindent The comparison of graphic works plays a very important role in several fields, including art history, digital forensics and intellectual property protection. By analysing the characteristics of graphic works, it is possible to identify the author, verify the authenticity of a work or detect possible counterfeits. In art history, for example, stylistic and technical analysis of handwritten notes or sketches can provide valuable insights into the creative processes of renowned authors. Similarly, in digital forensics, the comparison of graphic works can help detect forged documents or identify alterations to legal documents.
@@ -71,5 +37,56 @@
 		\noindent These issues highlight the need for advanced methods that can adapt to noise, handle different data representations, and provide reliable results in a range of scenarios. This thesis directly addresses these challenges by refining preprocessing techniques, introducing fuzzy clustering for improved robustness, and exploring scalable solutions for high-dimensional data.
 
 	\section{Background of the project}
+		In \cite{thesis}, an attempt was made to adapt an authorship attribution method similar to that proposed in \cite{SapAttribution}, which uses the $n$-gram model advanced by \citet{Shannon_ngrammodel}. This method has several distinctive features:
+		\begin{itemize}
+			\item The $n$-gram model was originally designed to emulate natural language rather than images.
+			\item Applying this idea to attributing authorship to images introduces a high degree of complexity, especially in preventing falsifications.
+		\end{itemize}
 
+		\noindent Another remarkable aspect of the attribution process is the comparison formula defined in \cite{SapAttribution} and later adopted in \cite{thesis}. This formula defines a comparison function between discrete distributions: the unknown work is compared to all known works, and the results of this function are analysed to determine the most likely author.
+
+		\noindent However, the nature of this comparison formula, as presented in \cite{SapAttribution}, was not well suited to graphic works. This necessitated a pre-processing phase in which images were converted into matrices of black and white pixels, which simplified the representation of the data but introduced limitations in the handling of more complex graphical features.
+
+		\bigskip \noindent One of the main problems encountered in \cite{thesis} is the significant loss of information caused by the pre-processing phase. A graphic work had to be processed by eliminating nuances or handling entire regions rich in noise. The comparison formula, by its nature, emphasises details, and the presence of high noise is a non-negligible obstacle. For this reason, in \cite{thesis}, we chose to work with manuscripts produced on a tablet, thus ensuring a controlled environment free of impurities. The results were remarkable: all the works analysed were correctly attributed.
+
+		\noindent However, it was observed that this methodology has significant limitations when applied to works of a different nature. The success of the experiment is largely attributable to the fact that writing, by its very nature, is an image composed of small regions that are either very light or very dark. This drastically reduced the negative effects of pre-processing, such as the destruction or creation of information. With less controlled data, such as images from real sheets instead of a tablet, numerous problems could have been encountered, compromising the effectiveness of the method.
+
+		\bigskip \noindent In this thesis, we investigate the possibility of creating a variant for colour images, thus eliminating the main problem identified in \cite{thesis}: pre-processing. The aim is to develop a new theory that, unlike in \cite{thesis} and \cite{SapAttribution}, does not require the discretization of the data. This step represents significant progress from an application point of view, as a colour-rich image is expected to offer a higher level of attribution accuracy.
+
+		\noindent However, this idea presents some fundamental challenges. The formula for comparing works, as defined in \cite{SapAttribution}, is not directly compatible with continuous data, and the inherent continuous nature of colours may cause the model to consider the works all equally distinct. In addition, the nn-gram model of \citeauthor{Shannon_ngrammodel} is well suited to natural language words, but is less effective for images, which are more prone to noise and require an appropriate metric to interpret it.
+
+		\bigskip \noindent To realise the idea of attributing works without pre-processing, several methodologies were explored:
+
+		\begin{enumerate}
+			\item \textbf{Represent the work as a surface in colour space}: Although interesting, this proposal presented significant difficulties in defining an effective way of comparing two works.
+			\item \textbf{Using the Wasserstein distance to compare distributions}: This method proved to be extremely computationally expensive and inefficient, as it did not give sufficient weight to the details of the work, a crucial element in attribution.
+			\item \textbf{Discretizing the union of distributions by clustering}: This approach finally showed the greatest potential and formed the basis for the development of this thesis.
+		\end{enumerate}
+
+		\noindent The central question around which this thesis revolves is: is it possible to attribute graphical works using a dynamic discretisation of space? In other words, the comparison function is seen as an approximate integral. The nn-grams, which represent vectors generated by specific but unknown distributions, can be estimated by dividing the space into boxes of equal size. This method, already used in \cite{thesis}, allows an efficient approximation when the number of boxes is not too large compared to the sparsity of the nn-grams.
+
+		\noindent In this thesis, an alternative is proposed: replacing boxes with clustering algorithms. These algorithms successfully deal with high-dimensional sparsity problems by providing a more adaptive discretisation that serves as a basis for redefining the comparison formula.
+
+		\bigskip \noindent This thesis introduced significant changes not only in the comparison methodology, but also in the pre-processing phase. It was no longer acceptable to work with a ‘perfect’ dataset; it was necessary to use a real, and therefore inevitably ‘dirty’ dataset. After much difficulty, it was possible to collect a dataset of $113$ university note sheets. However, the quality of the images was initially insufficient for an accurate analysis, making pre-processing indispensable, which, although minimal, could still have compromised the project. This pre-processing phase was limited to image cleaning and greyscale conversion, an operation that, for university notes, should not have a significant impact.
+
+		\noindent Another major change affected the image synthesis phase. In \cite{thesis}, images were transformed into a list of nn-grams with their respective occurrence in the work. However, as this aspect was no longer central to the proposed methodology, it was preferred to simply provide a list of the extracted tiles, thus ensuring a more direct representation and less prone to misinterpretation.
 \end{toReview}
+\begin{toDo}
+	Idee su dei contenuti:
+	\begin{itemize}
+		\item Conclusione
+		\begin{itemize}
+			\item Raccolta del dataset
+			\item Pulizia del dataset
+			\item Realizzazione di frameworks
+			\item Analisi dei risultati
+			\item Ricerca teorica
+		\end{itemize}
+		\item Organizzazione della tesi
+		\begin{itemize}
+			\item Literature Review: Argomenti portati
+			\item Methodology: scoperte notevoli
+			\item Results: risultati notevoli
+		\end{itemize}
+	\end{itemize}
+\end{toDo}
