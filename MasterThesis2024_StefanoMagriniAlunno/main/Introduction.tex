@@ -2,28 +2,27 @@
 %Introduco la tesi magistrale.
 \begin{toReview}
 	\section{Attribution of handwriting works}
-		\noindent The comparison of graphic works plays a very important role in several fields, including art history, digital forensics and intellectual property protection. By analysing the characteristics of graphic works, it is possible to identify the author, verify the authenticity of a work or detect possible counterfeits. In art history, for example, stylistic and technical analysis of handwritten notes or sketches can provide valuable insights into the creative processes of renowned authors. Similarly, in digital forensics, the comparison of graphic works can help detect forged documents or identify alterations to legal documents.
+		\noindent The comparison of graphic works plays a very important role in several fields, including art history, digital forensics and intellectual property protection. By analysing the characteristics of graphic works, it is possible to identify the author, verify the authenticity of a work or detect possible counterfeits. In art history, for example, stylistic and technical analysis of handwritten notes or sketches can provide valuable insights into the creative processes of renowned authors. Similarly, in digital forensics, the comparison of graphic works can help detect counterfeit documents or identify alterations to legal documents.
 
-		\noindent Beyond these practical applications, the ability to compare graphic works also opens up possibilities for understanding more comprehensive patterns. For example, it can help uncover stylistic influences between artists or identify recurring patterns within a collection. In the context of machine learning and data analysis, graphic comparison serves as a basis for developing algorithms capable of processing complex visual data, which is increasingly important in an era dominated by digital media.
+		\noindent Beyond these practical applications, the ability to compare graphic works also opens up possibilities for understanding more general patterns. For example, it can help uncover stylistic influences between artists or identify recurring patterns within a collection. In the context of machine learning and data analysis, graphical comparison serves as a basis for developing algorithms capable of processing complex visual data, which is increasingly important in an era dominated by digital media.
 
-		\noindent However, the process is not without its challenges. The presence of noise, variations in resolution and the diversity of graphical styles make it difficult to establish a robust and reliable framework for comparison. This thesis aims to address these issues by developing methodologies that improve the accuracy and adaptability of graphic work comparisons.
+		\noindent However, the process is not without its challenges. The presence of noise, variations in resolution and the diversity of graphical styles make it difficult to establish a robust and reliable framework for comparison. This thesis aims to address these issues by developing methods to improve the accuracy and adaptability of graphical work comparisons.
 
 		\bigskip
 		\noindent The practical applications of comparing graphic works cover a wide range of fields, each of which benefits from customised analysis techniques:
 
 		\begin{itemize}
 			\item \textbf{Authorship attribution}: Determining the author of a handwritten document or artistic work is important in fields such as art history, where verifying the authenticity of an artist can have a significant impact on the cultural and financial value of the work.
-			\item \textbf{Forgery Detection}: In digital forensics and legal investigations, identifying alterations to documents or detecting forgeries in graphic works plays a key role in ensuring authenticity and legality.
+			\item \textbf{Falsification Detection}: In digital forensics and legal investigations, identifying alterations to documents or detecting forgeries in graphic works plays a key role in ensuring authenticity and legality.
 			\item \textbf{Intellectual Property Protection}: The ability to compare graphic works is critical for enforcing copyright laws and resolving disputes over original creations.
 			\item \textbf{Historical Analysis}: In the study of historical documents and manuscripts, graphic comparison helps to trace stylistic influences, identify authors, and reconstruct fragmented works.
 			\item \textbf{Digital Archiving and Restoration}: Automated comparison methods help to cluster, catalogue and restore large collections of graphic works, ensuring their preservation for future generations.
-			\item \textbf{Educational Tools}: Comparison of graphic works can also be used in educational contexts, providing automated feedback on handwriting or artistic style for students and professionals.
 		\end{itemize}
 
-		\noindent These applications demonstrate the versatility and importance of robust graphic comparison methods. Each context presents unique challenges, such as the need to deal with different resolutions, styles and noise levels, which this thesis aims to address through innovative methods.
+		\noindent These applications demonstrate the versatility and importance of robust graphical comparison methods. Each context presents unique challenges, such as the need to handle different resolutions, styles and noise levels, which this thesis aims to address through innovative methods.
 
 		\bigskip
-		\noindent Despite its importance, the comparison of graphic works faces several challenges and limitations that have hindered progress in this field:
+		\noindent Despite its importance, the comparison of graphic works faces several challenges and limitations that have hindered progress in the field:
 
 		\begin{itemize}
 			\item \textbf{Distortions and impurities}: Graphic works, especially handwritten or historical documents, often contain noise such as background patterns, stains or scanning distortions. These contaminants can distort the analysis and reduce the reliability of the comparison results.
@@ -45,48 +44,64 @@
 
 		\noindent Another remarkable aspect of the attribution process is the comparison formula defined in \cite{SapAttribution} and later adopted in \cite{thesis}. This formula defines a comparison function between discrete distributions: the unknown work is compared to all known works, and the results of this function are analysed to determine the most likely author.
 
-		\noindent However, the nature of this comparison formula, as presented in \cite{SapAttribution}, was not well suited to graphic works. This necessitated a pre-processing phase in which images were converted into matrices of black and white pixels, which simplified the representation of the data but introduced limitations in the handling of more complex graphical features.
+		\noindent However, the nature of this comparison formula, as presented in \cite{thesis}, was not well suited to graphic works. This necessitated a pre-processing phase in which images were converted into matrices of black and white pixels, which simplified the representation of the data but introduced limitations in the handling of more complex graphical features.
 
-		\bigskip \noindent One of the main problems encountered in \cite{thesis} is the significant loss of information caused by the pre-processing phase. A graphic work had to be processed by eliminating nuances or handling entire regions rich in noise. The comparison formula, by its nature, emphasises details, and the presence of high noise is a non-negligible obstacle. For this reason, in \cite{thesis}, we chose to work with manuscripts produced on a tablet, thus ensuring a controlled environment free of impurities. The results were remarkable: all the works analysed were correctly attributed.
+		\bigskip \noindent One of the main problems encountered in \cite{thesis} is the significant loss of information caused by the pre-processing phase. A graphic work had to be processed by eliminating shades or editing entire noisy regions. The comparison formula, by its very nature, emphasises details and the presence of high noise is a serious obstacle. For this reason, in \cite{thesis}, we chose to work with manuscripts produced on a tablet, thus ensuring a controlled environment free of impurities. The results were remarkable: all the works analysed were correctly attributed.
 
-		\noindent However, it was observed that this methodology has significant limitations when applied to works of a different nature. The success of the experiment is largely attributable to the fact that writing, by its very nature, is an image composed of small regions that are either very light or very dark. This drastically reduced the negative effects of pre-processing, such as the destruction or creation of information. With less controlled data, such as images from real sheets instead of a tablet, numerous problems could have been encountered, compromising the effectiveness of the method.
+		\noindent However, it was observed that this methodology has significant limitations when applied to works of a different nature. The success of the experiment is largely attributable to the fact that writing, by its very nature, is an image composed of small regions that are either very light or very dark. This drastically reduced the negative effects of pre-processing, such as the destruction or creation of information. With less controlled data, such as images from real sheets instead of a tablet, numerous problems could have been caused, compromising the effectiveness of the method.
 
-		\bigskip \noindent In this thesis, we investigate the possibility of creating a variant for colour images, thus eliminating the main problem identified in \cite{thesis}: pre-processing. The aim is to develop a new theory that, unlike in \cite{thesis} and \cite{SapAttribution}, does not require the discretization of the data. This step represents significant progress from an application point of view, as a colour-rich image is expected to offer a higher level of attribution accuracy.
+		\bigskip \noindent In this thesis, we investigate the possibility of creating a variant for colour images, thus eliminating the main problem identified in \cite{thesis}: pre-processing. The aim is to develop a new theory that, unlike in \cite{thesis} and \cite{SapAttribution}, does not require the discretization of the data. This is a significant step in terms of application, as a colourful image is expected to provide a higher level of matching accuracy.
 
-		\noindent However, this idea presents some fundamental challenges. The formula for comparing works, as defined in \cite{SapAttribution}, is not directly compatible with continuous data, and the inherent continuous nature of colours may cause the model to consider the works all equally distinct. In addition, the nn-gram model of \citeauthor{Shannon_ngrammodel} is well suited to natural language words, but is less effective for images, which are more prone to noise and require an appropriate metric to interpret it.
+		\noindent However, this idea presents some fundamental challenges. The formula for comparing works, as defined in \cite{SapAttribution}, is not directly compatible with continuous data, and the inherent continuous nature of colours may cause the model to consider the works all equally distinct. In addition, the $n$-gram model of \citeauthor{Shannon_ngrammodel} is well suited to natural language words, but less effective for images, which are more susceptible to noise and require an appropriate metric to interpret them.
 
 		\bigskip \noindent To realise the idea of attributing works without pre-processing, several methodologies were explored:
 
 		\begin{enumerate}
 			\item \textbf{Represent the work as a surface in colour space}: Although interesting, this proposal presented significant difficulties in defining an effective way of comparing two works.
-			\item \textbf{Using the Wasserstein distance to compare distributions}: This method proved to be extremely computationally expensive and inefficient, as it did not give sufficient weight to the details of the work, a crucial element in attribution.
+			\item \textbf{Using the Wasserstein distance to compare distributions}: This method proved to be extremely computationally expensive and inefficient, as it did not give sufficient weight to the details of the work, an important element in attribution.
 			\item \textbf{Discretizing the union of distributions by clustering}: This approach finally showed the greatest potential and formed the basis for the development of this thesis.
 		\end{enumerate}
 
-		\noindent The central question around which this thesis revolves is: is it possible to attribute graphical works using a dynamic discretisation of space? In other words, the comparison function is seen as an approximate integral. The nn-grams, which represent vectors generated by specific but unknown distributions, can be estimated by dividing the space into boxes of equal size. This method, already used in \cite{thesis}, allows an efficient approximation when the number of boxes is not too large compared to the sparsity of the nn-grams.
+		\noindent The central question around which this thesis revolves is: is it possible to attribute graphical works using a dynamic discretisation of space? In other words, the comparison function is seen as an approximate integral. The $n$-grams, which represent vectors generated by specific but unknown distributions, can be estimated by dividing the space into boxes of equal size. This method, already used in \cite{thesis}, allows an efficient approximation when the number of boxes is not too large compared to the sparsity of the $n$-grams.
 
-		\noindent In this thesis, an alternative is proposed: replacing boxes with clustering algorithms. These algorithms successfully deal with high-dimensional sparsity problems by providing a more adaptive discretisation that serves as a basis for redefining the comparison formula.
+		\noindent In this thesis, an alternative is proposed: replacing boxes with clustering algorithms. These algorithms successfully handle high-dimensional sparsity problems by offering a more adaptive discretisation that serves as the basis for redefining the comparison formula.
 
 		\bigskip \noindent This thesis introduced significant changes not only in the comparison methodology, but also in the pre-processing phase. It was no longer acceptable to work with a ‘perfect’ dataset; it was necessary to use a real, and therefore inevitably ‘dirty’ dataset. After much difficulty, it was possible to collect a dataset of $113$ university note sheets. However, the quality of the images was initially insufficient for an accurate analysis, making pre-processing indispensable, which, although minimal, could still have compromised the project. This pre-processing phase was limited to image cleaning and greyscale conversion, an operation that, for university notes, should not have a significant impact.
 
-		\noindent Another major change affected the image synthesis phase. In \cite{thesis}, images were transformed into a list of nn-grams with their respective occurrence in the work. However, as this aspect was no longer central to the proposed methodology, it was preferred to simply provide a list of the extracted tiles, thus ensuring a more direct representation and less prone to misinterpretation.
+		\noindent Another major change affected the image synthesis phase. In \cite{thesis}, images were transformed into a list of $n$-grams with their respective occurrence in the work. However, as this aspect was no longer central to the proposed methodology, it was preferred to simply provide a list of the extracted tiles.
+
+	\section{Key points}
+		As already pointed out, the collection of the dataset presented considerable difficulties, making manual collection necessary. For this research, dozens of university notebooks were made available, from which $113$ pages were selected and scanned. The final result comprises $420$ uncompressed image fragments, totalling $1.1\operatorname{\mathrm{Gb}}$, with a resolution of $400$ \gls{ppi}. The dataset includes one main author (\texttt{Author 1}), representing more than half of the works, and three other secondary authors whose purpose is to complicate attribution.
+
+		\noindent The lack of a professional dataset and the very nature of the notebooks required careful pre-processing. Indeed, university notebooks have a background with a grid of squares that can confuse the algorithm, leading it to mistake this structure for human handwriting. Removing the squares without compromising the handwriting details was one of the main challenges faced.
+
+		\noindent Once a method for comparing the works had been defined, it was necessary to implement the algorithms required for the calculations. As no frameworks were available to directly support the more computationally onerous operations on \gls{gpu}, a customised solution was opted for using \gls{Python} and \gls{cuda}, producing tools capable of handling both high and low-level data and calculations.
+
+		\noindent In-depth analyses were conducted to produce accurate results, taking into account the physical and temporal limitations of computational resources. Each step was carefully examined, testing various techniques and parameters to optimise the process.
+
+		\noindent This thesis introduces clustering \gls{fcm} as a generalisation of the work carried out in \cite{thesis}, demonstrating its effective implementation and application, and laying the groundwork for further developments in the automatic comparison of graphical works.
+
+		\bigskip \noindent In summary, in \cite{thesis}, image analysis consists of three main steps:
+
+		\begin{itemize}
+			\item \textbf{Pre-processing}: Images are transformed into matrices of black and white pixels.
+			\item \textbf{Synthesis}: The pixel matrices are converted into a list of tiles with their respective occurrences.
+			\item \textbf{Comparison}: The formula defined in \cite{SapAttribution} is used to compare works.
+		\end{itemize}
+
+		\noindent In this thesis, the three phases have been redefined as follows:
+
+		\begin{itemize}
+			\item \textbf{Pre-processing}: The images are converted to greyscale with a specific resolution (\gls{ppi}) and then cleaned of pollutants by cutting and removing squares.
+			\item \textbf{Synthesis}: An ordered list of tiles with their respective occurrences is no longer generated, but only an unordered list of tiles with repetitions.
+			\item \textbf{Comparison}: A new comparison formula is developed that dynamically discretizes the space of tiles by clustering.
+		\end{itemize}
+
+		\noindent This paper illustrates the main sources in the Literature Review section, providing the intuitive basis for applying them to the context at hand. The $n$-gram model of \citet{Shannon_ngrammodel} and its use in \cite{SapAttribution} and \cite{thesis} will be introduced. Furthermore, clustering concepts and related algorithms, including \gls{kmeans}, \gls{fcm} and \gls{gmm}, will be discussed and compared. Finally, the algorithm \gls{fft} for removing squares in images will be presented.
+
+		\noindent After having introduced the fundamental concepts, these will be explored in detail from both an implementation and theoretical point of view in the Methodology chapter. Here, the new comparison formula will be shown and design choices will be evaluated by means of synthetic examples.
+
+		\noindent Once the code has been developed and the theoretical foundations clarified, the direct application on the dataset will be described in the chapter Results, where the parameters will be refined and detailed qualitative results given.
+
+
 \end{toReview}
-\begin{toDo}
-	Idee su dei contenuti:
-	\begin{itemize}
-		\item Conclusione
-		\begin{itemize}
-			\item Raccolta del dataset
-			\item Pulizia del dataset
-			\item Realizzazione di frameworks
-			\item Analisi dei risultati
-			\item Ricerca teorica
-		\end{itemize}
-		\item Organizzazione della tesi
-		\begin{itemize}
-			\item Literature Review: Argomenti portati
-			\item Methodology: scoperte notevoli
-			\item Results: risultati notevoli
-		\end{itemize}
-	\end{itemize}
-\end{toDo}
