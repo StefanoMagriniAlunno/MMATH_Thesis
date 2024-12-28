@@ -22,7 +22,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.7\linewidth]{Figures/analysis_sort.png}
-		\caption[Visit all pairs]{The algorithm calculates half of all components for each row. In the figure, the algorithm follows the order of the numbers, taking cells alternately so that the bottom diagonal is not directly computed and the top diagonal is directly computed. For example, in the row $3^\text{-th}$, the algorithm directly computes the first column (number $5$ in cyan) and the penultimate column (number $6$ in cyan), while the second column is already computed (number $3$ in green square) and the last column is not yet computed.}
+		\caption[Visit all pairs combinations of a list]{The algorithm calculates half of all components for each row. In the figure, the algorithm follows the order of the numbers, taking cells alternately so that the bottom diagonal is not directly computed and the top diagonal is directly computed. For example, in the row $3^\text{-th}$, the algorithm directly computes the first column (number $5$ in cyan) and the penultimate column (number $6$ in cyan), while the second column is already computed (number $3$ in green square) and the last column is not yet computed.}
 		\label{fig:distance_computation}
 	\end{figure}
 
@@ -87,13 +87,13 @@
     \noindent In \cref{fig:fft_application} the grid pattern is visible as high-intensity frequencies almost aligned along the sides.
 
     \begin{figure}[H]
-    	\centering \includegraphics[width=1.0\linewidth]{Figures/fft_application.png}\caption[\gls{fft} application]{Significant frequencies along the edges of the second image reveal the grid pattern.}\label{fig:fft_application}
+    	\centering \includegraphics[width=1.0\linewidth]{Figures/fft_application.png}\caption[FFT application in pre-processing]{Significant frequencies along the edges of the second image reveal the grid pattern.}\label{fig:fft_application}
     \end{figure}
 
 	\noindent The algorithm removes the $p$ percentile of the frequencies with the highest amplitude and reconstructs the original image using the remaining frequencies whose amplitudes are preserved. In \cref{fig:fft_percentile} different reconstructions using different percentiles are shown, with pixel intensities normalised between $0$ and $1$. The results suggest that $p=0.1\%$ is a reasonable starting point for analysis.
 
 	\begin{figure}[H]
-		\centering \includegraphics[width=1.0\linewidth]{Figures/fft_percentile.png}\caption[Comparing different percentiles in \gls{fft}]{A percentile between $0.1\%$ and $0.05\%$ strikes a good balance by removing the grid patterns while leaving the handwriting intact.}
+		\centering \includegraphics[width=1.0\linewidth]{Figures/fft_percentile.png}\caption[Comparing different percentiles in FFT]{A percentile between $0.1\%$ and $0.05\%$ strikes a good balance by removing the grid patterns while leaving the handwriting intact.}
 		\label{fig:fft_percentile}
 	\end{figure}
 
@@ -129,7 +129,7 @@
 	\noindent The \cref{fig:fft_results} shows the results of this process for $p=0.1\%$ and $p=0.05\%$ on two samples. While the results appear visually similar, using $p=0.05\%$ preserves the handwriting better, but at the cost of retaining some lattice artefacts. It is hoped that this residual noise will be captured by the \gls{fcm} clustering.
 
 	\begin{figure}[H]
-		\centering \includegraphics[width=1.0\linewidth]{Figures/fft_results.png} \caption[Results of the \gls{fft} cleaning process]{Two pre-processed images with different percentiles are shown. The first column corresponds to $p=0.05\%$ and the second column corresponds to $p=0.1\%$. Each row represents one work from the dataset.} \label{fig:fft_results}
+		\centering \includegraphics[width=1.0\linewidth]{Figures/fft_results.png} \caption[Results of the FFT cleaning process]{Two pre-processed images with different percentiles are shown. The first column corresponds to $p=0.05\%$ and the second column corresponds to $p=0.1\%$. Each row represents one work from the dataset.} \label{fig:fft_results}
 	\end{figure}
 
     \section{Synthesis} Once the images have been pre-processed and adapted to the data set according to "human" parameters, the synthesis phase begins. This step ensures that the works are redefined in an objectively consistent manner. Specifically, the works are transformed into an (ordered or unordered) list of square tiles with uniform sizes.
@@ -173,7 +173,7 @@ for (unsigned col = 0; col < width_short; ++col)
     \noindent As shown in \cref{fig:synth_glbvisual}, there is a region where the tiles are densely clustered. The most reasonable hypothesis is that the background of the images produces many bright tiles that form a dense cluster. To confirm this hypothesis, these points are highlighted and linked to their original tiles.
 
     \begin{figure}[H] \centering \includegraphics[width=0.8\linewidth]{Figures/synth_glbvisual.png}
-    	\caption[Global visualisation of a synthesis using \gls{pca}]{The figure shows a scatterplot of a sample of tiles extracted from an image. Six dimensions are represented using colours. As can be seen, the background tiles are mostly concentrated around $0$, while the handwriting tiles are more scattered.}
+    	\caption[Global visualisation of a synthesis using PCA]{The figure shows a scatterplot of a sample of tiles extracted from an image. Six dimensions are represented using colours. As can be seen, the background tiles are mostly concentrated around $0$, while the handwriting tiles are more scattered.}
     	\label{fig:synth_glbvisual}
     \end{figure}
 
@@ -485,12 +485,26 @@ for (unsigned col = 0; col < width_short; ++col)
 			$4$ & $30$ & $0$ & $1$ & $20$ \\
 			\hline
 		\end{tabular}
-		\caption[Confusion matrix, pretest for $3\times3$ tiles]{This table shows the confusion matrix of attributions using $3\times3$ tiles.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{10000}$ comparisons were conducted. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($28\%$) and false negatives ($19\%$).}
+		\caption[Confusion matrix, pretest for $3\times3$ tiles]{This table shows the confusion matrix of attributions using $3\times3$ tiles.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{13169}$ comparisons were conducted. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($28\%$) and false negatives ($19\%$).}
 	\end{table}
 
-	\begin{toDo}
-		Inserire confusion matrix nel caso di 6x6 con pca
-	\end{toDo}
+
+	\begin{table}[H]
+		\centering \begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
+			\hline
+			\rowcolor{pink}
+			\cellcolor{lavender} Author & $1$ & $2$ & $3$ & $4$ \\ \hline
+			$1$ & $195$ & $6$ & $25$ & $44$ \\
+			\hline
+			$2$ & $37$ & $2$ & $2$ & $2$ \\
+			\hline
+			$3$ & $39$ & $0$ & $14$ & $3$ \\
+			\hline
+			$4$ & $37$ & $0$ & $5$ & $9$ \\
+			\hline
+		\end{tabular}
+		\caption[Confusion matrix, pretest for $6\times6$ tiles]{This table shows the confusion matrix of attributions using $6\times6$ tiles from an image of $400$\gls{ppi} with \gls{pca} from $\mathbb{R}^{36}$ to $\mathbb{R}^{10}$.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{10000}$ comparisons were conducted. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($37\%$) and false negatives ($28\%$).}
+	\end{table}
 
 	\section{Final test}
 	\begin{toDo}

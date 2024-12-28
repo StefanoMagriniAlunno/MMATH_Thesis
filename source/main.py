@@ -53,54 +53,65 @@ def main_comparing(
             data_frame.loc[file, file] = 0.0
         data_frame.to_csv(r"./data/distances.csv", float_format="%.16f")
 
-    work_1_indices = list(range(len(files)))
-    work_1_indices_new = []
-    # remove from work_1_indices
-    for work_1_index in work_1_indices:
-        work_2_indices = [
-            i
-            for i in range(len(files))
-            if (i - work_1_index + (i >= work_1_index)) % 2 == 0
-        ]
-        work_2_indices_new: typing.List[int] = []
-        for work_2_index in work_2_indices:
-            work_1 = files[work_1_index]
-            work_2 = files[work_2_index]
-            if numpy.isnan(data_frame.loc[work_1, work_2]):
-                work_1_indices_new.append(work_1_index)
-                break
-        else:
-            logger.info(f"{work_1} already computed")
-    work_1_indices = work_1_indices_new
+    stop: bool = False
+    size: int = 40
+    while not stop:
+        stop = True
 
-    random.shuffle(work_1_indices)
-
-    for work_1_index in tqdm.tqdm(work_1_indices, "clustering", leave=False):
-        work_2_indices = [
-            i
-            for i in range(len(files))
-            if (i - work_1_index + (i >= work_1_index)) % 2 == 0
-        ]
-
-        # remove from work_2_indices the index with "already computed" files
-        work_2_indices_new = []
-        for work_2_index in work_2_indices:
-            work_1 = files[work_1_index]
-            work_2 = files[work_2_index]
-            if numpy.isnan(data_frame.loc[work_1, work_2]):
-                work_2_indices_new.append(work_2_index)
+        work_1_indices = list(range(len(files)))
+        work_1_indices_new = []
+        # remove from work_1_indices
+        for work_1_index in work_1_indices:
+            work_2_indices = [
+                i
+                for i in range(len(files))
+                if (i - work_1_index + (i >= work_1_index)) % 2 == 0
+            ]
+            work_2_indices_new: typing.List[int] = []
+            for work_2_index in work_2_indices:
+                work_1 = files[work_1_index]
+                work_2 = files[work_2_index]
+                if numpy.isnan(data_frame.loc[work_1, work_2]):
+                    work_1_indices_new.append(work_1_index)
+                    break
             else:
-                logger.info(f"{work_1} and {work_2} already computed")
-        work_2_indices = work_2_indices_new
+                logger.info(f"{work_1} already computed")
+        work_1_indices = work_1_indices_new
 
-        # work_2 reshuffling
-        random.shuffle(work_2_indices)
+        random.shuffle(work_1_indices)
 
-        for work_2_index in tqdm.tqdm(work_2_indices, files[work_1_index], leave=False):
-            work_1 = files[work_1_index]
-            work_2 = files[work_2_index]
+        for work_1_index in tqdm.tqdm(work_1_indices, "clustering", leave=False):
+            work_2_indices = [
+                i
+                for i in range(len(files))
+                if (i - work_1_index + (i >= work_1_index)) % 2 == 0
+            ]
 
-            if numpy.isnan(data_frame.loc[work_1, work_2]):
+            # remove from work_2_indices the index with "already computed" files
+            work_2_indices_new = []
+            for work_2_index in work_2_indices:
+                work_1 = files[work_1_index]
+                work_2 = files[work_2_index]
+                if numpy.isnan(data_frame.loc[work_1, work_2]):
+                    work_2_indices_new.append(work_2_index)
+                else:
+                    logger.info(f"{work_1} and {work_2} already computed")
+            work_2_indices = work_2_indices_new
+
+            # work_2 reshuffling
+            random.shuffle(work_2_indices)
+            counter: int = 0
+
+            for work_2_index in tqdm.tqdm(
+                work_2_indices, files[work_1_index], leave=False
+            ):
+                if counter >= size:
+                    stop = False
+                    break
+                work_1 = files[work_1_index]
+                work_2 = files[work_2_index]
+
+                counter += 1
                 logger.info(f"Processing {work_1} and {work_2}...")
                 # estraggo le sintesi interessate
                 with open(work_1, "br") as f:
@@ -245,8 +256,7 @@ def main_comparing(
                     data_frame.loc[work_2, work_1] = dist
                     # save the datadrame in ./distances.csv
                     data_frame.to_csv(r"./data/distances.csv", float_format="%.16f")
-            else:
-                logger.info(f"{work_1} and {work_2} already computed")
+    logger.info("Comparing completed!")
 
 
 def main_synthesis(

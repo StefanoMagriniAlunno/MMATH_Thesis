@@ -200,7 +200,7 @@ The distance between works will be defined as:
 		\caption[\gls{fcm} clustering, example of comparison]{\gls{fcm} clustering using $4$ centroids.\\ Computed distance $0.289$.}
 		\label{fig:fcm_clustering}
 	\end{subfigure}
-	\caption[example of comparison using $3$ methods]{As can be seen, clusters are assigned a colour that is mapped to $[-1,1]$ ($-1$ is blue, $1$ is red). In particular, this colour is associated with the number $\frac{p_\mathcal{A}(c)-p_\mathcal{B}(c)}{p_\mathcal{A}(c)+p_\mathcal{B}(c)}$ for each cluster of centroid $c$. Furthermore, it is observed that $\gls{kmeans}$ and $\gls{fcm}$ have clusters represented by a circle with area $\mu(c)$ for the two clustering methods.}
+	\caption[Comparing $3$ clustering techniques]{As can be seen, clusters are assigned a colour that is mapped to $[-1,1]$ ($-1$ is blue, $1$ is red). In particular, this colour is associated with the number $\frac{p_\mathcal{A}(c)-p_\mathcal{B}(c)}{p_\mathcal{A}(c)+p_\mathcal{B}(c)}$ for each cluster of centroid $c$. Furthermore, it is observed that $\gls{kmeans}$ and $\gls{fcm}$ have clusters represented by a circle with area $\mu(c)$ for the two clustering methods.}
 \end{figure}
 \end{modified}
 
@@ -335,6 +335,6 @@ The integration of \gls{gpgpu} techniques would allow the workload to be distrib
 
 \begin{figure}[h]
 \includegraphics[width=\linewidth]{Figures/example_gpu_reduction.png}
-\caption[Application of sum reduction]{We want to calculate the sum of the values in the first row. The idea is to divide the vector into $2$ regions, sum the components, and repeat over the new vector with half the size of the previous vector.}
+\caption[Example of sum reduction performed by a GPU]{We want to calculate the sum of the values in the first row. The idea is to divide the vector into $2$ regions, sum the components, and repeat over the new vector with half the size of the previous vector.}
 \label{fig:gpu_reduction}
 \end{figure}
