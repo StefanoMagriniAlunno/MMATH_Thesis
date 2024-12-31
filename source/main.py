@@ -54,7 +54,7 @@ def main_comparing(
         data_frame.to_csv(r"./data/distances.csv", float_format="%.16f")
 
     stop: bool = False
-    size: int = 40
+    size: int = 105
     while not stop:
         stop = True
 
@@ -136,9 +136,6 @@ def main_comparing(
                 pca = PCA(n_components=pca_finaldim)
                 synth_merge = pca.fit_transform(synth_merge)
 
-                # salvo la matrice in un file temporaneo come float32 binario (i dati da clusterizzare)
-                with open(r"./temp/synth_merge", "bw") as f:
-                    f.write(synth_merge.tobytes())
                 # estraggo un campione di n_clusters righe da synth_merge
                 synth_sample = numpy.random.choice(
                     synth_merge.shape[0], n_clusters, replace=False
@@ -146,9 +143,6 @@ def main_comparing(
                 synth_sample = synth_merge[synth_sample]
                 # aggiungo del noise
                 synth_sample += numpy.random.normal(0, 0.01, synth_sample.shape)
-                # salvo il campione in un file temporaneo come float32 binario (i centroidi iniziali)
-                with open(r"./temp/synth_sample", "bw") as f:
-                    f.write(synth_sample.tobytes())
 
                 # costruisco il campione dei pesi, tutti uguali per i rispettivi synth
                 synth_weights = numpy.ones((synth_merge.shape[0]), dtype=numpy.float32)
@@ -161,6 +155,22 @@ def main_comparing(
                     numpy.ones((synth_2.shape[0]), dtype=numpy.float32)
                     / synth_2.shape[0]
                 )
+
+                # campiono
+                p = 0.5
+                MC_index = numpy.random.choice(
+                    synth_merge.shape[0], int(synth_merge.shape[0] * p), replace=False
+                )
+
+                synth_merge = synth_merge[MC_index]
+                synth_weights = synth_weights[MC_index]
+
+                # salvo la matrice in un file temporaneo come float32 binario (i dati da clusterizzare)
+                with open(r"./temp/synth_merge", "bw") as f:
+                    f.write(synth_merge.tobytes())
+                # salvo il campione in un file temporaneo come float32 binario (i centroidi iniziali)
+                with open(r"./temp/synth_sample", "bw") as f:
+                    f.write(synth_sample.tobytes())
                 # salvo i pesi in un file temporaneo come float32 binario
                 with open(r"./temp/synth_weights", "bw") as f:
                     f.write(synth_weights.tobytes())

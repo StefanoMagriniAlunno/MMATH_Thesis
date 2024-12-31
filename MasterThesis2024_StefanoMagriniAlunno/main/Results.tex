@@ -10,14 +10,14 @@
 	\noindent This chapter provides an analysis of each step outlined in this thesis, evaluating the impact of each component on the images studied. It also analyses and justifies the decisions and parameters chosen during the design phase.
 
 	\bigskip
-	\noindent The process of building the dataset is a bit different. Each image with a known author is fully compared to all other known images. Since the comparison value is symmetric, only half of all possible comparisons need to be evaluated. For $n$ images, imagine filling a square $n\times n$ table with real values. Assuming a comparison value of $0$ between identical images, the total number of comparisons required is $\frac{n^2-n}{2}$.
+	\noindent Each image with a known author is fully compared to all other known images. Since the comparison value is symmetric, only half of all possible comparisons need to be evaluated. For $n$ images, imagine filling a square $n\times n$ table with real values. Assuming a comparison value of $0$ between identical images, the total number of comparisons required is $\frac{n^2-n}{2}$.
 
 	\noindent For this reason, the algorithm computes only half of the comparisons for each row, as shown in \cref{fig:distance_computation}. Specifically
 	\begin{itemize}
 		\item If $n$ is odd, each row performs $\frac{n-1}{2}$ comparisons (with the remaining values derived by symmetry).
 		\item If $n$ is even, $\frac{n}2$ comparisons are performed for even-indexed rows (where the first row has index $0$), while $\frac{n}2-1$ comparisons are performed for odd-indexed rows.
 	\end{itemize}
-	\noindent This method provides a more consistent and efficient analysis for large datasets, especially when combined with row and column shuffling.
+	\noindent This method provides a more uniform analysis for large datasets, especially when combined with row and column shuffling.
 
 	\begin{figure}[H]
 		\centering
@@ -28,45 +28,9 @@
 
 	\subsection{Challenges} The implementation of the code presented significant challenges, as many of the required frameworks did not exist, and computational and time constraints posed additional hurdles. This necessitated the development of highly efficient and sophisticated code to optimise computational performance.
 
-	\noindent The project was heavily based on \gls{Python} and \gls{CUDA}. Specialised debugging, logging and testing software was used extensively to ensure that the software worked correctly. Automated documentation tools and version control systems were used to manage and track code development. In addition, a robust error handling and session management system was implemented, which included backup mechanisms (called "checkpoints") to prevent the loss of valuable data. Temporary files were also used to extend storage capacity beyond the limits of primary storage.
+	\noindent The project is heavily based on \gls{Python} and \gls{CUDA}. Specialised debugging, logging and testing software was used extensively to ensure that the software worked correctly. Automated documentation tools and version control systems were used to manage and track code development. In addition, a robust error handling and session management system was implemented, which included backup mechanisms (called "checkpoints") to prevent the loss of valuable data. Temporary files were also used to extend storage capacity beyond the limits of primary storage.
 
-	\noindent Due to its complexity and length (a total of $3480$ lines), the code cannot be fully included in this document. However, it is available in the \gls{github} repository:\\ \url{https://github.com/StefanoMagriniAlunno/MMATH_thesis}.
-
-	\bigskip\noindent The machine used to produce the results discussed in this chapter has the following technical specifications:
-	\texttt{\begin{itemize}
-		\item \textbf{processor}: 11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz
-		\begin{itemize}
-			\item[-] Cores: 4
-			\item[-] Thread(s) per core: 2
-			\item[-] CPU max MHz: 4800
-			\item[-] Caches:
-			\begin{itemize}
-				\item[*] L1d 192KiB (4 instances)
-				\item[*] L1i 128KiB (4 instances)
-				\item[*] L2 5MiB (4 instances)
-				\item[*] L3 12MiB (1 instances)
-			\end{itemize}
-		\end{itemize}
-		\item \textbf{memory}: 16 GiB
-		\begin{itemize}
-			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
-			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
-		\end{itemize}
-		\item \textbf{memory}: 16 GiB
-		\begin{itemize}
-			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
-			\item[-] SODIMM DDR4 Synchronous 3200 MHz (0,3 ns)
-		\end{itemize}
-		\item \textbf{graphic processor unit}: NVIDIA GeForce GTX 1650
-		\begin{itemize}
-			\item[-] Cores: 896
-			\item[-] stream multiprocessor: 14
-			\item[-] VRAM: GDDR5 4096 MiB
-			\item[-] CUDA capability: 7.5
-		\end{itemize}
-	\end{itemize}}
-
-	\noindent The performance of the implementation is also reviewed to highlight the benefits of using \gls{gpu}s for this type of computation.
+	\noindent Due to its complexity and length (a total of almost $4000$ lines), the code cannot be fully included in this document. However, it is available in the \gls{github} repository:\\ \url{https://github.com/StefanoMagriniAlunno/MMATH_thesis}.
 
 	\bigskip\noindent The code uses wrapping, which allows a \gls{Python} script to interface with pre-compiled \gls{cxx} code. This approach allows the \gls{Python} script to handle high-level tasks such as preparing input files and reports, retrieving hardware specifications, and configuring computing sessions. When intensive computations are required, the \gls{Python} script calls precompiled \gls{cxx} libraries, ensuring that the \gls{cxx} code remains streamlined and more readable.
 
@@ -76,7 +40,7 @@
 
 	\noindent These strategies for developing high-performance code are common in scientific computing libraries, which often have a main calling function with hidden compiled functions. An example is CuPy, a \gls{Python} library that requires compilation as part of its installation process.
 
-	\section{Preprocessing}
+	\section{Pre processing}
 	Preprocessing is a critical stage in the comparison of unknown works with the dataset. Its primary objective is to ensure that the quality specifications of the images meet certain standards. These specifications are often subjective, and it is not guaranteed that the same algorithm will be applied to each image. The ultimate goal is to remove clearly contaminating data, standardise the image quality and prepare it for analysis by the software. Essentially, pre-processing transforms the real data into an ideal format that is theoretically acceptable to the software.
 
 	\noindent As previously illustrated in \cref{alg:CleaningFFT}, the preprocessing applied to the collected data primarily involves compression using the \gls{fft}. This section presents a step-by-step analysis of the results produced by the algorithm.
@@ -136,7 +100,6 @@
 
     \noindent As mentioned above, the \gls{Python} script manages the operating system and efficiently retrieves input and hardware parameters for lower level pre-compiled programs. In this case, the \texttt{synthesis.py} script sets up the necessary directories to allow a \gls{cxx} program to store the generated syntheses. This process is achieved using a simple code structure as shown below:
 
-\newpage
 \begin{lstlisting}[style=code, language=C, rulecolor=\color{blue}]
 /** @brief In this code we use OpenMP API to realize an array with all tiles.
  *
@@ -218,7 +181,7 @@ for (unsigned col = 0; col < width_short; ++col)
 				\State $s \gets \infty$
 				\State $L \gets \infty$
 				\While{$s > \text{stop}$}
-					\State Compute batch size and alloc memory from $\mathcal{X}$
+					\State Compute batch size
 					\State $c^\text{num}\gets \vec{0}$
 					\State $c^\text{den}\gets \vec{0}$
 					\State $L_\text{new} \gets 0$ \Comment Current value of loss function, see \cref{def:fuzzyloss}
@@ -251,32 +214,40 @@ for (unsigned col = 0; col < width_short; ++col)
 
 	\noindent The use of \gls{gpu} greatly improves performance. This has already been discussed in general terms in \cref{chap:methodology}. Here we examine it in detail, considering specific hardware limitations. While a \gls{gpu} can perform many operations in parallel, it cannot perform an infinite number of tasks simultaneously.
 
-	\noindent For this reason, the concepts of \gls{core} and \gls{thread} are introduced:
-	\begin{itemize}
-		\item \gls{core}: Represents the number of independent processes that can run simultaneously.
-		\item \gls{thread}: Refers to the number of synchronised parallel computations that can run within each \gls{core}.
-	\end{itemize}
+	\bigskip \noindent Examining \cref{alg:MembershipUpdateSafe}, we observe that the computational cost for an unbounded hardware \gls{gpu} is $O(\log KM)$. In particular:
+	\begin{enumerate}
+		\item The matrix $D^2$ can be computed with cost $O\left(\log K\right)$.
+		\item In the loop, each cycle is independent of the others and can be executed in parallel. The cost of a single loop will be:
+		\begin{enumerate}
+			\item $O\left(\log M\right)$ to calculate $l = \min_k{D_{ik}^2}$,
+			\item $O\left(1\right)$ to initialize $U^2$, due to parallelism,
+			\item $O\left(\log M\right)$ to initialize $S_i$, \item $O\left(1\right)$ to complete the calculation of $U^2$ by parallelism.
+		\end{enumerate}
+	\end{enumerate}
 
-	\noindent The kernel responsible for computing $U^2$ and $L_\text{batch}$ has a theoretical computational cost (ignoring hardware limitations) of $O(\log KM)$. However, when hardware limitations are taken into account, the practical computational cost is
+	\noindent However, in the presence of physical limits of \gls{gpu}, the total cost changes. Denoting by \gls{thread}s the processes dedicated to synchronizable reductions and computations, and by \gls{core} the parallel processes for independent computations, the total cost becomes $O\left(|B|MK\frac{\log\gls{thread}}{\gls{thread}\times\gls{core}}\right)$ where $|B|$ denotes the batch size. In more detail:
+	\begin{enumerate}
+		\item The matrix $D^2$ can be computed with cost $O(|B|MK\frac{\log\gls{thread}}{\gls{thread}\times\gls{core}})$.
+		\item In the loop, each loop is independent and can be parallelized on \gls{core} processes. The cost of a single loop executed by a single \gls{core} will be: \begin{enumerate}
+			\item $O\left(M\frac{\log{\gls{thread}}}{\gls{thread}}\right)$ to compute $l = \min_k{D_{ik}^2}$,
+			\item $O\left(\frac{M}{\gls{thread}}\right)$ to initialize $U^2$, treating the \gls{thread}s as independent processes,
+			\item $O\left(M\frac{\log\gls{thread}}{\gls{thread}}\right)$ to initialize $S_i$,
+			\item $O\left(\frac{M}{\gls{thread}}\right)$ to complete the calculation of $U^2$.
+		\end{enumerate}
+		\noindent Consequently, the total computational cost of the loop is $O\left(|B|M\frac{\log\gls{thread}}{\gls{thread}\times\gls{core}}\right)$.
+	\end{enumerate}
+
+	\bigskip \noindent Examining \cref{alg:FCMwrapper}, we deduce that the innermost loop has all its computational cost determined by the call to \cref{alg:MembershipUpdateSafe}. Therefore, the cost of the entire algorithm is:
 	\[
-		O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times|B|MK\right)
+		O\left(INMK\frac{\log\gls{thread}}{\gls{thread}\times\gls{core}}\right)
 	\]
 	where:
 	\begin{itemize}
-		\item $\left|B\right|$ is the batch size,
-		\item $M$ is the number of data points, and
-		\item $K$ is the number of clusters.
+		\item $I$ is the number of iterations,
+		\item $N$ is the number of data point,
+		\item $M$ is the number of clusters, and
+		\item $K$ is the number of dimensions.
 	\end{itemize}
-
-	\noindent Examining \cref{alg:FCMwrapper}, the computational cost of the innermost loop processing a single batch remains:\\
-	$O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times\left|B\right|MK\right)$.\\ However, these operations are repeated sequentially a total of $N/\left|B\right|$ times, i.e. until all the batches have been processed. Therefore, the computational cost for a single iteration is
-	\[
-	O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times NMK\right)
-	\]
-	Considering $I$ as the number of iterations performed before reaching the stopping criterion, the total computational cost becomes
-	\[
-	O\left(\frac{\log\gls{thread}}{\gls{core}\times\gls{thread}}\times INMK\right)
-	\]
 
 	\noindent It is worth noting that the parallelism of the \gls{gpu} does not asymptotically reduce the computational cost in terms of algorithmic parameters, since scalability limits are irrelevant from an asymptotic perspective. However, the practical efficiency gain is significant. On a \gls{cpu}, a single iteration can take hours, whereas on a \gls{gpu} it takes only a few seconds.
 
@@ -300,7 +271,7 @@ for (unsigned col = 0; col < width_short; ++col)
 			RTX $4090$ & $128$ & $128$ & $2235 \mathrm{MHz}$ & $0.04$ \\
 			\hline
 		\end{tabular}
-		\caption[Comparing \gls{gpu}s' performances]{The values in the last column are the proportions of the operation $\frac{\log_2 \text{\gls{thread}}}{\text{\gls{thread}}\times\text{\gls{core}}} / \text{Frequency}$ for each \gls{gpu} respecting the current \gls{gpu}.}
+			\caption[Comparing GPUs' performances]{The values in the last column are the proportions of the operation $\frac{\log_2 \text{\gls{thread}}}{\text{\gls{thread}}\times\text{\gls{core}}} / \text{Frequency}$ for each \gls{gpu} respecting the current \gls{gpu}.}
 		\label{tab:gpucomparison}
 	\end{table}
 
@@ -343,7 +314,7 @@ for (unsigned col = 0; col < width_short; ++col)
 			$0.00182$ & $0.00208$ & $0.00303$ & $0.00076$ \\
 			\hline
 		\end{tabular}
-		\caption[Stability of comparison algorithm]{This table shows the distances following $10$ repeated calculations with different stops. It can be seen that a higher stop criterion implies less accurate results and that in general for $\texttt{stop}=10^{-8}$ the values remain fairly stable except for a few outliers.}
+		\caption[Stability of comparison algorithm for $3\times3$ tiles]{This table shows the distances following $10$ repeated calculations with different stops. It can be seen that a higher stop criterion implies less accurate results and that in general for $\texttt{stop}=10^{-8}$ the values remain fairly stable except for a few outliers.}
 		\label{tab:distStability}
 	\end{table}
 
@@ -388,7 +359,7 @@ for (unsigned col = 0; col < width_short; ++col)
 			comparison value & $0.01003$ & $0.00986$ & $0.01022$ & $0.01019$ \\
 			\hline
 		\end{tabular}
-		\caption[comparison values for different number of centroids]{Comparison values for different numbers of centroids between $2$ works, using hyperparameters: $\texttt{stop}=10^{-9}$, tiles with shape $3\times3$ from images with $200$ \gls{ppi}. In particular, there are $5$ tests and generally the results are stable.}
+		\caption[Comparison values for different number of centroids]{Comparison values for different numbers of centroids between $2$ works, using hyperparameters: $\texttt{stop}=10^{-9}$, tiles with shape $3\times3$ from images with $200$ \gls{ppi}. In particular, there are $5$ tests and generally the results are stable.}
 		\label{tab:distCentroids}
 	\end{table}
 
@@ -418,7 +389,7 @@ for (unsigned col = 0; col < width_short; ++col)
 			$0.01829$ & $0.00559$ & $0.00368$ & $0.00453$ \\
 			\hline
 		\end{tabular}
-		\caption[Comparison values for different dimension]{Comparison values for different dimensionalities were compared between $10$ works using two approaches: $3\times3$ tiles extracted from images at $200$ \gls{ppi}, and $6\times6$ tiles extracted from images at $400$ \gls{ppi} with dimensionality reduced from $36$ to $9$ using \gls{pca}. A significant difference in the results was observed between the two methods. The reduction in dimensionality introduced noticeable changes in the comparison values, particularly when using $6\times6$ tiles, suggesting that the dimensionality reduction method and resolution choice both influence the final outcome.}
+		\caption[Comparison values for different dimensions]{Comparison values for different dimensionalities were compared between $10$ works using two approaches: $3\times3$ tiles extracted from images at $200$ \gls{ppi}, and $6\times6$ tiles extracted from images at $400$ \gls{ppi} with dimensionality reduced from $36$ to $9$ using \gls{pca}. A significant difference in the results was observed between the two methods. The reduction in dimensionality introduced noticeable changes in the comparison values, particularly when using $6\times6$ tiles, suggesting that the dimensionality reduction method and resolution choice both influence the final outcome.}
 		\label{tab:distDimensions}
 	\end{table}
 
@@ -427,7 +398,7 @@ for (unsigned col = 0; col < width_short; ++col)
 
 	\noindent It was also observed that using \gls{pca} allows the dimensionality of $6\times6$ tiles to be reduced to $10$, enabling the use of $1024$ initial clusters for \gls{fcm}. Repeating the stability and optimal centroid detection analyses for dimensionality reduction from $36$ to $10$, it was found that $128$ clusters are sufficient.
 
-	\subsection{Results}
+	\subsection{pre-Test}
 	Based on the previous analysis, comparisons between works can be performed using $128$ clusters and \gls{pca} to reduce the dimensionality from $36$ to $10$. However, before performing large-scale comparisons across all possible pairs of works, it is prudent to first evaluate these hyperparameters in terms of stability and attribution quality on smaller samples. This preliminary examination will also ensure that the stopping criterion remains consistent.
 
 	\paragraph{Test 1}
@@ -464,28 +435,28 @@ for (unsigned col = 0; col < width_short; ++col)
 			$0.00746$ & $0.03894$ & $0.00994$ & $0.02792$ \\
 			\hline
 		\end{tabular}
-		\caption[Stability of comparison algorithm]{This table shows the comparison values after repeated $10$ calculations with different stops. As can be seen, $10^{-9}$ is a stop criterion that gives more than stable results.}
+		\caption[Stability of comparison algorithm for $6\times6$ tiles]{This table shows the comparison values after repeated $10$ calculations with different stops. As can be seen, $10^{-9}$ is a stop criterion that gives more than stable results.}
 		\label{tab:distStability_tuning}
 	\end{table}
 
 	\paragraph{Test 2}
-	This test compares the attribution quality using $3\times3$ tiles extracted from images at $200$ \gls{ppi} and $6\times6$ tiles extracted from images at $400$ \gls{ppi}, subsequently embedded into a $\mathbb{R}^{10}$ space via \gls{pca}. A total of $\num{10000}$ comparison values between works were computed. For each work, the attributed author was the one associated with the "closest" work, i.e., the work yielding the smallest comparison value. While this method is not fully reliable and would require more detailed analyses, it serves as a good indicator of the model's adaptability to real-world scenarios.
+	This test compares the attribution quality using $3\times3$ tiles extracted from images at $200$ \gls{ppi} and $6\times6$ tiles extracted from images at $400$ \gls{ppi}, subsequently embedded into a $\mathbb{R}^{10}$ space via \gls{pca}. A small portion of comparison values between works were computed. For each work, the attributed author was the one associated with the "closest" work, i.e., the work yielding the smallest comparison value. While this method is not fully reliable and would require more detailed analyses, it serves as a good indicator of the model's adaptability to real-world scenarios.
 
 	\begin{table}[H]
 		\centering \begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
 			\hline
 			\rowcolor{pink}
 			\cellcolor{lavender} Author & $1$ & $2$ & $3$ & $4$ \\ \hline
-			$1$ & $219$ & $4$ & $16$ & $31$ \\
+			$1$ & $36$ & $2$ & $2$ & $1$ \\
 			\hline
-			$2$ & $18$ & $22$ & $0$ & $3$ \\
+			$2$ & $0$ & $5$ & $0$ & $0$ \\
 			\hline
-			$3$ & $41$ & $0$ & $9$ & $6$ \\
+			$3$ & $3$ & $0$ & $2$ & $0$ \\
 			\hline
-			$4$ & $30$ & $0$ & $1$ & $20$ \\
+			$4$ & $8$ & $0$ & $0$ & $4$ \\
 			\hline
 		\end{tabular}
-		\caption[Confusion matrix, pretest for $3\times3$ tiles]{This table shows the confusion matrix of attributions using $3\times3$ tiles.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{13169}$ comparisons were conducted. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($28\%$) and false negatives ($19\%$).}
+		\caption[Confusion matrix, pretest for $3\times3$ tiles]{This table shows the confusion matrix of attributions using $3\times3$ tiles.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{13169}$ comparisons were performed and only the works with at least $40$ computed comparisons are shown. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($23\%$) and false negatives ($12\%$).}
 	\end{table}
 
 
@@ -494,20 +465,35 @@ for (unsigned col = 0; col < width_short; ++col)
 			\hline
 			\rowcolor{pink}
 			\cellcolor{lavender} Author & $1$ & $2$ & $3$ & $4$ \\ \hline
-			$1$ & $195$ & $6$ & $25$ & $44$ \\
+			$1$ & $51$ & $1$ & $1$ & $1$ \\
 			\hline
-			$2$ & $37$ & $2$ & $2$ & $2$ \\
+			$2$ & $4$ & $5$ & $0$ & $2$ \\
 			\hline
-			$3$ & $39$ & $0$ & $14$ & $3$ \\
+			$3$ & $5$ & $0$ & $4$ & $1$ \\
 			\hline
-			$4$ & $37$ & $0$ & $5$ & $9$ \\
+			$4$ & $2$ & $1$ & $0$ & $5$ \\
 			\hline
 		\end{tabular}
-		\caption[Confusion matrix, pretest for $6\times6$ tiles]{This table shows the confusion matrix of attributions using $6\times6$ tiles from an image of $400$\gls{ppi} with \gls{pca} from $\mathbb{R}^{36}$ to $\mathbb{R}^{10}$.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{10000}$ comparisons were conducted. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($37\%$) and false negatives ($28\%$).}
+		\caption[Confusion matrix, pretest for $6\times6$ tiles]{This table shows the confusion matrix of attributions using $6\times6$ tiles from an image of $400$\gls{ppi} with \gls{pca} from $\mathbb{R}^{36}$ to $\mathbb{R}^{10}$.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{5982}$ comparisons were performed and only the works with at least $40$ computed comparisons are shown. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($18\%$) and false negatives ($6\%$).}
 	\end{table}
 
-	\section{Final test}
-	\begin{toDo}
-		Inserire risultati ottenuti con parametri ottimali dedotti da Test2
-	\end{toDo}
+	We observe that using \gls{pca} to reduce the dimensionality of the tiles is a qualitatively better approach. However, it is important to note that the computational costs are approximately four times higher. This increase is mainly due to the fact that the number of tiles extracted from an image is almost quadrupled (and at least tripled asymptotically). In particular, $(2w-2n+1)(2h-2n+1)$ tiles were generated, where $w$ and $h$ represent the image size (or pixel grid) with a resolution of $200$ \gls{ppi} compared to $(w-n+1)(h-n+1)$ tiles extracted directly from the image with $200$ \gls{ppi}.
+
+	\noindent In terms of computation time, $5982$ comparisons took about four days of computation, while $13169$ comparisons were completed in about two days, highlighting the different efficiency in relation to the volume of data processed.
+
+	\noindent This highlights how the choice of method must balance the quality of the results with the computational costs, depending on the specific objectives of the analysis.
+
+	\subsection{Monte Carlo Test}
+	This test compares the works using images with the following parameters:
+
+	\begin{itemize}
+		\item resolution of $400$ \gls{ppi},
+		\item tiles of size $6\times6$,
+		\item a \gls{pca} that reduces the dimensionality of the tiles from $\mathbb{R}^{36}$ to $\mathbb{R}^{10}$,
+		\item $128$ centroids for the \gls{fcm} algorithm,
+		\item a stopping criterion of $10^{-9}$ for the energy update in the \gls{fcm} algorithm.
+	\end{itemize}
+
+	\noindent In addition, to reduce the computational time, a sampling method was applied to each set of tiles for each comparison, accepting a potential increase in imprecision. Specifically, half of the available tiles were randomly selected for each comparison. The aim of this method is to see if the analysis can produce qualitatively similar results while reducing the computational time by half (or even more, as it may also reduce the number of iterations required).
+
 \end{toReview}

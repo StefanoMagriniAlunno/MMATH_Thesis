@@ -6,7 +6,6 @@ This research aims to analyse the attribution of graphic works, taking its inspi
 %\noindent Per comprendere appieno la rappresentazione delle opere pittoriche, è opportuno partire dal metodo utilizzato per le opere letterarie. Ad esempio, nell'espressione "\texttt{Hello world!}", un $3$-gramma può essere rappresentato da "\texttt{llo}", che corrisponde a una sequenza di $3$ caratteri consecutivi. È importante sottolineare che anche spazi e punteggiature sono considerati caratteri, quindi anche "\texttt{o w}" e "\texttt{ld!}" sono $3$-grammi validi.
 \noindent To fully understand the representation of graphic works, it is appropriate to start from the method used for literary works. For example, in the expression "\texttt{Hello world!}", a $3$-gram can be represented by "\texttt{llo}", which corresponds to a sequence of $3$ consecutive characters. Importantly, spaces and punctuation are also considered characters, so "\texttt{o w}" and "\texttt{ld!}" are also valid $3$-grams.
 
-%\noindent Le ricerche in questo ambito sono numerose e hanno portato a diverse applicazioni. Le rappresentazioni basate sugli $N$-grammi sono utilizzate non solo nell'attribuzione letteraria, ma anche nei modelli di linguaggio naturale nei quali queste analisi sono integrate con uso di reti neurali ricorrenti \begin{toDo} Inserire un riferimento \end{toDo}. Tuttavia, finora si conosce poco riguardo all'applicazione di questa tecnica alle opere pittoriche, e questo costituisce l'obiettivo principale della presente ricerca.
 \noindent Research in this field is extensive and has led to various applications. Representations based on $N$-grams are used not only in literary attribution, but also in natural language models in which these analyses are integrated with the use of recurrent neural networks. However, little is known so far about the application of this technique to graphic works, and this constitutes the main focus of this research.
 
 % introduco la tesi della triennale
@@ -30,13 +29,16 @@ In the thesis research about the application of $N$-gram analysis on calligraphi
 
 \noindent The research concluded with promising results, showing that the automatic analysis of handwriting samples allows very precise author attributions. However, it turned out that applying the same analysis to pictorial works such as panels and drawings does not produce satisfactory results. It was conjectured that this is due to the intrinsic nature of pictorial works, where the presence of colour plays an important role, and posterisation, instead of helping attribution, generates noise and new information that make the representation of data unreliable.
 
-\begin{note} in questo paragrafo vorrei solo introdurre il concetto di \gls{dada}, potrei parlare di più della tesi triennale in literature review. \end{note}
+\begin{note}
+	in questo paragrafo vorrei solo introdurre il concetto di dada, potrei parlare di più della tesi triennale in literature review.
+\end{note}
 
 \paragraph{\gls{cada}}
-%Seguendo la stessa linea di ricerca della tesi di \begin{toDo} inserire riferimento \end{toDo}, abbiamo proposto un riadattamento della metodologia al fine di indagare su quale possa essere la strategia più efficace per l'analisi automatica di immagini caratterizzate da un vasto alfabeto di colori. L'obiettivo è costruire una \gls{cada} che possa analizzare i colori nel loro spazio naturale, ovvero in uno spazio continuo. Ciò ci consentirà di superare il vincolo del discreto di \gls{dada} e di ottenere risultati più accurati e dettagliati.
 Following the same line of research \cite[my bachelor thesis]{thesis}, we have proposed a re-adaptation of the methodology in order to investigate what might be the most effective strategy for the automatic analysis of images characterised by a large alphabet of colours. The aim is to construct a \gls{cada} that can analyse colours in their natural space, i.e. in a continuous space. This will allow us to overcome the discrete constraint of \gls{dada} and obtain more accurate and detailed results.
 
-\begin{note} lavoro in scale di grigi, ma è comunque uno spazio continuo \end{note}
+\begin{note}
+	lavoro in scale di grigi, ma è comunque uno spazio continuo
+\end{note}
 
 \noindent Image analysis in \gls{dada} is a process in five stages: acquisition, pre-processing, synthesis, comparison and attribution. In this paper we are going to focus on the first four phases, detailing the process up to image comparison, while attribution will be briefly discussed as the concluding phase.
 

@@ -113,20 +113,36 @@
 	pdfkeywords={Latex, hyperref, hyperlink}
 }
 
-\definecolor{revisioncolor}{RGB}{25, 25, 112}
-\definecolor{modifiedcolor}{RGB}{128, 0, 32}
-\definecolor{todocolor}{RGB}{34, 139, 34}
-\definecolor{notecolor}{RGB}{102, 68, 34}
-\newenvironment{toReview}{\addtoReview\color{revisioncolor}\marginnote{\textbf{To Review}}}{\ignorespacesafterend}
-\newenvironment{modified}{\addmodified\color{modifiedcolor}\marginnote{\textbf{Modified}}}{\ignorespacesafterend}
-\newenvironment{toDo}{\addtoDo\color{todocolor}\marginnote{\textbf{To Do}}}{\ignorespacesafterend}
-\newenvironment{note}{\addnote\color{notecolor}\marginnote{\textbf{Note}}}{\ignorespacesafterend}
-\newlistof{ambienti}{amb}{Special contents}
-\newcommand{\customindex}{\listofambienti}
-\newcommand{\addtoReview}{\addcontentsline{amb}{ambienti}{To Review}}
-\newcommand{\addmodified}{\addcontentsline{amb}{ambienti}{Modified}}
-\newcommand{\addtoDo}{\addcontentsline{amb}{ambienti}{To Do}}
-\newcommand{\addnote}{\addcontentsline{amb}{ambienti}{Note}}
+
+\newif\ifrelease
+% Imposta la variabile release a true o false
+% \releasetrue  % Uncomment per modalità release
+  \releasefalse % Uncomment per modalità con note
+
+\ifrelease
+% Modalità release: definisce gli ambienti personalizzati come vuoti
+	\newenvironment{toReview}{}{}
+	\newenvironment{modified}{}{}
+	\excludecomment{toDo}
+	\excludecomment{note}
+	\providecommand{\customindex}{} % Disabilita la lista personalizzata
+\else
+% Modalità normale: definisce gli ambienti con colori e margini
+	\definecolor{revisioncolor}{RGB}{25, 25, 112}
+	\definecolor{modifiedcolor}{RGB}{128, 0, 32}
+	\definecolor{todocolor}{RGB}{34, 139, 34}
+	\definecolor{notecolor}{RGB}{102, 68, 34}
+	\newenvironment{toReview}{\addtoReview\color{revisioncolor}\marginnote{\textbf{To Review}}}{\ignorespacesafterend}
+	\newenvironment{modified}{\addmodified\color{modifiedcolor}\marginnote{\textbf{Modified}}}{\ignorespacesafterend}
+	\newenvironment{toDo}{\addtoDo\color{todocolor}\marginnote{\textbf{To Do}}}{\ignorespacesafterend}
+	\newenvironment{note}{\addnote\color{notecolor}\marginnote{\textbf{Note}}}{\ignorespacesafterend}
+	\newlistof{ambienti}{amb}{Special contents}
+	\newcommand{\customindex}{\listofambienti}
+	\newcommand{\addtoReview}{\addcontentsline{amb}{ambienti}{To Review}}
+	\newcommand{\addmodified}{\addcontentsline{amb}{ambienti}{Modified}}
+	\newcommand{\addtoDo}{\addcontentsline{amb}{ambienti}{To Do}}
+	\newcommand{\addnote}{\addcontentsline{amb}{ambienti}{Note}}
+\fi
 
 \definecolor{kernel}{rgb}{0.96,0.9,0.9} % 0.9 luminosità, 0.6 saturazione, (1,0,0)
 \definecolor{python}{rgb}{0.9,0.96,0.9} % 0.9 luminosità, 0.6 saturazione, (0,1,0)
@@ -280,7 +296,7 @@
 \include{main/LiteratureReview}  % Revisione della bibliografia
 \include{main/Methodology}  % Corpo vero della tesi in cui si mostra cosa si è fatto
 \include{main/Results}  % Risultati (analisi dei risultati ottenuti in merito la tesi)
-\include{main/Discussion}  % Discussione (confronto tra i risultati e la teoria)
+%\include{main/Discussion}  % Discussione (confronto tra i risultati e la teoria)
 %\include{main/Conclusion}  % Conclusioni (riepilogo e prospettive future)
 \appendix
 \include{main/Appendix}  % Appendici

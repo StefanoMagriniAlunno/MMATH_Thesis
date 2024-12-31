@@ -6,27 +6,18 @@
 	\caption[Example of \gls{kmeans} clustering]{The data points are coloured according to the calculated label and the estimated centroid is indicated with an $\times$.}
 	\label{fig:data_kmeans}
 \end{figure}
-\begin{modified}
-Modificato da \texttt{X} a $\times$
-\end{modified}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\linewidth]{Figures/dati_gmm.png}
     \caption[Example of GMM clustering]{The data points are coloured according to the Mahalanobis distance and the estimated centroid is indicated with an $\times$. The ellipse of the normal distribution represents the covariance and is a confidence region of $95\%$.}
     \label{fig:data_gmm}
 \end{figure}
-\begin{modified}
-Modificato da \texttt{X} a $\times$
-\end{modified}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\linewidth]{Figures/dati_fcm.png}
     \caption[Example of \gls{fcm} clustering]{The data points are coloured according to the most probable label and the estimated centroid is indicated with an $\times$. The lines indicate the assignments with the greatest degree of affiliation of each point to the clusters; the darker the lines, the stronger the assignment.}
     \label{fig:data_fcm}
 \end{figure}
-\begin{modified}
-Modificato da \texttt{X} a $\times$
-\end{modified}
 
 \chapter{FCM implementation with CUDA} \label{appendix:fcm_kernel}
 \gls{cuda} is a hardware architecture supported by the graphics processors of \emph{NVIDIA}, a US company. It is possible to implement the code that defines the communication between \gls{cpu} and \gls{gpu} in a dialect of \gls{cxx}. The code that actually executes the graphics processor can already be implemented with special functions of the \gls{thrust} and \gls{cuBLAS} libraries or realised by means of kernels. In this appendix we show the kernel used to realise the calculation of the $u^2$ matrix in \gls{fcm}. In particular, the algorithm is optimised to perform the calculation on at most \texttt{MAX\_THREAD\_PER\_BLOCK} centroids, which provides the highest performance since the hardware properties of \gls{gpu} can be used to the fullest.
