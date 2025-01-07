@@ -309,27 +309,43 @@ This method not only tries to find clusters and label data points, but also prop
 \bigskip
 Next, we examine how these methods behave in the presence of noisy data. Specifically, $6$ random centroids were chosen in a two-dimensional space. \begin{modified} Around each centroid, data points were generated according to a Gaussian distribution, with the centroid serving as the mean and a distinct covariance matrix defining the spread. \end{modified} For each cluster, $20$, $20$, $20$, $30$, $30$ and $40$ data points were generated, respectively. In addition, uniformly generated noisy data points were added, constituting $30\%$ of the total (i.e. $48$ noisy data points). A representation of this data can be seen in \cref{fig:data_true}. As can be seen, noise can create \textit{outliers}, i.e. distant points that would be better ignored to achieve good clustering.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{Figures/dati_veri.png}
     \caption[Example of data for clustering]{Data points are coloured according to their label, while noise is shown in grey.}
     \label{fig:data_true}
 \end{figure}
 
-\begin{toDo}
-	Le figure sono molto grandi e formattano male il testo (compaiono in altre sezioni o comunque molte pagine dopo in altri contesti), al momento le ho messe in appendice. Non so bene come risolvere questa cosa. Eventualmente alla fine di tutto vedo se riesco a reinserirle.
-\end{toDo}
-
 \begin{toReview}
 	We are going to see the results of different clusterisation over the same data: \gls{kmeans}, \gls{gmm}, \gls{fcm}.
 \end{toReview}
 \paragraph{\gls{kmeans}} We cluster the data using \gls{kmeans} with the correct number of centroids, i.e. $6$. In \cref{fig:data_kmeans} we can see that the noise has created an additional cluster and two of the original clusters have merged into one.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{Figures/dati_kmeans.png}
+	\caption[Example of \gls{kmeans} clustering]{The data points are coloured according to the calculated label and the estimated centroid is indicated with an $\times$.}
+	\label{fig:data_kmeans}
+\end{figure}
 
 \begin{modified}
 \paragraph{\gls{gmm}} Next, we apply clustering using a \gls{gmm} with $6$ centroids. In \cref{fig:data_gmm}, it can be seen that the cluster corresponding to noise has a very low weight, with a probability of $0.07$. Furthermore, the use of covariance matrices allows for a more precise determination of the centroid positions and provides additional information about the shape and spread of the clusters. This enables the identification of substructures or dependencies among clusters, which can be interpreted as a form of hierarchical organization. It is important to note that in \gls{gmm}, clusters are modeled as Gaussian distributions rather than discrete entities, meaning that what we observe are formal probability distributions rather than "real" clusters with strict boundaries.
 \end{modified}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{Figures/dati_gmm.png}
+	\caption[Example of GMM clustering]{The data points are coloured according to the Mahalanobis distance and the estimated centroid is indicated with an $\times$. The ellipse of the normal distribution represents the covariance and is a confidence region of $95\%$.}
+	\label{fig:data_gmm}
+\end{figure}
+
 \noindent Finally, let clustering be applied with \gls{fcm} using $6$ centroids. In \cref{fig:data_fcm} we observe that the centroids are less affected by noise, making it possible to identify which data are potentially noisy or shared between several clusters.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{Figures/dati_fcm.png}
+	\caption[Example of \gls{fcm} clustering]{The data points are coloured according to the most probable label and the estimated centroid is indicated with an $\times$. The lines indicate the assignments with the greatest degree of affiliation of each point to the clusters; the darker the lines, the stronger the assignment.}
+	\label{fig:data_fcm}
+\end{figure}
 
 \bigskip
 \begin{modified}

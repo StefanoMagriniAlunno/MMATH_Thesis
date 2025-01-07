@@ -496,4 +496,24 @@ for (unsigned col = 0; col < width_short; ++col)
 
 	\noindent In addition, to reduce the computational time, a sampling method was applied to each set of tiles for each comparison, accepting a potential increase in imprecision. Specifically, half of the available tiles were randomly selected for each comparison. The aim of this method is to see if the analysis can produce qualitatively similar results while reducing the computational time by half (or even more, as it may also reduce the number of iterations required).
 
+	\noindent Come si può notare in tabella \cref{tab:350Results} sono stati eseguiti il $30\%$ di tutti i possibili confronti. Il tempo richiesto per un simile calcolo è stato di $10$ giorni di computazione senza interruzioni. Si può notare che la qualità dei risultati non è molto dissimile da quelli ottenuti per immagini con $200$\gls{ppi}. Questo suggerisce che una rimozione non casuale ma intelligente delle tessere è necessaria per ridurre il numero di tessere senza perdere accuratezza.
+
+	\begin{table}[H]
+		\centering \begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
+			\hline
+			\rowcolor{pink}
+			\cellcolor{lavender} Author & $1$ & $2$ & $3$ & $4$ \\ \hline
+			$1$ & $34$ & $2$ & $1$ & $1$ \\
+			\hline
+			$2$ & $5$ & $2$ & $0$ & $0$ \\
+			\hline
+			$3$ & $1$ & $0$ & $2$ & $0$ \\
+			\hline
+			$4$ & $4$ & $2$ & $0$ & $1$ \\
+			\hline
+		\end{tabular}
+	\label{tab:30Results}
+		\caption[Confusion matrix, Monte Carlo test for $6\times6$ tiles]{This table shows the confusion matrix of attributions using $6\times6$ tiles from an image of $400$\gls{ppi} with \gls{pca} from $\mathbb{R}^{36}$ to $\mathbb{R}^{10}$. Comparisons are performed by the Monte Carlo method, randomly sampling $50\%$ of the tiles before making attribution calculations. Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{26861}$ comparisons were performed and only the works with at least $200$ computed comparisons are shown. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($23\%$) and false negatives ($11\%$).}
+	\end{table}
+
 \end{toReview}
