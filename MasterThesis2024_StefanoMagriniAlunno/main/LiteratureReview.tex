@@ -29,25 +29,22 @@ As we have seen, the tiles used to compute \cref{eq:SapAttribution_dist} can be 
 \noindent Doing so is expected to provide more accurate results than posterization. However, it will be necessary to provide a definition of comparative value in the case of \gls{kmeans}.
 \end{modified}
 
+\newpage
 \begin{exempli_gratia}[Distance between distributions reformulated with \gls{kmeans}]
 	In this paragraph we will adopt the theoretically easy clustering \gls{kmeans}. Let us take $\num{10000}$ samples from $\mathcal{N}(-1,0.25)$ and $\num{40000}$ from $\mathcal{N}(+1,1)$, the two distributions will be denoted by $\mathcal{A}$ and $\mathcal{B}$ respectively.
 
-	\begin{note}
-		\noindent 32 perché sembrava graficamente meglio da vedere: 64 faceva grafici poco comprensibili e con 16 faceva dei grafici poco esplicativi. E' solo per i fini dell'esempio. (Una potenza di 2 perché per i computer è più facile gestire in memoria potenze di 2, è solo una questione mia di abitudine)
-	\end{note}
-
 	\begin{modified}
-	\noindent The two sets of samples will be merged and clustered with \gls{kmeans} using $32$ centroids, resulting in a predictor $\mathcal{P}$. This predictor maps each data point $x$ to the centroid $c$ of the cluster it belongs to, i.e., $P(x)=c$ if $x$ belongs to the cluster with centroid $c$. Each cluster will be viewed as a region with a certain measure that will be the mean square of the distances of each datum in the cluster from its centroid. Given a cluster of centroid $c$, we want to estimate:
+	\noindent The two sets of samples will be merged and clustered with \gls{kmeans} using $32$ centroids, resulting in a predictor $\mathcal{P}$. This predictor maps each data point $x$ to the centroid $c$ of the cluster it belongs to, i.e., $P(x)=c$ if $x$ belongs to the cluster with centroid $c$. Each cluster will be viewed as a region with a certain measure that will be the mean square of the distances of each datum in the cluster from its centroid. Given a cluster $C$ of centroid $c$, we want to estimate:
 	\[
-	\mu(c)=\sqrt{\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}\left(x\right)=c\right]}
+		\mu(C)=\sqrt{\mathbb{E}_{x\sim\mathcal{L}}\left[\left\|x-c\right\|^2\middle|\mathcal{P}\left(x\right)=c\right]}
 	\]
 	where $\mathcal{L}$ is the law of the two merged samples.
 
 	\noindent We can see, in the image at left, that the regions has a little measure $\mu(c)$ where the density of $\mathcal{L}$ is higher. Furthermore, the image shows the weights of each cluster $c$ defined as  $\mathbb{P}_{x\sim\mathcal{L}}\left[\mathcal{P}(x)=c\right]$
 
-	\noindent We now study the two sets of samples separately over this clustering. The densities will be weighted on the new measure $\mu$, so the density on the centroid $c$ of measure $\mu(c)$ respectively for the distribution $\mathcal{A}$ will be:
+	\noindent We now study the two sets of samples separately over this clustering. The densities will be weighted on the new measure $\mu$, so the density on the cluster $C$ of centroid $c$ of measure $\mu(C)$ respectively for the distribution $\mathcal{A}$ will be:
 	\[
-	d_\mathcal{A}(c):=\frac{p_\mathcal{A}(c)}{\mu(c)} := \frac{\mathbb{P}_{x\sim\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(c)}
+	d_\mathcal{A}(C):=\frac{p_\mathcal{A}(C)}{\mu(C)} := \frac{\mathbb{P}_{x\sim\mathcal{A}}\left[\mathcal{P}(x)=c\right]}{\mu(C)}
 	\]
 	similarly for $\mathcal{B}$.
 
@@ -55,8 +52,8 @@ As we have seen, the tiles used to compute \cref{eq:SapAttribution_dist} can be 
 
 	\noindent Let us try to calculate the comparison value formulated \cref{eq:SapAttribution_dist} considering the measure:
 	\begin{align*}
-		d_{\gls{kmeans}}(A,B)&=(1+J_{D_A,D_B})^{-1}\frac{1}{\sum_{c\in D_A\cup D_B}\mu(c)}\sum_c \mu(c)\left(\frac{p_A(c)-p_B(c)}{p_A(c)+p_B(c)}\right)^2 \\
-		&= (1+J_{D_A,D_B})^{-1}\frac{1}{\mu(D_A\cup D_B)}\int d\mu(c) \left(\frac{p_A(c)-p_B(c)}{p_A(c)+p_B(c)}\right)^2
+		d_{\gls{kmeans}}(A,B)&=(1+J_{D_A,D_B})^{-1}\frac{1}{\sum_{C\in D_A\cup D_B}\mu(C)}\sum_c \mu(C)\left(\frac{p_A(C)-p_B(C)}{p_A(C)+p_B(C)}\right)^2 \\
+		&= (1+J_{D_A,D_B})^{-1}\frac{1}{\mu(D_A\cup D_B)}\int d\mu(C) \left(\frac{p_A(C)-p_B(C)}{p_A(C)+p_B(C)}\right)^2
 	\end{align*}
 	where $D_A$ is the support for the discretisation of ${\mathcal{A}}$ and similarly for $D_B$.\\ The result for $32$ centroids is $0.54$.
 
@@ -118,39 +115,31 @@ As we have seen, the tiles used to compute \cref{eq:SapAttribution_dist} can be 
 	\noindent The number of centroids is a critical parameter. As with boxes, too many centroids can overfit, increasing the comparison value, while too few may fail to capture the data's structure efficiently. Additionally, in high-dimensional spaces, box-based clustering becomes computationally prohibitive compared to dynamic clustering, with computation times exceeding those of \gls{kmeans} by a factor of over 100. The dynamic shape of \gls{kmeans} clusters explains this difference: a single dynamically generated cluster can cover regions spanning thousands of boxes, drastically reducing computational cost while preserving accuracy.
 \end{exempli_gratia}
 \end{toReview}
-
+\newpage
 \subsection{Fuzzy Clustering as a Noise Filtering Method}
 \begin{modified}
-In this thesis, a variant of the algorithm \gls{fcm} will be used to compare two datasets. This variant introduces a weighting factor $w$, which represents the importance or contribution of each data point in the clustering process. The weight ww can be interpreted as the effective cardinality of the point: for instance, a point with $w=2$ is treated as if it were two identical points, while $w=0.5$ corresponds to half a point. This generalization allows for cleaner comparisons between sets of samples with different cardinality, simulating a balanced dataset by appropriately scaling the influence of each point.
+In this thesis, a variant of the algorithm \gls{fcm} will be used to compare two datasets. This variant introduces a weighting factor $w$, which represents the importance or contribution of each data point in the clustering process. The weight $w$ can be interpreted as the effective cardinality of the point: for instance, a point with $w=2$ is treated as if it were two identical points, while $w=0.5$ corresponds to half a point. This generalization allows for cleaner comparisons between sets of samples with different cardinality, simulating a balanced dataset by appropriately scaling the influence of each point.
 
 \noindent Additionally, this variant includes specific adjustments to account for machine error in the computation of centroids (see \cref{alg:FuzzyClustering}). These adjustments improve robustness in high-dimensional spaces, with large datasets, or when using many centroids, mitigating numerical precision issues for stable clustering.
 \end{modified}
 \paragraph{Data's weight}
 We introduce a vector $w$ indicating the weight of the data as a positive real value. As stated in \cref{thm:Mupdate,thm:Eupdate,def:fuzzyloss}, the following equations summarize the key components of the fuzzy clustering algorithm discussed so far:
 \begin{align*}
-	C_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2x_i}{\sum_{i=1}^N u_{ij}^2w_i} \quad \forall j\\
-	L &= \sum_i\sum_j u_{ij}^2\left\|x_i-C_j\right\|^2 \\
+	c_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2x_i}{\sum_{i=1}^N u_{ij}^2w_i} \quad \forall j\\
+	L &= \sum_i\sum_j u_{ij}^2\left\|x_i-c_j\right\|^2 \\
 	u_{ij} &= \frac{1}{\sum_k\frac{d_{ij}^2}{d_{ik}^2}} \quad \forall i,j\\
-	d_{ij} &= \left\|x_i - C_{j}\right\| \quad \forall i,j
+	d_{ij} &= \left\|x_i - c_{j}\right\| \quad \forall i,j
 \end{align*}
 Since it is a weighted average over $u_{ij}^2$, if a datum has a higher weight then it should increase its influence, thus having the following results:
 \begin{align*}
-	C_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2w_ix_i}{\sum_{i=1}^N u_{ij}^2w_i} \quad \forall j\\
-	L &= \sum_i\sum_j w_{i}u_{ij}^2\left\|x_i-C_j\right\|^2 \\
+	c_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2w_ix_i}{\sum_{i=1}^N u_{ij}^2w_i} \quad \forall j\\
+	L &= \sum_i\sum_j w_{i}u_{ij}^2\left\|x_i-c_j\right\|^2 \\
 	u_{ij} &= \frac{1}{\sum_k\frac{d_{ij}^2}{d_{ik}^2}} \quad \forall i,j\\
-	d_{ij} &= \left\|x_i - C_{j}\right\| \quad \forall i,j
+	d_{ij} &= \left\|x_i - c_{j}\right\| \quad \forall i,j
 \end{align*}
 
-\begin{note}
-	Avevo scritto "pieces" perché i dati sono analizzati in batch ma questo argomento ho poi deciso di spostarlo più nelle implementazioni nel capitolo Results. Sarà rimasto come remasuio, lo tolgo...
-\end{note}
 \paragraph{machine error}
-The use of \gls{fcm} in this thesis involves millions of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. \begin{modified} In \cref{alg:FuzzyClustering}, might exist is a value $D_{ik}^2 \approx 0$  that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it overshadows all other data in the sum.\end{modified}\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NMK)$ \marginnote{\tiny$N$ is the number of data and $M$ is the number of centroids, $K$ is the size of the tiles}. However scalability allows us to reduce this cost to $O(\text{log}(KM))$ by exploiting the independence of each cycle and scalable reductions (details in \cref{chap:methodology}).\\
-\begin{note}
-	In una situazione ideale dove la GPU può accettare qualsiasi livello di parallelismo, si può  lavorare sui dati indipendentemente. E usare le riduzioni (un algoritmo presentato in methodology) per abbattare i costi delle sommatorie da lineari a logaritmici.
-
-	Poi nel capitolo results faccio notare che i limiti fisici della gpu tirano fuori un costo che comunque sarà O(NCK) ma con un fattore moltiplicativo con i dettagli hardware.
-\end{note}
+The use of \gls{fcm} in this thesis involves millions of data, and it is possible that the classical algorithm will find itself making serious machine errors that must be kept under control. In \cref{alg:FuzzyClustering}, might exist is a value $D_{ik}^2 \approx 0$  that may be null or so small that when $D_{ij}^2 / D_{ik}^2$ is computed, it is infinity or a number so large that when added to other numbers it overshadows all other data in the sum.\\ For this reason \cref{alg:MembershipUpdateSafe} proposes a more robust approach. We also remark that the computational cost in a sequential algorithm will be $O(NMK)$. However scalability allows us to reduce this cost to $O(\text{log}(KM))$ by exploiting the independence of each cycle and scalable reductions (details in \cref{chap:methodology}).\\
 
 \begin{algorithm}[h]
 \caption[Membership update stable computation.]{Membership update stable computation.\\
@@ -164,7 +153,7 @@ The use of \gls{fcm} in this thesis involves millions of data, and it is possibl
 }
 \begin{algorithmic}[1]
 \Procedure{MembershipUpdateStable}{$\mathcal{S}, \mathcal{C}$}
-    \State $D^2 \gets (d^2_{ij})_{ij}$ with $d_{ij}^2=\|x_i-C_j\|^2$
+    \State $D^2 \gets (d^2_{ij})_{ij}$ with $d_{ij}^2=\|x_i-c_j\|^2$
     \For{$i \gets 0$ to $N$}
         \State $l \gets \min_k\{D_{ik}^2\}$
         \If{$l = 0$}
@@ -181,7 +170,7 @@ The use of \gls{fcm} in this thesis involves millions of data, and it is possibl
 \label{alg:MembershipUpdateSafe}
 \end{algorithm}
 
-\subsection{Analysis of images with \gls{dft}}
+\subsection{Analysis of images with DFT}
 It was seen in the introductory section of \gls{dft} that the algorithm \gls{fft} can only be applied to time series or, more generally, to a sequence of complex numbers. However, it is also possible to extend this concept to the analysis of the spectrum of a matrix with periodic behaviour.
 
 \noindent Consider a matrix $x \in \mathbb{C}^{N \times M}$ defined as follows:

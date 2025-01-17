@@ -5,7 +5,7 @@ In this paper we have successfully defined a comparison function for the \gls{ca
 
 \noindent For this reason, \gls{cada} evaluates the comparison between works using clustering algorithms, which help to mitigate problems related to high dimensionality. The aim is to redefine the comparison function as follows:
 \[
-	d\left(\mathcal{A}, \mathcal{B}\right) = \left(1+J_{D_\mathcal{A}, D_\mathcal{B}}\right)^{-1}\sum_{x\in D_\mathcal{A}\cup D_\mathcal{B}}\left(\frac{f_\mathcal{A}(x) - f_\mathcal{B}(x)}{f_\mathcal{A}(x) + f_\mathcal{B}(x)}\right)^2
+	d\left(\mathcal{A}, \mathcal{B}\right) = \left(1+J_{D_\mathcal{A}, D_\mathcal{B}}\right)^{-1}\frac{1}{\sum_{c\in D_A\cup D_B}\mu(C)}\sum_{C\in D_\mathcal{A}\cup D_\mathcal{B}}\mu(C)\left(\frac{p_\mathcal{A}(C) - p_\mathcal{B}(C)}{p_\mathcal{A}(C) + p_\mathcal{B}(C)}\right)^2
 \]
 based on the clustering results to better capture the characteristics of the data distributions.
 
@@ -25,7 +25,7 @@ The work done has some vulnerabilities and limitations that deserve attention, b
 
 \begin{itemize}
 	\item \textbf{Quality of dataset}:\\ The dataset is composed of manually collected images, making it prone to possible impurities in collection and unrepresentative of more complex scenarios. For example, it includes few authors and a limited number of works for each author. Although composed of $113$ sheets, the dataset may not be sufficient to define the distinguishing characteristics of an author or to deduce general patterns useful for the comparison method. In real scenarios, more heterogeneous and higher quality datasets would be essential.
-	\item \textbf{Pre-processing noise}:\\ The pre-processing stage, required to remove square grids from images, may introduce unwanted distortions. For example, removing squares with \gls{fft} may alter the author's handwriting, making some relevant features or details less distinctive. In addition, subsequent normalization could cause variations in gray levels that negatively influence clustering.
+	\item \textbf{pre-Processing noise}:\\ The pre-processing stage, required to remove square grids from images, may introduce unwanted distortions. For example, removing squares with \gls{fft} may alter the author's handwriting, making some relevant features or details less distinctive. In addition, subsequent normalization could cause variations in gray levels that negatively influence clustering.
 	\item \textbf{Computational Performance}:\\ The method \gls{cada}, although optimized, is computationally intensive for large datasets or high-resolution images. Increasing the number of tiles or reducing the stop criterion in the \gls{fcm} algorithm can improve accuracy, but introduces significantly longer computation times. This presents a major challenge for large-scale practical applications.
 	\item \textbf{Robustness of Approach}:\\ The method \gls{cada} depends strongly on the parameters chosen, such as the number of centroids and the dimensionality of the tiles reduced with \gls{pca}. Changing these parameters can impact the quality of the results significantly, making the method less reliable in contexts that are not tightly controlled.
 	\item \textbf{Scalability and Adaptability}:\\ The \gls{cada} method, although efficient in specific contexts such as human handwriting, may not be easily adaptable to different domains (e.g., color images, works with very intricate details, or abstract art styles). In addition, using a dataset with thousands of images would require significant implementation changes to maintain acceptable computation times.
@@ -38,8 +38,9 @@ This thesis introduces the idea of greyscale image analysis. However, the underl
 The theory presented in this thesis can be extended to other types of works or artefacts. For example, it could be applied to audio recordings by adapting the algorithm to work on spectrogram images derived from the audio signals.
 
 \begin{figure}[h]
+	\centering
 	\includegraphics[width=0.8\linewidth]{Figures/Spectrogram.png}
-	\caption[Spectogram of a file audio]{Spectogram di un file audio. Image owned by \url{https://en.wikipedia.org/wiki/User:Omegatron}, used under Creative Commons Attribution-Share Alike 3.0 Unported (CC BY-SA 3.0) licence \url{https://creativecommons.org/licenses/by-sa/3.0/deed.en}.}
+	\caption[Spectogram of a file audio]{Spectogram of a file audio. Image owned by \url{https://en.wikipedia.org/wiki/User:Omegatron}, used under Creative Commons Attribution-Share Alike 3.0 Unported (CC BY-SA 3.0) licence \url{https://creativecommons.org/licenses/by-sa/3.0/deed.en}.}
 \end{figure}
 
 \noindent Another potential application of the clustering-based comparison method is the analysis of literary works, where the input is generated using word embeddings. These algorithms convert text into sequences of real vectors that capture semantic proximity. This approach improves the pre-processing, and by using a pre-trained transformer, it is possible to extract more complex semantic meanings from large portions of text. This variant allows the \gls{cada} method to be used effectively, unlike the \gls{dada} method, which is limited to discrete entities such as alphabetic characters.
@@ -48,7 +49,7 @@ The theory presented in this thesis can be extended to other types of works or a
 
 \noindent Another interesting idea for changing the nature of the input to image analysis is the use of Peano curves. This technique, while not entirely new, has been explored in the context of applying one-dimensional data mining operations to images.\footnote{For more about Peano curves and their application to image analysis, see \\ \url{https://deepai.org/publication/space-filling-curves-for-high-performance-data-mining}} Specifically, the image is transformed into a single continuous line of grey pixels representing the Peano curve. The algorithm can then be applied to this line as if it were a sequence of characters.
 
-\subsection{\gls{cada} with \gls{gmm}}
+\subsection{CADA with GMM}
 As previously mentioned, this thesis explores a generalisation of \gls{dada} through \gls{cada}, applied using \gls{kmeans} and \gls{fcm}. Additionally, the \gls{gmm} clustering algorithm was briefly introduced, which operates on a fundamentally different principle compared to \gls{fcm}. Investigating this type of clustering to compare two works could also be of interest. Specifically, \gls{gmm} clustering aims to approximate the unknown original density of the sample sets with a known one.
 
 \noindent As explained in \cref{chap:LiteratureReview}, given a set of samples $A\subset\mathbb{R}^K$, the \gls{gmm} algorithm estimates the parameters $p_i\in \mathbb{R}$, $\Sigma_i\in\mathbb{R}^{K\times K}$, and $\mu_i\in\mathbb{R}^K$ for each cluster $i$. These parameters describe the following process for generating A:

@@ -1,5 +1,5 @@
 \section{n-gram language model}
-The $n$-gram language model analyzes a sequence of symbols by examining sets of frames, known as $n$-grams. This model is designed to construct a natural language model based on the assumption that each new symbol is statistically influenced by the preceding symbols. For example, the phrase '\texttt{I am playing }' could be followed by '\texttt{a piano}' or '\texttt{with a dog}'. The $n$-gram model assumes that the continuation of this phrase depends solely on a finite window of preceding words or characters, and assigns '\texttt{a piano}' a certain probability of being the most natural continuation. However, as language modeling techniques have advanced, the $n$-gram model has largely been replaced by more sophisticated models, such as transformers\footnote{For more information on transformers, see \url{https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)}}.
+The $n$-gram language model analyses a sequence of symbols by examining sets of frames, known as $n$-grams. This model is designed to construct a natural language model based on the assumption that each new symbol is statistically influenced by the preceding symbols. For example, the phrase '\texttt{I am playing }' could be followed by '\texttt{a piano}' or '\texttt{with a dog}'. The $n$-gram model assumes that the continuation of this phrase depends solely on a finite window of preceding words or characters, and assigns '\texttt{a piano}' a certain probability of being the most natural continuation. However, as language modeling techniques have advanced, the $n$-gram model has largely been replaced by more sophisticated models, such as transformers\footnote{For more information on transformers, see \url{https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)}}.
 
 \begin{figure}[ht]
 	\centering
@@ -13,22 +13,16 @@ The $n$-gram language model analyzes a sequence of symbols by examining sets of 
 \subsection{Insights}
 As previously mentioned, the $n$-gram model predicts the next characters or words to be placed based on the preceding ones. For example, if the focus is on sequences of $n$ printable characters, the model is trained on a dataset of text files, empirically deriving the probabilities $\mathbb{P}\left[w_n|w_1,\dots,w_{n-1}\right]$, where $w_i$ represents the $i$-th character of the $n$-gram.
 
-\begin{toReview}
-	\noindent In this way, a machine can construct a sentence from a few characters: $w_1,\ldots,w_{n-1}$. The algorithm iteratively selects the most probable next character $w_{n}$ given the current window of $n-1$ characters, then updates the window to $w_2,\ldots,w_{n}$ to predict $w_{n+1}$, and so on. This step-by-step process resembles a Markov chain, where each state corresponds to the current sequence of characters, and transitions between states occur with probabilities derived from the dataset.
-\end{toReview}
+\noindent In this way, a machine can construct a sentence from a few characters: $w_1,\ldots,w_{n-1}$. The algorithm iteratively selects the most probable next character $w_{n}$ given the current window of $n-1$ characters, then updates the window to $w_2,\ldots,w_{n}$ to predict $w_{n+1}$, and so on. This step-by-step process resembles a Markov chain, where each state corresponds to the current sequence of characters, and transitions between states occur with probabilities derived from the dataset.
 
-\begin{modified}
 \noindent The model assumes that the next character  depends only by the last $n-1$ characters so:
 \begin{equation}
 	\mathbb{P}\left[w_{n+k}|w_k\dots w_{n+k-1}\right] = \mathbb{P}\left[w_{n+k}|w_{k+1}\dots w_{n+k-1}\right] \quad \forall k
 	\label{eq:ngram_model}
 \end{equation}
-\end{modified}
 From this assumption we derive the following property:
 \begin{proposition}
-	\begin{modified}
 		Let $w_1,\dots,w_{n-1},w_n\dots,w_{n+k}$ be a sequence of characters, where $n$ represents the size of the $n$-gram window used by the model. Specifically, the model assumes that the probability of the $n$-th character depends only on the preceding $n-1$ characters for all $n$-grams. We have that:
-	\end{modified}
 \begin{equation}
 	\mathbb{P}\left[w_n,\dots,w_{n+k}|w_1,\dots,w_{n-1}\right] = \prod_{i=0}^{k}\mathbb{P}\left[w_{n+i}|w_{i+1}\dots w_{n+i-1}\right]
 	\label{eq:ngram_model_prop}
@@ -59,14 +53,12 @@ where $f_A(x)$ represents the frequency of the $n$-gram $x$ in the work $A$ and 
 	\[
 		\frac{1}{|D_A|+|D_B|} = (1+J_{D_A,D_B})^{-1}\frac{1}{|D_A\cup D_B|}
 	\]
-	\begin{toReview}
-		\noindent where $J_{D_A,D_B} := \frac{\left|D_A\cap D_B\right|}{\left|D_A\cup D_B\right|}$.
+	\noindent where $J_{D_A,D_B} := \frac{\left|D_A\cap D_B\right|}{\left|D_A\cup D_B\right|}$.
 
-		\noindent In this way, we can see the comparison formula as a product between two types of index:
-		\[
-			d(A,B)=(1+J_{D_A, D_B})^{-1} \times \frac{1}{\left|D_A\cup D_B\right|}\sum_{x\in D_A\cup D_B}\left(\frac{f_A(x)-f_B(x)}{f_A(x)+f_B(x)}\right)^2
-		\]
-	\end{toReview}
+	\noindent In this way, we can see the comparison formula as a product between two types of index:
+	\[
+		d(A,B)=(1+J_{D_A, D_B})^{-1} \times \frac{1}{\left|D_A\cup D_B\right|}\sum_{x\in D_A\cup D_B}\left(\frac{f_A(x)-f_B(x)}{f_A(x)+f_B(x)}\right)^2
+	\]
 \end{itemize}
 
 \subsection{Implications}
@@ -74,12 +66,12 @@ We conclude this section by discussing the implications of this theory. As seen 
 
 \noindent In written texts, this rarely impacts the outcome, as there are relatively few synonyms for each term within the full vocabulary, and especially few long chains of synonyms. For example, it is unlikely that many synonyms for ‘\texttt{paper}’ begin with the string ‘\texttt{p}’ or ‘\texttt{pe}’.
 
-\noindent As noted in \cite{thesis}, the research deliberately set appropriate image \textit{resolution} and \textit{posterization} to avoid discussions about the similarity between tiles. By controlling these parameters, the focus remained on the attribution process rather than getting lost in complex considerations of tile ‘synonyms’ and their potential concatenations.
+\noindent As noted in \cite{thesis}, the research deliberately set appropriate image \textit{resolution} and \textit{posterisation} to avoid discussions about the similarity between tiles. By controlling these parameters, the focus remained on the attribution process rather than getting lost in complex considerations of tile ‘synonyms’ and their potential concatenations.
 
 \bigskip
-We further examine the properties of the comparison formula defined in  \cref{eq:SapAttribution_dist}, particularly focusing on the problem of sparsity in $n$-grams.
+\noindent We further examine the properties of the comparison formula defined in  \cref{eq:SapAttribution_dist}, particularly focusing on the problem of sparsity in $n$-grams.
 
-\noindent Let $N$ represent the samples drawn from two absolutely continuous distributions $\mathcal{A}$ and $\mathcal{B}$ defined on $\mathbb{R}$. We partition $\mathbb{R}$ into intervals (boxes) of amplitude $1 \; / \; C$, thus transforming the original distributions into their discretized versions, $\mathcal{A}(C)$ and $\mathcal{B}(C)$, along with their respective samples.
+\noindent Let $N$ represent the samples drawn from two absolutely continuous distributions $\mathcal{A}$ and $\mathcal{B}$ defined on $\mathbb{R}$. We partition $\mathbb{R}$ into intervals (boxes) of amplitude $1 \; / \; C$, thus transforming the original distributions into their discretised versions, $\mathcal{A}(C)$ and $\mathcal{B}(C)$, along with their respective samples.
 
 \begin{figure}[ht]
 	\centering
@@ -90,7 +82,7 @@ We further examine the properties of the comparison formula defined in  \cref{eq
 	\end{subfigure}
 \end{figure}
 
-\noindent Now, let’s consider \cref{eq:SapAttribution_dist} and analyze the behavior of the estimated distance as the number of data points and the size of the boxes vary. By fixing the number of data points and decreasing the size of the boxes, the estimated distance gradually approaches $1$. This phenomenon occurs because there exists a critical dimension for $1 \;/ \; C$, such that with a sufficiently high probability, each sample becomes isolated within its own box. Consequently, this drives $J_{D_A,D_B}$ toward $0$, making each term in the summation equal to $1$.
+\noindent Now, let’s consider \cref{eq:SapAttribution_dist} and analyse the behavior of the estimated distance as the number of data points and the size of the boxes vary. By fixing the number of data points and decreasing the size of the boxes, the estimated distance gradually approaches $1$. This phenomenon occurs because there exists a critical dimension for $1 \;/ \; C$, such that with a sufficiently high probability, each sample becomes isolated within its own box. Consequently, this drives $J_{D_A,D_B}$ toward $0$, making each term in the summation equal to $1$.
 
 \bigskip
-In \cite{thesis}, the continuous nature of the $n$-tiles was addressed by discretizing the continuous space in which they were defined, fixing a resolution and applying posterization.\begin{toReview} Posterization is a process that reduces the number of discrete levels of color or intensity in an image, effectively mapping a continuous range of values into a smaller set of intervals. For example, in a color image, subtle variations in shades of red might all be grouped into a single pure red, removing the nuance of intermediate shades. \end{toReview} However, this approach results in a significant loss of information. Therefore, this paper will explore a method to achieve a cleaner and more dynamic discretization.
+\noindent In \cite{thesis}, the continuous nature of the $n$-tiles was addressed by discretising the continuous space in which they were defined, fixing a resolution and applying posterisation. Posterisation is a process that reduces the number of discrete levels of color or intensity in an image, effectively mapping a continuous range of values into a smaller set of intervals. For example, in a color image, subtle variations in shades of red might all be grouped into a single pure red, removing the nuance of intermediate shades. However, this approach results in a significant loss of information. Therefore, this paper will explore a method to achieve a cleaner and more dynamic discretisation.

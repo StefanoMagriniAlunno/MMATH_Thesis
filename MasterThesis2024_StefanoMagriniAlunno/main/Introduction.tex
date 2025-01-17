@@ -30,7 +30,7 @@
 			\item \textbf{High dimensionality and computational cost}: Graphic works are represented as high-dimensional data, especially when detailed features or pixel-level analysis are involved. This increases computational costs and limits the feasibility of large-scale comparisons.
 			\item \textbf{Limited robustness of clustering techniques}: Traditional clustering methods, such as hard \gls{kmeans}, struggle with noisy and overlapping data distributions, leading to suboptimal results in many real-world scenarios.
 			\item \textbf{Lack of standardised datasets}: The lack of well-curated and representative datasets for testing and validating comparative methods makes it difficult to benchmark algorithms and ensure their generalisability.
-			\item \textbf{Subjective Preprocessing Steps}: Many preprocessing techniques depend on manual adjustments or heuristics, which can introduce bias and limit the reproducibility of the analysis.
+			\item \textbf{Subjective pre-Processing Steps}: Many pre-processing techniques depend on manual adjustments or heuristics, which can introduce bias and limit the reproducibility of the analysis.
 		\end{itemize}
 
 		\noindent These issues highlight the need for advanced methods that can adapt to noise, handle different data representations, and provide reliable results in a range of scenarios. This thesis directly addresses these challenges by refining preprocessing techniques, introducing fuzzy clustering for improved robustness, and exploring scalable solutions for high-dimensional data.
@@ -59,7 +59,7 @@
 		\begin{enumerate}
 			\item \textbf{Represent the work as a surface in colour space}: Although interesting, this proposal presented significant difficulties in defining an effective way of comparing two works.
 			\item \textbf{Using the Wasserstein distance to compare distributions}: This method proved to be extremely computationally expensive and inefficient, as it did not give sufficient weight to the details of the work, an important element in attribution.
-			\item \textbf{Discretizing the union of distributions by clustering}: This approach finally showed the greatest potential and formed the basis for the development of this thesis.
+			\item \textbf{Discretising the union of distributions by clustering}: This approach finally showed the greatest potential and formed the basis for the development of this thesis.
 		\end{enumerate}
 
 		\noindent The central question around which this thesis revolves is: is it possible to attribute graphical works using a dynamic discretisation of space? In other words, the comparison function defined in \cite{SapAttribution} is seen as an approximate integral over boxes. In fact, by using a matrix with black and white pixels, we have divided the space into boxes of equal size. This method, already used in \cite{thesis}, allows an efficient approximation when the number of boxes is not too large compared to the sparsity of the $n$-grams.

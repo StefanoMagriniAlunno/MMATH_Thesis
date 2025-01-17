@@ -40,16 +40,15 @@
 
 	\noindent These strategies for developing high-performance code are common in scientific computing libraries, which often have a main calling function with hidden compiled functions. An example is CuPy, a \gls{Python} library that requires compilation as part of its installation process.
 
-	\section{Pre processing}
-	Preprocessing is a critical stage in the comparison of unknown works with the dataset. Its primary objective is to ensure that the quality specifications of the images meet certain standards. These specifications are often subjective, and it is not guaranteed that the same algorithm will be applied to each image. The ultimate goal is to remove clearly contaminating data, standardise the image quality and prepare it for analysis by the software. Essentially, pre-processing transforms the real data into an ideal format that is theoretically acceptable to the software.
+	\section{pre-Processing}
+	pre-Processing is a critical stage in the comparison of unknown works with the dataset. Its primary objective is to ensure that the quality specifications of the images meet certain standards. These specifications are often subjective, and it is not guaranteed that the same algorithm will be applied to each image. The ultimate goal is to remove clearly contaminating data, standardise the image quality and prepare it for analysis by the software. Essentially, pre-processing transforms the real data into an ideal format that is theoretically acceptable to the software.
 
-	\noindent As previously illustrated in \cref{alg:CleaningFFT}, the preprocessing applied to the collected data primarily involves compression using the \gls{fft}. This section presents a step-by-step analysis of the results produced by the algorithm.
-
+	\noindent As previously illustrated in \cref{alg:CleaningFFT}, the pre-processing applied to the collected data primarily involves compression using the \gls{fft}. This section presents a step-by-step analysis of the results produced by the algorithm.
     \paragraph{FFT}
-    The first step of the preprocessing algorithm is to apply \gls{fft} to the normalised image, where pixel values have a mean of $0$ and a variance of $1$. As noted in the summary images, the grid patterns in the background of the notebook pages are recurring features that are not typical of writing. These recurring patterns are more apparent when Fourier transforms are used.
+    The first step of the pre-processing algorithm is to apply \gls{fft} to the normalised image, where pixel values have a mean of $0$ and a variance of $1$. As noted in the summary images, the grid patterns in the background of the notebook pages are recurring features that are not typical of writing. These recurring patterns are more apparent when Fourier transforms are used.
 
     \noindent In \cref{fig:fft_application} the grid pattern is visible as high-intensity frequencies almost aligned along the sides.
-
+\newpage
     \begin{figure}[H]
     	\centering \includegraphics[width=1.0\linewidth]{Figures/fft_application.png}\caption[FFT application in pre-processing]{Significant frequencies along the edges of the second image reveal the grid pattern.}\label{fig:fft_application}
     \end{figure}
@@ -130,7 +129,7 @@ for (unsigned col = 0; col < width_short; ++col)
     \noindent Multi-threading techniques are primarily used to optimise the execution time of small, parallelizable tasks. It is unusual to apply such techniques at a high level, such as analysing two images simultaneously. While starting multiple high-level processes can reduce overall startup times, it also increases memory requirements. The suitability of this method depends largely on the specific problem being solved.
 
     \noindent Since each image is transformed into a set of tiles, it is obvious that this can significantly increase memory usage. The number of elements in the \texttt{cells} array is given by:\\ $(w-n+1)(h-n+1)n^2$, where $w$ and $h$ are the dimensions of the original image and $n$ is the size of the tiles. As a result, managing multiple high-level threads becomes challenging due to the significant memory requirements.
-
+	\newpage
     \subsection{A Simple Analysis} Since syntheses are represented as sets of high-dimensional points, visualising them can be challenging. To address this, we propose a "coarse" visualisation technique that reduces the dimensionality from $\mathbb{R}^{16}$ (for $4\times4$ tiles) to $\mathbb{R}^6$. This reduction is achieved using \gls{pca}, and only a subsample of $\num{5000}$ tiles is visualised. It is important to note that this approach introduces a significant loss of both dimensionality and data quantity, so the proposed plots are purely illustrative.
 
     \noindent As shown in \cref{fig:synth_glbvisual}, there is a region where the tiles are densely clustered. The most reasonable hypothesis is that the background of the images produces many bright tiles that form a dense cluster. To confirm this hypothesis, these points are highlighted and linked to their original tiles.
@@ -139,7 +138,7 @@ for (unsigned col = 0; col < width_short; ++col)
     	\caption[Global visualisation of a synthesis using PCA]{The figure shows a scatterplot of a sample of tiles extracted from an image. Six dimensions are represented using colours. As can be seen, the background tiles are mostly concentrated around $0$, while the handwriting tiles are more scattered.}
     	\label{fig:synth_glbvisual}
     \end{figure}
-
+	\newpage
     \section{Comparison} The comparison between distributions defines the dissimilarity between works. Given the computational cost of this process, it is important to analyse the trade-off between the quality of the result and the time required, as well as the parameters chosen. Specifically, the following strategies are considered:
     \begin{itemize}
     	\item Reducing the number of iterations used to calculate the centroid in \gls{fcm}.
@@ -154,9 +153,9 @@ for (unsigned col = 0; col < width_short; ++col)
 
 	\noindent The theoretical update formulae are as follows
 	\begin{align*}
-		C_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2w_ix_i}{\sum_{i=1}^N u_{ij}^2w_i}, \\
+		c_{j}^\text{new} &= \frac{\sum_{i=1}^N u_{ij}^2w_ix_i}{\sum_{i=1}^N u_{ij}^2w_i}, \\
 		u_{ij} &= \frac{1}{\sum_k\frac{d_{ij}^2}{d_{ik}^2}}, \\
-		d_{ij} &= \left\|x_i - C_{j}\right\|
+		d_{ij} &= \left\|x_i - c_{j}\right\|
 	\end{align*}
 
 	\noindent A single iteration step can be further subdivided into steps across batches, indexed here by $B$:
@@ -165,39 +164,39 @@ for (unsigned col = 0; col < width_short; ++col)
 	\end{equation*}
 
 	\noindent Consequently, the communication between the host (the programme flow executed by the \gls{cpu}) and the device (the programme flow executed by the \gls{gpu}) can be simplified as follows:
-
+	\newpage
 	\begin{algorithm}[H]
 		\caption{Host/Device communication\\
 			\textsc{INPUT}\\
 			$\bullet$ $\mathcal{X}$: set of data $x_1,\ldots,x_N\in\mathbb{R}^K$ and weights $w_1,\ldots,w_N$\\
-			$\bullet$ $\mathcal{C}$: centroids $C_1,\cdots,C_M$\\
+			$\bullet$ $\mathcal{C}$: centroids $c_1,\cdots,c_M$\\
 			$\bullet$ stop: stop criteria of the clustering (a positive value)
 		}
 		\begin{algorithmic}[1]
 			\Function{FCMwrapper}{$\mathcal{C}$, $\mathcal{X}$, $\text{stop}$}
-				\State $c^\text{num} \gets $ array with $M$ vectors in $\mathbb{R}^K$ into the Device
-				\State $c^\text{den} \gets $ array with $M$ real values into the Device
+				\State $v^\text{num} \gets $ array with $M$ vectors in $\mathbb{R}^K$ into the Device
+				\State $v^\text{den} \gets $ array with $M$ real values into the Device
 				\State $\mathcal{C}'$ a copy of centroids $\mathcal{C}$ into the Device
 				\State $s \gets \infty$
 				\State $L \gets \infty$
 				\While{$s > \text{stop}$}
 					\State Compute batch size
-					\State $c^\text{num}\gets \vec{0}$
-					\State $c^\text{den}\gets \vec{0}$
+					\State $v^\text{num}\gets \vec{0}$
+					\State $v^\text{den}\gets \vec{0}$
 					\State $L_\text{new} \gets 0$ \Comment Current value of loss function, see \cref{def:fuzzyloss}
 					\For{each $B$ batch}
 						\State move $B$ into the Device
 						\State Call the data points of $B$ as $x$
 						\State Call the weights of $B$ as $w$
 						\State Compute $U^2, D^2$ between $B$ and $\mathcal{C}'$ \Comment calling \cref{alg:MembershipUpdateSafe}
-						\State $L_\text{batch} \gets \sum_{x\in B}\sum_{C\in\mathcal{C'}}u_{ij}^2d_{ij}^2$
-						\State $c^\text{num}_\text{batch} \gets \sum_{i\in B} u_{ij}^2w_ix_i$
-						\State $c^\text{den}_\text{batch} \gets \sum_{i\in B} u_{ij}^2w_i$
-						\State $c^\text{num} \gets c^\text{num} + c^\text{num}_\text{batch}$
-						\State $c^\text{den} \gets c^\text{den} + c^\text{den}_\text{batch}$
+						\State $L_\text{batch} \gets \sum_{i,j}u_{ij}^2d_{ij}^2$
+						\State $v^\text{num}_\text{batch} \gets \sum_{i} u_{ij}^2w_ix_i\quad\forall j$
+						\State $v^\text{den}_\text{batch} \gets \sum_{i} u_{ij}^2w_i\quad\forall j$
+						\State $v^\text{num} \gets v^\text{num} + v^\text{num}_\text{batch}$
+						\State $v^\text{den} \gets v^\text{den} + v^\text{den}_\text{batch}$
 						\State $L_\text{new} \gets L_\text{new} + L_\text{batch}$
 					\EndFor
-					\State $C'_j \gets \frac{c^\text{num}_j}{ c^\text{den}_j} \quad \forall j$
+					\State $C'_j \gets \frac{v^\text{num}_j}{ v^\text{den}_j} \quad \forall j$
 					\State $s \gets L - L_\text{new}$
 					\State $L \gets L_\text{new}$
 				\EndWhile
@@ -219,7 +218,7 @@ for (unsigned col = 0; col < width_short; ++col)
 		\item The matrix $D^2$ can be computed with cost $O\left(\log K\right)$.
 		\item In the loop, each cycle is independent of the others and can be executed in parallel. The cost of a single loop will be:
 		\begin{enumerate}
-			\item $O\left(\log M\right)$ to calculate $l = \min_k{D_{ik}^2}$,
+			\item $O\left(\log M\right)$ to calculate $l = \min_k{d_{ik}^2}$,
 			\item $O\left(1\right)$ to initialize $U^2$, due to parallelism,
 			\item $O\left(\log M\right)$ to initialize $S_i$, \item $O\left(1\right)$ to complete the calculation of $U^2$ by parallelism.
 		\end{enumerate}
@@ -229,7 +228,7 @@ for (unsigned col = 0; col < width_short; ++col)
 	\begin{enumerate}
 		\item The matrix $D^2$ can be computed with cost $O(|B|MK\frac{\log\gls{thread}}{\gls{thread}\times\gls{core}})$.
 		\item In the loop, each loop is independent and can be parallelized on \gls{core} processes. The cost of a single loop executed by a single \gls{core} will be: \begin{enumerate}
-			\item $O\left(M\frac{\log{\gls{thread}}}{\gls{thread}}\right)$ to compute $l = \min_k{D_{ik}^2}$,
+			\item $O\left(M\frac{\log{\gls{thread}}}{\gls{thread}}\right)$ to compute $l = \min_k{d_{ik}^2}$,
 			\item $O\left(\frac{M}{\gls{thread}}\right)$ to initialize $U^2$, treating the \gls{thread}s as independent processes,
 			\item $O\left(M\frac{\log\gls{thread}}{\gls{thread}}\right)$ to initialize $S_i$,
 			\item $O\left(\frac{M}{\gls{thread}}\right)$ to complete the calculation of $U^2$.
@@ -271,7 +270,7 @@ for (unsigned col = 0; col < width_short; ++col)
 			RTX $4090$ & $128$ & $128$ & $2235 \mathrm{MHz}$ & $0.04$ \\
 			\hline
 		\end{tabular}
-			\caption[Comparing GPUs' performances]{The values in the last column are the proportions of the operation $\frac{\log_2 \text{\gls{thread}}}{\text{\gls{thread}}\times\text{\gls{core}}} / \text{Frequency}$ for each \gls{gpu} respecting the current \gls{gpu}.}
+			\caption[Comparing GPUs' performances]{The values in the last column are the proportions of the operation $\frac{\log_2 \text{\gls{thread}}}{\text{\gls{thread}}\times\text{\gls{core}}} / \text{Frequency}$ for each \gls{gpu} respecting the \gls{gpu} used for these results.}
 		\label{tab:gpucomparison}
 	\end{table}
 
@@ -323,7 +322,7 @@ for (unsigned col = 0; col < width_short; ++col)
 	\paragraph{Number of centroids} The number of centroids can be analysed using the Jaccard index calculated for the comparison values. A study of tens of thousands of comparisons showed that the cardinality $\left|D_\mathcal{A}\cup D_\mathcal{B}\right|$ rarely exceeded $64$ and never exceeded $128$. This suggests that the clustering used as the basis for the distance calculation does not fully utilise all centroids. Instead, it is likely to be based on fewer than $32$ centroids, or only partially using the centroids that are available.
 
 	\noindent In \cref{tab:distCentroids} we show how the calculated result between works changes when the number of centroids is varied from $64$ to $512$. The results show that it is not necessary to use $512$ centroids; $64$ or $128$ centroids suffice and produce results that are not significantly different from those obtained with $512$ centroids. In particular, $128$ centroids seem to provide an acceptable balance between accuracy and computational efficiency.
-
+	\newpage
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
@@ -331,22 +330,22 @@ for (unsigned col = 0; col < width_short; ++col)
 			\rowcolor{lavender}
 			number of centroids & $64$ & $128$ & $256$ & $512$ \\
 			\hline
-			$|D_A \cup D_B|$ & $9.2$ & $10.9$ & $12.2$ & $19.0$ \\
+			$|D_\mathcal{A} \cup D_\mathcal{B}|$ & $9.2$ & $10.9$ & $12.2$ & $19.0$ \\
 			\hline
 			comparison value & $0.00228$ & $0.00241$ & $0.00237$ & $0.00222$ \\
 			\hline
 			\hline
-			$|D_A \cup D_B|$ & $12.5$ & $14.0$ & $15.4$ & $17.0$ \\
+			$|D_\mathcal{A} \cup D_\mathcal{B}|$ & $12.5$ & $14.0$ & $15.4$ & $17.0$ \\
 			\hline
 			comparison value & $0.01175$ & $0.01208$ & $0.01219$ & $0.01230$ \\
 			\hline
 			\hline
-			$|D_A \cup D_B|$ & $6.5$ & $6.9$ & $10.2$ & $12.1$ \\
+			$|D_\mathcal{A} \cup D_\mathcal{B}|$ & $6.5$ & $6.9$ & $10.2$ & $12.1$ \\
 			\hline
 			comparison value & $0.01531$ & $0.01539$ & $0.01436$ & $0.01482$ \\
 			\hline
 			\hline
-			$|D_A \cup D_B|$ & $15.3$ & $17.7$ & $22.2$ & $30.0$ \\
+			$|D_\mathcal{A} \cup D_\mathcal{B}|$ & $15.3$ & $17.7$ & $22.2$ & $30.0$ \\
 			\hline
 			comparison value & $0.01351$ & $0.01347$ & $0.01351$ & $0.01356$ \\
 			\hline
@@ -354,7 +353,7 @@ for (unsigned col = 0; col < width_short; ++col)
 			\rowcolor{lavender}
 			number of centroids & $64$ & $96$ & $128$ & $512$ \\
 			\hline
-			$|D_A \cup D_B|$ & $15.8$ & $17.0$ & $19.0$ & $27.5$ \\
+			$|D_\mathcal{A} \cup D_\mathcal{B}|$ & $15.8$ & $17.0$ & $19.0$ & $27.5$ \\
 			\hline
 			comparison value & $0.01003$ & $0.00986$ & $0.01022$ & $0.01019$ \\
 			\hline
@@ -368,7 +367,7 @@ for (unsigned col = 0; col < width_short; ++col)
 	\noindent Another key consideration is the \textbf{plateau effect}. Essentially, reducing the dimensionality without adjusting the number of centroids or data points can lead to an increased number of iterations before the stopping criterion is met. In other words, the clustering algorithm struggles to determine the optimal position of the centroids. Paradoxically, in the computational cost $O(INMK)$, even though $K$ decreases, $I$ increases, sometimes worsening the overall computational cost.
 
 	\noindent In \cref{tab:distDimensions} we compare the results obtained using $3\times3$ tiles extracted from images at $200$ \gls{ppi} with those obtained using $6\times6$ tiles extracted from images at $400$ \gls{ppi}, where the dimensionality of the tiles has been reduced from $\mathbb{R}^{36}$ to $\mathbb{R}^9$ using \gls{pca}.
-
+	\newpage
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{|c|c||c|c|}
@@ -398,12 +397,12 @@ for (unsigned col = 0; col < width_short; ++col)
 
 	\noindent It was also observed that using \gls{pca} allows the dimensionality of $6\times6$ tiles to be reduced to $10$, enabling the use of $1024$ initial clusters for \gls{fcm}. Repeating the stability and optimal centroid detection analyses for dimensionality reduction from $36$ to $10$, it was found that $128$ clusters are sufficient.
 
-	\subsection{pre-Test}
+	\subsection{Pretests}
 	Based on the previous analysis, comparisons between works can be performed using $128$ clusters and \gls{pca} to reduce the dimensionality from $36$ to $10$. However, before performing large-scale comparisons across all possible pairs of works, it is prudent to first evaluate these hyperparameters in terms of stability and attribution quality on smaller samples. This preliminary examination will also ensure that the stopping criterion remains consistent.
 
 	\paragraph{Test 1}
 	The first test involves recalculating the stopping criterion, as the reduction in dimensionality and the number of centroids may allow for fewer iterations to achieve convergence.
-
+	\newpage
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{|c|c|c|c|}
@@ -459,7 +458,7 @@ for (unsigned col = 0; col < width_short; ++col)
 		\caption[Confusion matrix, pretest for $3\times3$ tiles]{This table shows the confusion matrix of attributions using $3\times3$ tiles.  Each row represents the known author of the work, while each column indicates the attributed author. In this test, only $\num{13169}$ comparisons were performed and only the works with at least $40$ computed comparisons are shown. It can be observed that the dominant author (first author, with $270$ works) has a relatively low number of false positives ($23\%$) and false negatives ($12\%$).}
 	\end{table}
 
-
+	\newpage
 	\begin{table}[H]
 		\centering \begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}
 			\hline
@@ -496,7 +495,7 @@ for (unsigned col = 0; col < width_short; ++col)
 
 	\noindent In addition, to reduce the computational time, a sampling method was applied to each set of tiles for each comparison, accepting a potential increase in imprecision. Specifically, half of the available tiles were randomly selected for each comparison. The aim of this method is to see if the analysis can produce qualitatively similar results while reducing the computational time by half (or even more, as it may also reduce the number of iterations required).
 
-	\noindent Come si può notare in tabella \cref{tab:350Results} sono stati eseguiti il $30\%$ di tutti i possibili confronti. Il tempo richiesto per un simile calcolo è stato di $10$ giorni di computazione senza interruzioni. Si può notare che la qualità dei risultati non è molto dissimile da quelli ottenuti per immagini con $200$\gls{ppi}. Questo suggerisce che una rimozione non casuale ma intelligente delle tessere è necessaria per ridurre il numero di tessere senza perdere accuratezza.
+	\noindent As can be seen in the table \cref{tab:30Results}, $30\%$ of all possible comparisons were performed. The time required for such a calculation was $10$ computation days without interruptions. It can be seen that the quality of the results is not very dissimilar to those obtained for images with $200$\gls{ppi}. This suggests that a non-random but intelligent removal of tiles is necessary to reduce the number of tiles without losing accuracy.
 
 	\begin{table}[H]
 		\centering \begin{tabular}{|>{\columncolor{pink}}c|c|c|c|c|}

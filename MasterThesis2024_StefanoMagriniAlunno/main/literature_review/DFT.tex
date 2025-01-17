@@ -1,10 +1,7 @@
-\section{\gls{dft}}
+\section{Discrete Fourier Transform}
 \begin{modified}
 The \gls{dft} is a powerful tool for analyzing signals in the frequency domain, often used in applications such as signal processing, image analysis, and data compression. Its ability to transform spatial or temporal data into frequency components makes it particularly effective for isolating patterns or removing noise. In this thesis, the \gls{dft} will be used to compress and clean images during the pre-processing phase, which will be discussed in detail in \cref{chap:methodology}.
 \end{modified}
-\begin{note}
-	Nell'introduzione della tesi sarà già accennato cosa è il pre-process a grandi linee. Poi in methodology sarà descritto meglio
-\end{note}
 
 \noindent This procedure, known as spectral analysis, makes it possible to study signals, waves, vibrations, sounds and images. In addition to these areas, DFT also has major scientific applications, such as the precise estimation of sunspot cycles, helping to predict and control phenomena such as geomagnetic storms\footnote{For more about geomagnetic storms and them correlation with sunspot, see \url{https://en.wikipedia.org/wiki/Geomagnetic_storm}}.
 
@@ -228,7 +225,6 @@ The possibility of calculating Fourier coefficients directly by means of a simpl
 	\label{alg:fft}
 \end{algorithm}
 
-\begin{modified}
 \paragraph{Periodogram} The periodogram is a practical tool that graphically represents the amplitude of the different frequencies composing a time series, providing insight into the frequency spectrum of the signal. By visualising the power associated with each frequency, it highlights the dominant components of the spectrum, making it particularly useful for distinguishing between noise and significant frequencies. This connects directly to the theory of the \gls{dft}, as the periodogram is derived from the squared modulus of the Fourier coefficients, representing the signal's energy distribution across frequencies.
 
 \noindent To illustrate this, we apply the \gls{dft} to the \texttt{sunspots} dataset from the \gls{r} package, which contains the number of sunspots observed each month from $1749$ to $1984$. Sunspots are known to correlate with the Sun's magnetic activity, which is believed to exhibit periodic cycles. Using the periodogram, we aim to identify these cycles, particularly the dominant periodic components in the data, and evaluate their significance compared to noise.
@@ -237,14 +233,7 @@ The possibility of calculating Fourier coefficients directly by means of a simpl
 	\includegraphics[width=\textwidth]{Figures/sunspots.png}
 	\caption[Periodogram of sunspots]{On the left, the time series of the number of sunspots recorded each month from $1749$ to $1984$ (\(N = 2820\)). This representation shows the variation of sunspots over time, highlighting any cycles. On the right, the periodogram obtained by applying the \gls{dft} to the time series. Each point represents the squared modulus of a Fourier coefficient, which measures the energy associated with a given frequency. We can see a peak at frequency $0$, corresponding to the sum of the values of the time series (\(X_0 = \sum_{n=0}^{N-1} x_n\)).}
 \end{figure}
-\end{modified}
 
 \noindent Looking at the periodogram obtained with \gls{fft}, we observe that some frequencies are much more pronounced than others. In particular, the frequency $\approx 0.0075\operatorname{\mathrm{Hz}}$ (corresponding to about a cycle of $135$ months) indicates a cycle of about $11$ years, which confirms what is already known about the cyclic nature of solar activity.
 
 \noindent This example demonstrates how the DFT is a powerful tool for detecting and analysing periodic patterns in observational data. The use of the periodogram not only makes it possible to identify the main frequencies, but also to evaluate their relative importance respect to the background noise.
-
-\begin{note}
-	"Di qual è lo scopo della tesi mi sembra che tu non abbia parlato. Immagino ci sarà nell'introduzione? Ma in ogni caso, in apertura di questo capitolo dovresti anticipare di cosa si parlerà e perché"
-
-	\bigskip \noindent Sì ci sarà nell'introduzione della tesi e ho messo un accenno al suo ruolo nell'introduzione della sezione DFT in queste correzioni
-\end{note}

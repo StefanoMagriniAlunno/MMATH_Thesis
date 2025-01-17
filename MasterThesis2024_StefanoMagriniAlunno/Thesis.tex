@@ -69,14 +69,14 @@
 \authoremail{stefanomagrini99@gmail.com}
 \copyyear{2024}
 \thesistype{Master thesis}
-\examdate{00/00/00}
-\examiner{Prof. uno}  % presidente
-\examiner{Prof. due}
-\examiner{Prof. tre}
-\examiner{Prof. ...}
-\examiner{Prof. ...}
-\examiner{Prof. ...}
-\examiner{Prof. ...}
+\examdate{22/01/2025}
+\examiner{Prof. Riccardo Salvati Manni}  % presidente
+\examiner{Prof. Simone Cacace} % Segretario
+\examiner{Prof. Annalisa Cusi}
+\examiner{Prof. Alessandro Gambini}
+\examiner{Prof. Flavia Lanzara}
+\examiner{Prof. Gianluca Panati}
+\examiner{Prof. Vito Felice Zenobi}
 \versiondate{\today}
 
 %preparazione
@@ -116,8 +116,8 @@
 
 \newif\ifrelease
 % Imposta la variabile release a true o false
-% \releasetrue  % Uncomment per modalità release
- \releasefalse % Uncomment per modalità con note
+ \releasetrue  % Uncomment per modalità release
+% \releasefalse % Uncomment per modalità con note
 
 \ifrelease
 % Modalità release: definisce gli ambienti personalizzati come vuoti
@@ -264,9 +264,8 @@
     main/Introduction,
     main/LiteratureReview,
     main/Methodology,
-    main/Discussion,
-    main/Conclusion,
     main/Results,
+    main/ConclusionDiscussion,
     main/Appendix
 }
 
@@ -296,8 +295,7 @@
 \include{main/LiteratureReview}  % Revisione della bibliografia
 \include{main/Methodology}  % Corpo vero della tesi in cui si mostra cosa si è fatto
 \include{main/Results}  % Risultati (analisi dei risultati ottenuti in merito la tesi)
-\include{main/Discussion}  % Discussione (confronto tra i risultati e la teoria)
-%\include{main/Conclusion}  % Conclusioni (riepilogo e prospettive future)
+\include{main/ConclusionDiscussion}  % Discussione (confronto tra i risultati e la teoria)
 \appendix
 \include{main/Appendix}  % Appendici
 
@@ -311,7 +309,8 @@
 \bibliography{bibliography}
 \phantomsection
 \addcontentsline{toc}{chapter}{\bibname}
+
 \newpage
-%\include{Acknowledgments}
+\include{acknowledgments}
 
 \end{document}

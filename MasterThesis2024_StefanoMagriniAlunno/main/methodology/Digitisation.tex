@@ -1,5 +1,6 @@
-\section{Pre processing}
-\begin{figure}[ht]
+\newpage
+\section{pre-Processing}
+\begin{figure}[H]
     \centering
     \begin{subfigure}{0.4\linewidth}
         \includegraphics[width=\linewidth]{Figures/example_square.png}
@@ -65,20 +66,20 @@ The quantisation of colours is expressed in $3$ channels \gls{rgb}, each with an
     One of the main challenges in processing and collecting the dataset concerns the cleanliness of the images, which can have significant impurities, such as the presence of squares on the sheets. It is essential to remove or mitigate these elements so that they blend in with the background and do not interfere with the analysis. Initially, the use of static techniques such as thresholding or the application of specific kernels to recognise the squares was considered. However, such techniques risked compromising the author's writing by erasing details. For this reason, it was decided to use compression techniques to detect patterns, since squares constitute a highly visible pattern that is more easily distinguishable by the machine than human handwriting.
 
     \paragraph{\gls{svd}}
-    A first test involved examining the predominant patterns by means of a decomposition \gls{svd}. The image can be viewed as a matrix $H \times W$ of real values and can be decomposed into the product:
+    A first test involved examining the predominant patterns by means of a decomposition \gls{svd}. The image can be viewed as a matrix $H \times W$ of real values and can be decomposed into the product:\\
     \[
     	U\Sigma V^H = M
     \]
-    where $M$ represents the image, $U$ and $V$ are unitary matrices ($UU^H = I$, same for $V$), $V^H$ is the Hermitian of $V$, and $\Sigma$ is a matrix $H \times W$ with only non-negative values along the diagonal, called singular values.\
-    It is possible to obtain a less detailed version of $M$ by cancelling some singular values of $\Sigma$, thus ignoring the contribution of certain patterns. It was observed that the predominant pattern (associated with the largest singular value) concerns squares, but its removal does not completely solve the problem, requiring the elimination of further patterns. The result obtained is encouraging, but entails a loss of information from human handwriting, as it too is present among the major patterns identified.
+    \noindent where $M$ represents the image, $U$ and $V$ are unitary matrices ($UU^H = I$, same for $V$), $V^H$ is the Hermitian of $V$, and $\Sigma$ is a matrix $H \times W$ with only non-negative values along the diagonal, called singular values.
 
-    \begin{toReview}
+    \noindent It is possible to obtain a less detailed version of $M$ by cancelling some singular values of $\Sigma$, thus ignoring the contribution of certain patterns. It was observed that the predominant pattern (associated with the largest singular value) concerns squares, but its removal does not completely solve the problem, requiring the elimination of further patterns. The result obtained is encouraging, but entails a loss of information from human handwriting, as it too is present among the major patterns identified.
+
     \noindent This issue arises from the nature of the \gls{svd} decomposition. Since the method considers the image as a linear transformation, removing the dominant component is equivalent to removing the strongest eigenvector of the transformation. However, $M$ is not inherently a linear transformation, and even small isometric transformations of the image (e.g. rotations) can affect the result.
 
     \noindent An example is shown in \cref{fig:svd_counterexample} to illustrate this issue. The first row shows an ideal scan with perfectly vertical and horizontal lines. The second row shows the effect of a $1\degree$ rotation, where the grid remains visible despite the application of \gls{svd} compression. Finally, the third row shows stronger compression, highlighting that the grid remains while the handwriting fades.
 
+	\newpage
     \begin{figure}[H] \centering \begin{subfigure}[t]{0.4\linewidth} \includegraphics[width=\linewidth]{Figures/fraseGauss.png} \end{subfigure} \hspace{2cm} \begin{subfigure}[t]{0.4\linewidth} \includegraphics[width=\linewidth]{Figures/fraseGauss_compression.png} \end{subfigure} \par\vspace{1cm} \begin{subfigure}[t]{0.4\linewidth} \includegraphics[width=\linewidth]{Figures/fraseGauss_rotated.png} \end{subfigure} \hspace{2cm} \begin{subfigure}[t]{0.4\linewidth} \includegraphics[width=\linewidth]{Figures/fraseGauss_rotated_compression.png} \end{subfigure} \par\vspace{1cm} \begin{subfigure}[t]{0.4\linewidth} \includegraphics[width=\linewidth]{Figures/fraseGauss_compression20.png} \end{subfigure} \hspace{2cm} \begin{subfigure}[t]{0.4\linewidth} \includegraphics[width=\linewidth]{Figures/fraseGauss_compression20.png} \end{subfigure} \label{fig:svd_counterexample}\caption[Issues of SVD compression]{The first row shows an ideal scan with perfectly vertical and horizontal lines. The second row illustrates an imperfect scan with a $1\degree$ rotation, where the grid remains visible. The third row shows stronger compression, where the grid persists, but the handwriting fades.} \end{figure}
-\end{toReview}
 
 \paragraph{\gls{fft}}
     An alternative idea is to perform a harmonic analysis of the images using \gls{fft}. The squares are repeated with a specific frequency along the two dimensions of the sheet and thus one can exploit their regular nature compared to human handwriting, which is less repetitive. Thus, one exploits both the difference between the regular patterns of the squares and the irregular strokes of the handwriting, as well as a greater capacity for compression than a simple pixel-by-pixel analysis.

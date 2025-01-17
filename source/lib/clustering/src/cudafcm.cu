@@ -351,6 +351,8 @@ update_centroids (const float *const d_data, float *const d_matrix,
  * n_dimensions + k] for k = 0, ..., n_dimensions - 1
  * @param[out] d_matrix : matrix of distances stored as d_matrix[i *
  * n_centroids + j] for j = 0, ..., n_centroids - 1
+ * @param[out] d_energies : energies of data points stored as
+ * d_energies[i] for i = 0, ..., n_data - 1
  * @param n_data : number of data points
  * @param n_dimensions : dimensions of data points
  * @param n_centroids : number of centroids
